@@ -33,15 +33,13 @@ export default function SubmitPlace() {
       return
     }
 
-    if (!form.lat || !form.lng) {
-      setError('Coordinates are required. Use Google Maps to find lat/lng.')
-      return
-    }
-
     setSubmitting(true)
 
-    // Build PostGIS-compatible geography point (WGS84)
-    const coordinates = `SRID=4326;POINT(${form.lng} ${form.lat})`
+    // Coordinates are optional. If omitted, place can still be submitted.
+    const hasCoordinates = form.lat !== '' && form.lng !== ''
+    const coordinates = hasCoordinates
+      ? `SRID=4326;POINT(${form.lng} ${form.lat})`
+      : null
 
     const { error: insertError } = await supabase.from('places').insert({
       name: form.name,
@@ -60,6 +58,8 @@ export default function SubmitPlace() {
     if (insertError) {
       if (insertError.code === '42501') {
         setError('Submission blocked by database permissions (RLS). Update Supabase policy to allow anon inserts into places.')
+      } else if (insertError.code === 'PGRST205' || insertError.message?.includes("Could not find the table 'public.places'")) {
+        setError("Database table 'places' is missing in this Supabase project. Run the SQL migrations to create tables, then retry.")
       } else {
         setError(`Submission failed: ${insertError.message}`)
       }
@@ -104,18 +104,24 @@ export default function SubmitPlace() {
             <label className={labelClass}>Mode *</label>
             <div className="flex gap-2">
               {MODES.map(m => (
-                <button
+                <label
                   key={m}
-                  type="button"
-                  onClick={() => setForm(prev => ({ ...prev, mode: m }))}
-                  className={`flex-1 py-2 font-sans text-xs uppercase tracking-wider border rounded transition-colors ${
+                  className={`flex-1 py-2 font-sans text-xs uppercase tracking-wider border rounded transition-colors text-center cursor-pointer ${
                     form.mode === m
                       ? 'bg-sanctuary-accent text-sanctuary-bg border-sanctuary-accent'
                       : 'border-sanctuary-accent/20 text-sanctuary-muted'
                   }`}
                 >
+                  <input
+                    type="radio"
+                    name="mode"
+                    value={m}
+                    checked={form.mode === m}
+                    onChange={set('mode')}
+                    className="sr-only"
+                  />
                   {m}
-                </button>
+                </label>
               ))}
             </div>
           </div>
@@ -143,14 +149,15 @@ export default function SubmitPlace() {
           {/* Coordinates */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className={labelClass}>Latitude *</label>
-              <input type="number" step="any" value={form.lat} onChange={set('lat')} required placeholder="39.9769" className={inputClass} />
+              <label className={labelClass}>Latitude</label>
+              <input type="number" step="any" value={form.lat} onChange={set('lat')} placeholder="39.9769" className={inputClass} />
             </div>
             <div className="flex-1">
-              <label className={labelClass}>Longitude *</label>
-              <input type="number" step="any" value={form.lng} onChange={set('lng')} required placeholder="-75.1727" className={inputClass} />
+              <label className={labelClass}>Longitude</label>
+              <input type="number" step="any" value={form.lng} onChange={set('lng')} placeholder="-75.1727" className={inputClass} />
             </div>
           </div>
+          <p className="font-sans text-xs text-sanctuary-muted">Latitude and longitude are optional.</p>
 
           {/* Description */}
           <div>
