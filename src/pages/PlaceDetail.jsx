@@ -107,14 +107,16 @@ export default function PlaceDetail() {
   }
 
   const bgClass = isTheophany ? 'bg-theophany-bg text-theophany-text' : 'bg-sanctuary-bg text-sanctuary-text'
-  const borderClass = isTheophany ? 'border-theophany-muted/40' : 'border-sanctuary-accent/20'
+  const borderClass = isTheophany ? 'border-theophany-accent/45' : 'border-sanctuary-accent/45'
   const accentClass = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
+  const bodyClass = isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'
+  const subClass = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
 
   return (
     <div className={`min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
       {/* Back nav */}
       <div className="p-4 pt-6">
-        <Link to="/" className={`font-sans text-xs uppercase tracking-wider ${accentClass}`}>
+        <Link to="/" className={`font-sans text-xs font-medium uppercase tracking-wider ${accentClass} hover:underline`}>
           ← Back
         </Link>
       </div>
@@ -127,39 +129,49 @@ export default function PlaceDetail() {
       )}
 
       {/* Place info */}
-      <div className="p-6 space-y-4">
+      <div className={`p-6 space-y-4 ${bodyClass}`}>
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`font-sans text-xs uppercase tracking-wider px-2 py-0.5 border ${borderClass} ${accentClass}`}>
+          <div className="mb-1 flex items-center gap-2">
+            <span className={`rounded border px-2 py-0.5 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${accentClass}`}>
               {place.mode}
             </span>
-            <span className="font-sans text-xs uppercase tracking-wider opacity-50">
+            <span className={`font-sans text-xs uppercase tracking-wider ${subClass}`}>
               {place.source}
             </span>
           </div>
-          <h1 className="font-serif text-2xl mt-2">{place.name}</h1>
-          <p className={`font-sans text-xs uppercase tracking-wider mt-1 opacity-60`}>
+          <h1 className="mt-2 font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
+          <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
             {place.address} · {place.city}, {place.state}
           </p>
         </div>
 
-        <p className="font-serif italic leading-relaxed opacity-90">{place.description}</p>
+        <p className="font-serif text-base italic leading-relaxed text-current">{place.description}</p>
 
         {/* Tier 1 Feature #7: Theophany disclaimer */}
         {isTheophany && <TheophanyDisclaimer />}
 
         {/* Tier 1 Feature #8: Tradition + Sensitivity fields */}
         {(place.traditions || place.cultural_sensitivities || place.access_protocols) && (
-          <div className={`border rounded p-4 space-y-2 ${borderClass}`}>
-            <h3 className="font-sans text-xs uppercase tracking-wider opacity-60">Cultural Context</h3>
+          <div
+            className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
+              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+            }`}
+          >
+            <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Cultural Context</h3>
             {place.traditions && (
-              <p className="font-sans text-sm"><span className="opacity-50">Traditions:</span> {place.traditions}</p>
+              <p className="font-sans text-sm leading-relaxed text-current">
+                <span className={`font-medium ${subClass}`}>Traditions:</span> {place.traditions}
+              </p>
             )}
             {place.cultural_sensitivities && (
-              <p className="font-sans text-sm"><span className="opacity-50">Sensitivities:</span> {place.cultural_sensitivities}</p>
+              <p className="font-sans text-sm leading-relaxed text-current">
+                <span className={`font-medium ${subClass}`}>Sensitivities:</span> {place.cultural_sensitivities}
+              </p>
             )}
             {place.access_protocols && (
-              <p className="font-sans text-sm"><span className="opacity-50">Access:</span> {place.access_protocols}</p>
+              <p className="font-sans text-sm leading-relaxed text-current">
+                <span className={`font-medium ${subClass}`}>Access:</span> {place.access_protocols}
+              </p>
             )}
           </div>
         )}
@@ -167,8 +179,11 @@ export default function PlaceDetail() {
         {/* Category tags */}
         {place.category_tags?.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {place.category_tags.map(tag => (
-              <span key={tag} className={`font-sans text-xs uppercase tracking-wider px-2 py-1 border rounded ${borderClass} opacity-60`}>
+            {place.category_tags.map((tag) => (
+              <span
+                key={tag}
+                className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
+              >
                 {tag}
               </span>
             ))}
@@ -177,11 +192,15 @@ export default function PlaceDetail() {
 
         {/* Tier 2 */}
         {(place.intensity != null || place.approach_tags?.length > 0) && (
-          <div className={`border rounded p-4 space-y-2 ${borderClass}`}>
-            <h3 className="font-sans text-xs uppercase tracking-wider opacity-60">Detail</h3>
+          <div
+            className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
+              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+            }`}
+          >
+            <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Detail</h3>
             {place.intensity != null && (
-              <p className="font-sans text-sm">
-                <span className="opacity-50">Intensity:</span>{' '}
+              <p className="font-sans text-sm text-current">
+                <span className={`font-medium ${subClass}`}>Intensity:</span>{' '}
                 {'●'.repeat(place.intensity)}
                 {'○'.repeat(5 - place.intensity)}
               </p>
@@ -189,7 +208,10 @@ export default function PlaceDetail() {
             {place.approach_tags?.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {place.approach_tags.map((tag) => (
-                  <span key={tag} className={`font-sans text-xs uppercase tracking-wider px-2 py-1 border rounded ${borderClass} opacity-70`}>
+                  <span
+                    key={tag}
+                    className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
+                  >
                     {tag}
                   </span>
                 ))}
@@ -199,7 +221,7 @@ export default function PlaceDetail() {
         )}
 
         {place.source === 'community' && (
-          <p className="font-sans text-xs opacity-50">
+          <p className={`font-sans text-xs leading-relaxed ${subClass}`}>
             Community listings are reviewed asynchronously. Moderators may hide or edit entries that break site guidelines.
           </p>
         )}
@@ -209,10 +231,10 @@ export default function PlaceDetail() {
             type="button"
             onClick={reportPlaceForReview}
             disabled={flagBusy || flagDone}
-            className={`font-sans text-xs uppercase tracking-wider border px-4 py-2 rounded transition-colors disabled:opacity-40 ${
+            className={`rounded-md border-2 px-4 py-2 font-sans text-xs font-medium uppercase tracking-wider transition-colors disabled:opacity-40 ${
               isTheophany
-                ? 'border-theophany-muted text-theophany-muted hover:bg-theophany-muted/10'
-                : 'border-sanctuary-muted text-sanctuary-muted hover:bg-sanctuary-accent/10'
+                ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/15'
             }`}
           >
             {flagDone ? 'Thanks — flagged for review' : flagBusy ? 'Sending…' : 'Flag for moderator review'}
@@ -221,12 +243,12 @@ export default function PlaceDetail() {
       </div>
 
       {/* Experience Reports section */}
-      <div className={`border-t ${borderClass} p-6 space-y-6`}>
-        <h2 className="font-serif text-lg">Experience Reports</h2>
+      <div className={`space-y-6 border-t-2 p-6 ${borderClass} ${bodyClass}`}>
+        <h2 className="font-serif text-lg font-medium text-current">Experience Reports</h2>
 
         {/* Submit form */}
         {submitted ? (
-          <p className="font-serif italic opacity-60 text-sm">Your experience report has been submitted.</p>
+          <p className={`font-serif text-sm italic ${subClass}`}>Your experience report has been submitted.</p>
         ) : (
           <form onSubmit={submitExperienceReport} className="space-y-3">
             <textarea
@@ -234,10 +256,10 @@ export default function PlaceDetail() {
               onChange={(e) => setReportContent(e.target.value)}
               placeholder="Describe what you felt or noticed here..."
               rows={4}
-              className={`w-full p-3 font-serif text-sm bg-transparent border rounded resize-none focus:outline-none focus:ring-1 ${
+              className={`w-full resize-none rounded-md border-2 p-3 font-serif text-sm focus:outline-none focus:ring-2 ${
                 isTheophany
-                  ? 'border-theophany-muted/40 placeholder:text-theophany-muted focus:ring-theophany-accent'
-                  : 'border-sanctuary-accent/20 placeholder:text-sanctuary-muted focus:ring-sanctuary-accent'
+                  ? 'border-theophany-accent/50 bg-theophany-primary/80 text-theophany-text placeholder:text-theophany-muted focus:ring-theophany-accent'
+                  : 'border-sanctuary-accent/50 bg-white text-sanctuary-text placeholder:text-sanctuary-muted focus:ring-sanctuary-accent'
               }`}
               maxLength={1000}
             />
@@ -249,12 +271,12 @@ export default function PlaceDetail() {
                   key={tag}
                   type="button"
                   onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
-                  className={`font-sans text-xs uppercase tracking-wider px-3 py-1 border rounded transition-colors ${
+                  className={`rounded-md border-2 px-3 py-1 font-sans text-xs font-medium uppercase tracking-wider transition-colors ${
                     selectedTag === tag
                       ? isTheophany
-                        ? 'bg-theophany-accent text-theophany-bg border-theophany-accent'
-                        : 'bg-sanctuary-accent text-sanctuary-bg border-sanctuary-accent'
-                      : borderClass
+                        ? 'border-theophany-accent bg-theophany-accent text-theophany-bg'
+                        : 'border-sanctuary-accent bg-sanctuary-accent text-sanctuary-bg'
+                      : `${borderClass} ${subClass} hover:opacity-90`
                   }`}
                 >
                   {tag}
@@ -265,7 +287,7 @@ export default function PlaceDetail() {
             <button
               type="submit"
               disabled={submitting || !reportContent.trim()}
-              className={`px-6 py-2 font-sans text-xs uppercase tracking-wider border transition-colors disabled:opacity-40 ${
+              className={`rounded-md border-2 px-6 py-2 font-sans text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-40 ${
                 isTheophany
                   ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent hover:text-theophany-bg'
                   : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent hover:text-sanctuary-bg'
@@ -279,13 +301,16 @@ export default function PlaceDetail() {
         {/* Existing reports */}
         <div className="space-y-4">
           {experienceReports.length === 0 ? (
-            <p className="font-serif italic opacity-40 text-sm">No experience reports yet.</p>
+            <p className={`font-serif text-sm italic ${subClass}`}>No experience reports yet.</p>
           ) : (
             experienceReports.map((report) => (
-              <div key={report.id} className={`border-l-2 pl-4 ${isTheophany ? 'border-theophany-muted/40' : 'border-sanctuary-accent/30'}`}>
-                <p className="font-serif text-sm italic leading-relaxed">{report.content}</p>
+              <div
+                key={report.id}
+                className={`border-l-4 pl-4 ${isTheophany ? 'border-theophany-accent/60' : 'border-sanctuary-accent/70'}`}
+              >
+                <p className="font-serif text-sm italic leading-relaxed text-current">{report.content}</p>
                 {report.reflection_tag && (
-                  <p className={`font-sans text-xs uppercase tracking-wider mt-2 ${accentClass} opacity-70`}>
+                  <p className={`mt-2 font-sans text-xs font-medium uppercase tracking-wider ${accentClass}`}>
                     {report.reflection_tag}
                   </p>
                 )}

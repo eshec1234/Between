@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+/* Color tokens for Tailwind v4 live in src/styles/index.css @theme — this file only extends fonts/animations. */
 export default {
   content: [
     "./index.html",
@@ -7,23 +8,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Sanctuary Mode - Warm/Calm
+        // Unused in v4 build — kept for reference only; see @theme in index.css
         sanctuary: {
-          bg: '#fffef8',
-          primary: '#f8eedd',
-          secondary: '#f0e2c5',
-          text: '#3a2812',
-          accent: '#c8a870',
-          muted: '#9a8060'
+          bg: '#fff9f0',
+          primary: '#f5e8d4',
+          secondary: '#e8d4b8',
+          text: '#1a1208',
+          accent: '#b8893a',
+          muted: '#5c4a32'
         },
-        // Theophany Mode - Electric/Dark
         theophany: {
-          bg: '#010407',
-          primary: '#030a0e',
-          secondary: '#060c14',
-          text: '#c8e0e0',
-          accent: '#7ababa',
-          muted: '#2e5858'
+          bg: '#030608',
+          primary: '#050c10',
+          secondary: '#081018',
+          text: '#e4f2f2',
+          accent: '#8ecbcb',
+          muted: '#6a9a9a'
         }
       },
       fontFamily: {

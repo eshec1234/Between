@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* Tailwind v4: theme tokens must live in @theme (tailwind.config.js colors are not applied by @tailwindcss/vite). */
+@theme {
+  /* Sanctuary — warm paper, dark text for contrast */
+  --color-sanctuary-bg: #fff9f0;
+  --color-sanctuary-primary: #f5e8d4;
+  --color-sanctuary-secondary: #e8d4b8;
+  --color-sanctuary-text: #1a1208;
+  --color-sanctuary-accent: #b8893a;
+  --color-sanctuary-muted: #5c4a32;
+
+  /* Theophany — near-black, light text */
+  --color-theophany-bg: #030608;
+  --color-theophany-primary: #050c10;
+  --color-theophany-secondary: #081018;
+  --color-theophany-text: #e4f2f2;
+  --color-theophany-accent: #8ecbcb;
+  --color-theophany-muted: #6a9a9a;
+}
+
 /* Base resets */
 *, *::before, *::after {
   box-sizing: border-box;
