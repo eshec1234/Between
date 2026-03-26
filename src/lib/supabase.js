@@ -1,9 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
+import { supabaseUrl, supabaseAnonKey, hasSupabaseEnv } from './env'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-export const hasSupabaseEnv = Boolean(supabaseUrl && supabaseAnonKey)
+export { hasSupabaseEnv }
 export const supabase = hasSupabaseEnv ? createClient(supabaseUrl, supabaseAnonKey) : null
 
 // Anonymous session helper — device-based, no login required

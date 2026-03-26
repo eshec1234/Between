@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react'
 import mapboxgl from 'mapbox-gl'
+import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
+mapboxgl.accessToken = mapboxToken
 
 export default function Map({ mode, places }) {
-  const hasMapboxToken = Boolean(import.meta.env.VITE_MAPBOX_TOKEN)
   const mapContainer = useRef(null)
   const map = useRef(null)
 
   useEffect(() => {
-    if (!hasMapboxToken) return
+    if (!hasMapboxEnv) return
     if (map.current) return
 
     map.current = new mapboxgl.Map({
@@ -29,7 +29,7 @@ export default function Map({ mode, places }) {
         showUserHeading: true
       })
     )
-  }, [hasMapboxToken, mode])
+  }, [mode])
 
   // Update map style when mode changes
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function Map({ mode, places }) {
   }, [places, mode])
 
   return (
-    hasMapboxToken ? (
+    hasMapboxEnv ? (
       <div
         ref={mapContainer}
         className={`w-full h-56 ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
@@ -83,7 +83,7 @@ export default function Map({ mode, places }) {
     ) : (
       <div className="w-full h-56 flex items-center justify-center bg-black/5 text-center px-4">
         <p className="font-sans text-xs uppercase tracking-wider opacity-60">
-          Map unavailable. Set VITE_MAPBOX_TOKEN in environment variables.
+          Map unavailable. Set VITE_MAPBOX_TOKEN (or VITE_MAPBOX_ACCESS_TOKEN).
         </p>
       </div>
     )
