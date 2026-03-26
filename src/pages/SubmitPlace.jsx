@@ -40,8 +40,8 @@ export default function SubmitPlace() {
 
     setSubmitting(true)
 
-    // Build PostGIS-compatible geography point
-    const coordinates = `POINT(${form.lng} ${form.lat})`
+    // Build PostGIS-compatible geography point (WGS84)
+    const coordinates = `SRID=4326;POINT(${form.lng} ${form.lat})`
 
     const { error: insertError } = await supabase.from('places').insert({
       name: form.name,
@@ -58,7 +58,11 @@ export default function SubmitPlace() {
     })
 
     if (insertError) {
-      setError('Submission failed. Please try again.')
+      if (insertError.code === '42501') {
+        setError('Submission blocked by database permissions (RLS). Update Supabase policy to allow anon inserts into places.')
+      } else {
+        setError(`Submission failed: ${insertError.message}`)
+      }
       setSubmitting(false)
       return
     }
