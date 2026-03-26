@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 
@@ -15,6 +15,11 @@ export default function Home() {
 
   const fetchPlaces = async () => {
     setLoading(true)
+    if (!hasSupabaseEnv || !supabase) {
+      setPlaces([])
+      setLoading(false)
+      return
+    }
     const { data } = await supabase
       .from('places')
       .select('*')

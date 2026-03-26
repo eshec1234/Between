@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { getOrCreateSession } from './lib/supabase'
+import { getOrCreateSession, hasSupabaseEnv } from './lib/supabase'
 import Home from './pages/Home'
 import PlaceDetail from './pages/PlaceDetail'
 import SubmitPlace from './pages/SubmitPlace'
@@ -24,6 +24,11 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-sanctuary-bg text-sanctuary-text">
+        {!hasSupabaseEnv && (
+          <div className="mx-4 mt-4 mb-2 border border-amber-400/40 bg-amber-100/20 px-3 py-2 text-xs font-sans uppercase tracking-wider">
+            Missing Supabase environment variables in deployment. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+          </div>
+        )}
         {!hasSeenOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
         <Routes>
           <Route path="/" element={<Home />} />

@@ -4,10 +4,12 @@ import mapboxgl from 'mapbox-gl'
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
 
 export default function Map({ mode, places }) {
+  const hasMapboxToken = Boolean(import.meta.env.VITE_MAPBOX_TOKEN)
   const mapContainer = useRef(null)
   const map = useRef(null)
 
   useEffect(() => {
+    if (!hasMapboxToken) return
     if (map.current) return
 
     map.current = new mapboxgl.Map({
@@ -27,7 +29,7 @@ export default function Map({ mode, places }) {
         showUserHeading: true
       })
     )
-  }, [])
+  }, [hasMapboxToken, mode])
 
   // Update map style when mode changes
   useEffect(() => {
@@ -73,9 +75,17 @@ export default function Map({ mode, places }) {
   }, [places, mode])
 
   return (
-    <div
-      ref={mapContainer}
-      className={`w-full h-56 ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
-    />
+    hasMapboxToken ? (
+      <div
+        ref={mapContainer}
+        className={`w-full h-56 ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
+      />
+    ) : (
+      <div className="w-full h-56 flex items-center justify-center bg-black/5 text-center px-4">
+        <p className="font-sans text-xs uppercase tracking-wider opacity-60">
+          Map unavailable. Set VITE_MAPBOX_TOKEN in environment variables.
+        </p>
+      </div>
+    )
   )
 }

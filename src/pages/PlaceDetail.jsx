@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { supabase, getOrCreateSession } from '../lib/supabase'
+import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 
 const REFLECTION_TAGS = [
@@ -28,12 +28,21 @@ export default function PlaceDetail() {
   }, [id])
 
   const fetchPlace = async () => {
+    if (!hasSupabaseEnv || !supabase) {
+      setPlace(null)
+      setLoading(false)
+      return
+    }
     const { data } = await supabase.from('places').select('*').eq('id', id).single()
     setPlace(data)
     setLoading(false)
   }
 
   const fetchExperienceReports = async () => {
+    if (!hasSupabaseEnv || !supabase) {
+      setExperienceReports([])
+      return
+    }
     const { data } = await supabase
       .from('experience_reports')
       .select('*')
@@ -46,6 +55,7 @@ export default function PlaceDetail() {
   const submitExperienceReport = async (e) => {
     e.preventDefault()
     if (!reportContent.trim()) return
+    if (!hasSupabaseEnv || !supabase) return
 
     setSubmitting(true)
     const sessionId = getOrCreateSession()

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, hasSupabaseEnv } from '../lib/supabase'
 
 const STATES = ['PA', 'NJ', 'NY']
 const MODES = ['sanctuary', 'theophany', 'both']
@@ -28,6 +28,10 @@ export default function SubmitPlace() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    if (!hasSupabaseEnv || !supabase) {
+      setError('Submission is unavailable until Supabase env vars are configured.')
+      return
+    }
 
     if (!form.lat || !form.lng) {
       setError('Coordinates are required. Use Google Maps to find lat/lng.')
