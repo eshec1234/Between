@@ -13,3 +13,12 @@ export const getOrCreateSession = () => {
   }
   return sessionId
 }
+
+export const syncAnonymousSession = async () => {
+  if (!hasSupabaseEnv || !supabase) return
+  const id = getOrCreateSession()
+  await supabase.from('anonymous_sessions').upsert(
+    { id, last_active: new Date().toISOString() },
+    { onConflict: 'id' }
+  )
+}

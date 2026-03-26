@@ -19,6 +19,8 @@ export default function PlaceDetail() {
   const [selectedTag, setSelectedTag] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [flagDone, setFlagDone] = useState(false)
+  const [flagBusy, setFlagBusy] = useState(false)
 
   const isTheophany = place?.mode === 'theophany' || place?.mode === 'both'
 
@@ -74,6 +76,15 @@ export default function PlaceDetail() {
       fetchExperienceReports()
     }
     setSubmitting(false)
+  }
+
+  const reportPlaceForReview = async () => {
+    if (!hasSupabaseEnv || !supabase) return
+    if (!window.confirm('Flag this place for moderator review? It stays visible until reviewed.')) return
+    setFlagBusy(true)
+    const { error } = await supabase.rpc('report_place_flag', { p_place_id: id })
+    setFlagBusy(false)
+    if (!error) setFlagDone(true)
   }
 
   if (loading) {
@@ -163,6 +174,50 @@ export default function PlaceDetail() {
             ))}
           </div>
         )}
+
+        {/* Tier 2 */}
+        {(place.intensity != null || place.approach_tags?.length > 0) && (
+          <div className={`border rounded p-4 space-y-2 ${borderClass}`}>
+            <h3 className="font-sans text-xs uppercase tracking-wider opacity-60">Detail</h3>
+            {place.intensity != null && (
+              <p className="font-sans text-sm">
+                <span className="opacity-50">Intensity:</span>{' '}
+                {'●'.repeat(place.intensity)}
+                {'○'.repeat(5 - place.intensity)}
+              </p>
+            )}
+            {place.approach_tags?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {place.approach_tags.map((tag) => (
+                  <span key={tag} className={`font-sans text-xs uppercase tracking-wider px-2 py-1 border rounded ${borderClass} opacity-70`}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {place.source === 'community' && (
+          <p className="font-sans text-xs opacity-50">
+            Community listings are reviewed asynchronously. Moderators may hide or edit entries that break site guidelines.
+          </p>
+        )}
+
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={reportPlaceForReview}
+            disabled={flagBusy || flagDone}
+            className={`font-sans text-xs uppercase tracking-wider border px-4 py-2 rounded transition-colors disabled:opacity-40 ${
+              isTheophany
+                ? 'border-theophany-muted text-theophany-muted hover:bg-theophany-muted/10'
+                : 'border-sanctuary-muted text-sanctuary-muted hover:bg-sanctuary-accent/10'
+            }`}
+          >
+            {flagDone ? 'Thanks — flagged for review' : flagBusy ? 'Sending…' : 'Flag for moderator review'}
+          </button>
+        </div>
       </div>
 
       {/* Experience Reports section */}

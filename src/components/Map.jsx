@@ -4,7 +4,7 @@ import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
 
-export default function Map({ mode, places }) {
+export default function Map({ mode, places, mapCenter = [-75.1652, 39.9526], zoom = 11 }) {
   const mapContainer = useRef(null)
   const map = useRef(null)
 
@@ -17,8 +17,8 @@ export default function Map({ mode, places }) {
       style: mode === 'theophany'
         ? 'mapbox://styles/mapbox/dark-v11'
         : 'mapbox://styles/mapbox/light-v11',
-      center: [-75.1652, 39.9526], // Philadelphia center
-      zoom: 11
+      center: mapCenter,
+      zoom
     })
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -29,7 +29,12 @@ export default function Map({ mode, places }) {
         showUserHeading: true
       })
     )
-  }, [mode])
+  }, [hasMapboxEnv])
+
+  useEffect(() => {
+    if (!map.current || !hasMapboxEnv) return
+    map.current.jumpTo({ center: mapCenter, zoom })
+  }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
 
   // Update map style when mode changes
   useEffect(() => {

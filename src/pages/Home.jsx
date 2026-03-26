@@ -1,36 +1,76 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 
+const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
+const NEARBY_RADIUS_M = 10000
+
 export default function Home() {
   const [mode, setMode] = useState('sanctuary') // 'sanctuary' | 'theophany'
   const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(true)
+  const [center, setCenter] = useState(DEFAULT_CENTER)
+  const [feedKind, setFeedKind] = useState('nearby') // 'nearby' | 'fallback'
 
   useEffect(() => {
-    fetchPlaces()
-  }, [mode])
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+      },
+      () => {},
+      { timeout: 12000, maximumAge: 120000 }
+    )
+  }, [])
 
-  const fetchPlaces = async () => {
+  const fetchPlaces = useCallback(async () => {
     setLoading(true)
     if (!hasSupabaseEnv || !supabase) {
       setPlaces([])
+      setFeedKind('fallback')
       setLoading(false)
       return
     }
+
+    const { data: rpcData, error: rpcError } = await supabase.rpc('places_nearby', {
+      lat: center.lat,
+      lng: center.lng,
+      radius_m: NEARBY_RADIUS_M,
+      mode_filter: mode
+    })
+
+    if (!rpcError && rpcData?.length) {
+      setPlaces(rpcData)
+      setFeedKind('nearby')
+      setLoading(false)
+      return
+    }
+
+    if (!rpcError && rpcData?.length === 0) {
+      setFeedKind('fallback')
+    } else if (rpcError) {
+      setFeedKind('fallback')
+    }
+
     const { data } = await supabase
       .from('places')
       .select('*')
       .or(`mode.eq.${mode},mode.eq.both`)
+      .order('created_at', { ascending: false })
       .limit(20)
 
     setPlaces(data || [])
     setLoading(false)
-  }
+  }, [center.lat, center.lng, mode])
+
+  useEffect(() => {
+    fetchPlaces()
+  }, [fetchPlaces])
 
   const isTheophany = mode === 'theophany'
+  const mapCenter = [center.lng, center.lat]
 
   return (
     <div className={isTheophany ? 'min-h-screen bg-theophany-bg text-theophany-text' : 'min-h-screen bg-sanctuary-bg text-sanctuary-text'}>
@@ -63,8 +103,14 @@ export default function Home() {
 
       {/* Map */}
       <div className="pt-16">
-        <Map mode={mode} places={places} />
+        <Map mode={mode} places={places} mapCenter={mapCenter} />
       </div>
+
+      <p className="px-4 pt-2 font-sans text-[10px] uppercase tracking-wider opacity-50">
+        {feedKind === 'nearby'
+          ? `Within ~${NEARBY_RADIUS_M / 1000} km of your map center`
+          : 'Recent places (nearby unavailable or no matches — run SQL migration 005 for spatial search)'}
+      </p>
 
       {/* Feed */}
       <div className="p-4 pb-24 space-y-4">
@@ -127,6 +173,11 @@ function PlaceCard({ place, isTheophany }) {
           <p className={`font-sans text-xs uppercase tracking-wider mb-2 ${isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>
             {place.city}, {place.state}
           </p>
+          {place.intensity != null && (
+            <p className="font-sans text-[10px] uppercase tracking-wider opacity-50 mb-1">
+              Intensity: {'●'.repeat(place.intensity)}{'○'.repeat(5 - place.intensity)}
+            </p>
+          )}
           <p className="font-serif text-sm italic opacity-80 line-clamp-2">{place.description}</p>
 
           {/* Tier 1 Feature #8: Tradition/Sensitivity preview */}

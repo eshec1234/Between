@@ -16,6 +16,8 @@ The app talks to **your** Supabase project. Tables are **not** created by Vercel
 2. Open `RUN_THIS_IN_SUPABASE_SQL_EDITOR.sql` in this repo, copy **all** of it, paste, **Run**.
 3. **Table Editor** → confirm `places` exists and has the seed row.
 
+Spatial search and moderation flags require section **005** in that file (or run `migrations/005_spatial_rpc_and_moderation.sql`). Without it, the app falls back to a non-spatial feed.
+
 If `CREATE EXTENSION postgis` fails: **Database** → **Extensions** → enable **postgis**, then run the file again.
 
 ## Migrations folder

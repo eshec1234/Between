@@ -20,7 +20,10 @@ export default function SubmitPlace() {
     cultural_sensitivities: '',
     access_protocols: '',
     lat: '',
-    lng: ''
+    lng: '',
+    photo_urls: '',
+    intensity: '',
+    approach_tags: ''
   })
 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }))
@@ -41,6 +44,24 @@ export default function SubmitPlace() {
       ? `SRID=4326;POINT(${form.lng} ${form.lat})`
       : null
 
+    const photos = form.photo_urls
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 5)
+
+    const approach_tags = form.approach_tags
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 12)
+
+    let intensity = null
+    if (form.intensity !== '') {
+      const n = Number(form.intensity)
+      if (!Number.isNaN(n)) intensity = Math.min(5, Math.max(1, Math.round(n)))
+    }
+
     const { error: insertError } = await supabase.from('places').insert({
       name: form.name,
       address: form.address,
@@ -52,6 +73,9 @@ export default function SubmitPlace() {
       cultural_sensitivities: form.cultural_sensitivities || null,
       access_protocols: form.access_protocols || null,
       coordinates,
+      photos: photos.length ? photos : [],
+      intensity,
+      approach_tags: approach_tags.length ? approach_tags : null,
       source: 'community'
     })
 
@@ -158,6 +182,45 @@ export default function SubmitPlace() {
             </div>
           </div>
           <p className="font-sans text-xs text-sanctuary-muted">Latitude and longitude are optional.</p>
+
+          {/* Photo URLs */}
+          <div>
+            <label className={labelClass}>Photo URLs (optional)</label>
+            <input
+              type="text"
+              value={form.photo_urls}
+              onChange={set('photo_urls')}
+              placeholder="https://…, https://… (comma-separated, max 5)"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Tier 2 */}
+          <div className="border border-sanctuary-accent/10 rounded p-4 space-y-4">
+            <h3 className="font-sans text-xs uppercase tracking-wider text-sanctuary-muted">Optional detail</h3>
+            <div>
+              <label className={labelClass}>Intensity (1–5)</label>
+              <input
+                type="number"
+                min={1}
+                max={5}
+                value={form.intensity}
+                onChange={set('intensity')}
+                placeholder="e.g. 3"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Approach tags</label>
+              <input
+                type="text"
+                value={form.approach_tags}
+                onChange={set('approach_tags')}
+                placeholder="quiet, urban, historic (comma-separated)"
+                className={inputClass}
+              />
+            </div>
+          </div>
 
           {/* Description */}
           <div>

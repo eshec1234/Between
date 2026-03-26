@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { getOrCreateSession, hasSupabaseEnv } from './lib/supabase'
+import { getOrCreateSession, hasSupabaseEnv, syncAnonymousSession } from './lib/supabase'
 import { hasMapboxEnv } from './lib/env'
 import Home from './pages/Home'
 import PlaceDetail from './pages/PlaceDetail'
@@ -13,8 +13,16 @@ function App() {
   )
 
   useEffect(() => {
-    // Initialize anonymous session
     getOrCreateSession()
+    syncAnonymousSession()
+  }, [])
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') syncAnonymousSession()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
 
   const handleOnboardingComplete = () => {
