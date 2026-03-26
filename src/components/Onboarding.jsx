@@ -1,26 +1,150 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import ParticleBackground from './ParticleBackground'
+import Rule from './Rule'
+import LocationConsentModal from './LocationConsentModal'
+
 export default function Onboarding({ onComplete }) {
+  const [consented, setConsented] = useState(false)
+  const [showPrompt, setShowPrompt] = useState(false)
+
+  useEffect(() => {
+    if (!consented) return
+    const t = setTimeout(() => setShowPrompt(true), 1700)
+    return () => clearTimeout(t)
+  }, [consented])
+
+  const handleAgree = () => {
+    localStorage.setItem('between_location_consent', 'yes')
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => {},
+        () => {},
+        { timeout: 15000, maximumAge: 60000 }
+      )
+    }
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    setConsented(true)
+  }
+
+  const handleDecline = () => {
+    localStorage.setItem('between_location_consent', 'no')
+    setConsented(true)
+  }
+
+  const enterMode = (mode) => {
+    sessionStorage.setItem('between_initial_mode', mode)
+    localStorage.setItem('between_onboarding_seen', 'true')
+    onComplete()
+  }
+
   return (
-    <div className="fixed inset-0 z-50 bg-[#1a1610] flex items-center justify-center p-6">
-      <div className="max-w-sm text-center space-y-6">
-        <h1 className="text-3xl font-serif text-[#f0e8d0] tracking-widest">Between</h1>
+    <div className="fixed inset-0 z-50 overflow-hidden bg-[#1a1610]">
+      <ParticleBackground />
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_78%_60%_at_50%_45%,transparent_18%,rgba(14,10,5,0.55)_100%)]" />
 
-        <div className="space-y-4">
-          <p className="text-lg font-serif text-[#e8d8a8] italic">
-            "You don't need to believe in anything. You just need to have felt something."
-          </p>
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between px-6 pt-4">
+        <Link
+          to="/about"
+          className="pointer-events-auto font-sans text-[9px] uppercase tracking-[0.22em] text-[rgba(205,182,118,0.75)]"
+        >
+          About
+        </Link>
+        <Link
+          to="/faq"
+          className="pointer-events-auto font-sans text-[9px] uppercase tracking-[0.22em] text-[rgba(205,182,118,0.75)]"
+        >
+          FAQ
+        </Link>
+      </div>
 
-          <p className="text-sm font-sans text-[#9a8868] uppercase tracking-wider">
-            This app reports human experiences, not objective truth.
-          </p>
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-7">
+        <div className="mb-9 w-full text-center">
+          {showPrompt && (
+            <div className="mb-4 animate-bfIn">
+              <Rule />
+            </div>
+          )}
+          <h1
+            className="font-display text-[clamp(2rem,10.5vw,3.1rem)] font-light leading-none tracking-[0.52em] text-[#f0e8d0] ml-[0.52em]"
+            style={{
+              textShadow:
+                '0 0 55px rgba(195,155,55,.7), 0 2px 22px rgba(0,0,0,.98), 0 0 110px rgba(195,155,55,.3)'
+            }}
+          >
+            Between
+          </h1>
+          {showPrompt && (
+            <div className="mt-4 animate-bfIn">
+              <Rule />
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={onComplete}
-          className="mt-8 px-8 py-3 border border-[#c8a870] text-[#e8c870] font-serif uppercase tracking-widest text-sm hover:bg-[#c8a870]/20 transition-colors"
-        >
-          Enter
-        </button>
+        {showPrompt && (
+          <div className="w-full max-w-[310px] animate-bfIn">
+            <p className="mb-5 text-center font-sans text-[9px] uppercase tracking-[0.26em] text-[rgba(208,192,145,0.85)] [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
+              Where would you like to begin?
+            </p>
+            <div className="flex items-stretch justify-center">
+              <button
+                type="button"
+                onClick={() => enterMode('sanctuary')}
+                className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 border-r border-[rgba(175,150,95,.22)] bg-transparent px-4 py-6 outline-none"
+              >
+                <svg width="18" height="26" viewBox="0 0 18 26" aria-hidden>
+                  <line x1="9" y1="1" x2="9" y2="25" stroke="#b89a60" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="1" y1="8" x2="17" y2="8" stroke="#b89a60" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <div className="text-center">
+                  <div className="font-display text-xs tracking-[0.22em] text-[#caa870] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)]">
+                    Sanctuary
+                  </div>
+                  <div className="mt-1.5 font-serif text-[9px] italic text-[#8a7048] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)]">
+                    A place to remain.
+                  </div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => enterMode('theophany')}
+                className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 bg-transparent px-4 py-6 outline-none"
+              >
+                <svg width="30" height="20" viewBox="0 0 30 20" aria-hidden>
+                  <path
+                    d="M1 10 Q15 1 29 10 Q15 19 1 10 Z"
+                    fill="none"
+                    stroke="#4a7878"
+                    strokeWidth="1.1"
+                  />
+                  <circle cx="15" cy="10" r="3.8" fill="none" stroke="#4a7878" strokeWidth="1.1" />
+                  <circle cx="15" cy="10" r="1.7" fill="#4a7878" opacity="0.75" />
+                </svg>
+                <div className="text-center">
+                  <div className="font-display text-xs tracking-[0.22em] text-[#5a9898] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)]">
+                    Theophany
+                  </div>
+                  <div className="mt-1.5 font-serif text-[9px] italic text-[#346060] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)]">
+                    A place to notice.
+                  </div>
+                </div>
+              </button>
+            </div>
+            <p className="mt-5 text-center font-sans text-[8px] uppercase tracking-[0.22em] text-[rgba(175,155,105,.45)]">
+              tap to enter
+            </p>
+          </div>
+        )}
       </div>
+
+      {!consented && (
+        <LocationConsentModal
+          onAgree={handleAgree}
+          onDecline={handleDecline}
+        />
+      )}
     </div>
   )
 }

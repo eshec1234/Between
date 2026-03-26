@@ -3,16 +3,52 @@ import { Link } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
+import Starfield from '../components/Starfield'
+import { getDailyOmen } from '../data/omens'
+import { INTENSITY_LEVELS } from '../data/intensityLegend'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 const NEARBY_RADIUS_M = 10000
 
+function readInitialMode() {
+  const m = sessionStorage.getItem('between_initial_mode')
+  sessionStorage.removeItem('between_initial_mode')
+  if (m === 'sanctuary' || m === 'theophany') return m
+  return 'sanctuary'
+}
+
+function placeTypeLabel(place) {
+  if (place.category_tags?.length) return place.category_tags[0]
+  if (place.mode === 'both') return 'Both'
+  return 'Place'
+}
+
+function IntensityBar({ level }) {
+  if (level == null || level < 1 || level > 5) return null
+  const meta = INTENSITY_LEVELS[level - 1]
+  return (
+    <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <div
+          key={n}
+          className="h-[3px] w-3 rounded-sm"
+          style={{ background: n <= level ? meta.c : 'rgba(255,255,255,0.1)' }}
+        />
+      ))}
+      <span className="ml-1 font-sans text-[9px] uppercase tracking-wider" style={{ color: meta.c }}>
+        {meta.label}
+      </span>
+    </div>
+  )
+}
+
 export default function Home() {
-  const [mode, setMode] = useState('sanctuary') // 'sanctuary' | 'theophany'
+  const [mode, setMode] = useState(readInitialMode)
   const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(true)
   const [center, setCenter] = useState(DEFAULT_CENTER)
-  const [feedKind, setFeedKind] = useState('nearby') // 'nearby' | 'fallback'
+  const [feedKind, setFeedKind] = useState('nearby')
+  const [omen] = useState(() => getDailyOmen())
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -73,12 +109,50 @@ export default function Home() {
   const mapCenter = [center.lng, center.lat]
 
   return (
-    <div className={isTheophany ? 'min-h-screen bg-theophany-bg text-theophany-text' : 'min-h-screen bg-sanctuary-bg text-sanctuary-text'}>
-      {/* Header + Mode Toggle */}
-      <div className={`fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center ${isTheophany ? 'bg-theophany-bg/90 backdrop-blur-sm' : 'bg-sanctuary-bg/90 backdrop-blur-sm'}`}>
-        <h1 className="font-serif text-xl tracking-widest">Between</h1>
+    <div
+      className={`relative min-h-screen overflow-x-hidden ${
+        isTheophany
+          ? 'bg-gradient-to-b from-theophany-bg via-theophany-primary to-theophany-secondary text-theophany-text'
+          : 'bg-gradient-to-br from-sanctuary-bg via-sanctuary-primary to-sanctuary-secondary text-sanctuary-text'
+      }`}
+    >
+      {isTheophany && <Starfield />}
+      {isTheophany && (
+        <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+      )}
+      {!isTheophany && (
+        <div className="pointer-events-none fixed left-1/2 top-0 z-[1] h-[220px] w-[160%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
+      )}
+
+      <div
+        className={`fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 pt-6 ${
+          isTheophany ? 'bg-theophany-bg/90 backdrop-blur-sm' : 'bg-sanctuary-bg/90 backdrop-blur-sm'
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <h1 className="font-display text-xl tracking-[0.35em]">Between</h1>
+          <div className="hidden gap-2 sm:flex">
+            <Link
+              to="/about"
+              className={`font-sans text-[9px] uppercase tracking-[0.18em] ${
+                isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+              }`}
+            >
+              About
+            </Link>
+            <Link
+              to="/faq"
+              className={`font-sans text-[9px] uppercase tracking-[0.18em] ${
+                isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+              }`}
+            >
+              FAQ
+            </Link>
+          </div>
+        </div>
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => setMode('sanctuary')}
             className={`px-4 py-2 font-sans text-xs uppercase tracking-wider transition-colors ${
               mode === 'sanctuary'
@@ -89,6 +163,7 @@ export default function Home() {
             Sanctuary
           </button>
           <button
+            type="button"
             onClick={() => setMode('theophany')}
             className={`px-4 py-2 font-sans text-xs uppercase tracking-wider transition-colors ${
               mode === 'theophany'
@@ -101,40 +176,74 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Map */}
-      <div className="pt-16">
-        <Map mode={mode} places={places} mapCenter={mapCenter} />
-      </div>
+      <div className="relative z-10 pt-20">
+        <div className="px-4 text-center">
+          <p
+            className={`font-display text-[10px] uppercase tracking-[0.28em] ${
+              isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+            }`}
+          >
+            {isTheophany ? 'A place to notice' : 'A place to remain'}
+          </p>
+        </div>
 
-      <p className="px-4 pt-2 font-sans text-[10px] uppercase tracking-wider opacity-50">
-        {feedKind === 'nearby'
-          ? `Within ~${NEARBY_RADIUS_M / 1000} km of your map center`
-          : 'Recent places (nearby unavailable or no matches — run SQL migration 005 for spatial search)'}
-      </p>
+        <div className="pt-12">
+          <Map mode={mode} places={places} mapCenter={mapCenter} />
+        </div>
 
-      {/* Feed */}
-      <div className="p-4 pb-24 space-y-4">
-        {loading ? (
-          <p className="text-center font-serif italic pt-8 opacity-60">Finding nearby spaces...</p>
-        ) : places.length === 0 ? (
-          <div className="text-center pt-12 space-y-3">
-            <p className="font-serif italic opacity-60">No places here yet.</p>
-            <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
+        {isTheophany && (
+          <div className="mx-4 mt-3 rounded-md border border-[#0a2020] bg-black/45 px-3 py-3.5 text-center">
+            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-[#1e4040]">
+              Today&apos;s omen
+            </div>
+            <p className="m-0 font-serif text-sm italic leading-relaxed text-[#7ac8c8]">{omen}</p>
           </div>
-        ) : (
-          places.map((place) => (
-            <PlaceCard key={place.id} place={place} isTheophany={isTheophany} />
-          ))
         )}
+
+        {isTheophany && (
+          <div className="mx-4 mt-3 rounded border border-[#0a1818] bg-black/28 px-3 py-2.5">
+            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-[#1e4040]">
+              Intensity scale
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              {INTENSITY_LEVELS.map((l) => (
+                <div key={l.label} className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full" style={{ background: l.c }} />
+                  <span className="font-sans text-[8px]" style={{ color: l.c }}>
+                    {l.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p className="px-4 pt-3 font-sans text-[10px] uppercase tracking-wider opacity-50">
+          {feedKind === 'nearby'
+            ? `Within ~${NEARBY_RADIUS_M / 1000} km of your map center`
+            : 'Recent places (nearby unavailable or no matches — run SQL migration 005 for spatial search)'}
+        </p>
+
+        <div className="space-y-4 p-4 pb-24">
+          {loading ? (
+            <p className="pt-8 text-center font-serif italic opacity-60">Finding nearby spaces...</p>
+          ) : places.length === 0 ? (
+            <div className="space-y-3 pt-12 text-center">
+              <p className="font-serif italic opacity-60">No places here yet.</p>
+              <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
+            </div>
+          ) : (
+            places.map((place) => (
+              <PlaceCard key={place.id} place={place} isTheophany={isTheophany} />
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Submit FAB */}
       <Link
         to="/submit"
-        className={`fixed bottom-6 right-6 w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg transition-colors ${
-          isTheophany
-            ? 'bg-theophany-accent text-theophany-bg'
-            : 'bg-sanctuary-accent text-sanctuary-bg'
+        className={`fixed bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-lg transition-colors ${
+          isTheophany ? 'bg-theophany-accent text-theophany-bg' : 'bg-sanctuary-accent text-sanctuary-bg'
         }`}
         title="Submit a place"
       >
@@ -145,49 +254,77 @@ export default function Home() {
 }
 
 function PlaceCard({ place, isTheophany }) {
+  const type = placeTypeLabel(place)
+  const img = place.photos?.[0]
+
   return (
     <Link to={`/place/${place.id}`}>
-      <div className={`border rounded-lg overflow-hidden transition-opacity hover:opacity-90 ${
-        isTheophany
-          ? 'bg-theophany-secondary border-theophany-muted/40'
-          : 'bg-white border-sanctuary-accent/20'
-      }`}>
-        {/* Photo or placeholder */}
-        <div className="h-32 bg-gray-200 relative">
-          {place.photos?.[0] && (
-            <img src={place.photos[0]} alt={place.name} className="w-full h-full object-cover" />
+      <div
+        className={`mb-2.5 overflow-hidden rounded-lg border transition-opacity hover:opacity-90 ${
+          isTheophany
+            ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)]'
+            : 'border-sanctuary-accent/20 bg-[rgba(255,253,247,0.97)]'
+        }`}
+      >
+        <div
+          className={`relative h-36 overflow-hidden ${isTheophany ? 'bg-[#050c10]' : 'bg-[#f5ead5]'}`}
+        >
+          {img ? (
+            <img
+              src={img}
+              alt={place.name}
+              className={`h-full w-full object-cover ${
+                isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
+              }`}
+            />
+          ) : (
+            <div className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#0a1518] to-[#030608]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`} />
           )}
-          <div className="absolute top-2 left-2">
-            <span className={`text-xs uppercase tracking-wider px-2 py-1 rounded font-sans ${
-              place.source === 'verified'
-                ? 'bg-black/60 text-white'
-                : 'bg-white/80 text-black'
-            }`}>
-              {place.source}
-            </span>
+          <div
+            className={`absolute inset-0 ${
+              isTheophany
+                ? 'bg-gradient-to-t from-[rgba(4,10,14,0.97)] via-transparent to-transparent'
+                : 'bg-gradient-to-t from-[rgba(255,253,247,0.92)] via-transparent to-transparent'
+            }`}
+          />
+          <div className="absolute left-2.5 top-2.5 rounded bg-black/60 px-2 py-0.5 font-sans text-[9px] uppercase tracking-wider text-white/90">
+            {type}
+          </div>
+          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} />}
+          <div className="absolute bottom-2.5 right-2.5 rounded bg-black/65 px-2 py-0.5 font-sans text-[9px] uppercase tracking-wider text-[#c8a870]">
+            {place.source}
           </div>
         </div>
 
-        <div className="p-4">
-          <h3 className="font-serif text-lg mb-1">{place.name}</h3>
-          <p className={`font-sans text-xs uppercase tracking-wider mb-2 ${isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>
+        <div className="px-4 py-3.5">
+          <h3
+            className={`font-display mb-1 text-[15px] leading-snug tracking-wide ${
+              isTheophany ? 'text-[#c8e8e8]' : 'text-[#3a2810]'
+            }`}
+          >
+            {place.name}
+          </h3>
+          <p
+            className={`mb-2 font-sans text-[9px] uppercase tracking-[0.12em] ${
+              isTheophany ? 'text-[#2a5858]' : 'text-[#9a7858]'
+            }`}
+          >
             {place.city}, {place.state}
           </p>
-          {place.intensity != null && (
-            <p className="font-sans text-[10px] uppercase tracking-wider opacity-50 mb-1">
-              Intensity: {'●'.repeat(place.intensity)}{'○'.repeat(5 - place.intensity)}
+          {place.description && (
+            <p
+              className={`line-clamp-2 font-serif text-xs italic leading-relaxed ${
+                isTheophany ? 'text-[#507070]' : 'text-[#8a6e50]'
+              }`}
+            >
+              {place.description}
             </p>
           )}
-          <p className="font-serif text-sm italic opacity-80 line-clamp-2">{place.description}</p>
-
-          {/* Tier 1 Feature #8: Tradition/Sensitivity preview */}
           {place.traditions && (
-            <p className="mt-2 text-xs opacity-50 font-sans">
+            <p className={`mt-2 font-sans text-[11px] ${isTheophany ? 'text-theophany-muted/80' : 'text-sanctuary-muted'}`}>
               Traditions: {place.traditions}
             </p>
           )}
-
-          {/* Tier 1 Feature #7: Theophany disclaimer on every card */}
           {isTheophany && <TheophanyDisclaimer />}
         </div>
       </div>
