@@ -89,7 +89,7 @@ export default function PlaceDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-sanctuary-bg">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-sanctuary-bg">
         <p className="font-serif italic text-sanctuary-muted">Loading...</p>
       </div>
     )
@@ -97,8 +97,8 @@ export default function PlaceDetail() {
 
   if (!place) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-sanctuary-bg">
-        <div className="text-center space-y-3">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-sanctuary-bg">
+        <div className="space-y-3 text-center">
           <p className="font-serif text-sanctuary-text">Place not found.</p>
           <Link to="/" className="font-sans text-xs uppercase tracking-wider text-sanctuary-accent">← Back</Link>
         </div>
@@ -111,7 +111,7 @@ export default function PlaceDetail() {
   const accentClass = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
 
   return (
-    <div className={`min-h-screen ${bgClass}`}>
+    <div className={`min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
       {/* Back nav */}
       <div className="p-4 pt-6">
         <Link to="/" className={`font-sans text-xs uppercase tracking-wider ${accentClass}`}>

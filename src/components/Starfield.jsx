@@ -15,7 +15,7 @@ export default function Starfield() {
 
   return (
     <svg
-      className="pointer-events-none fixed inset-0 z-0 opacity-[0.42]"
+      className="pointer-events-none absolute inset-0 z-0 opacity-[0.42]"
       width="100%"
       height="100%"
       aria-hidden

@@ -98,8 +98,8 @@ export default function SubmitPlace() {
   const labelClass = `block font-sans text-xs uppercase tracking-wider text-sanctuary-muted mb-1`
 
   return (
-    <div className="min-h-screen bg-sanctuary-bg text-sanctuary-text">
-      <div className="max-w-lg mx-auto p-6 pb-24">
+    <div className="min-h-0 flex-1 overflow-y-auto bg-sanctuary-bg text-sanctuary-text">
+      <div className="mx-auto max-w-lg p-6 pb-24">
         {/* Header */}
         <div className="mb-8">
           <Link to="/" className="font-sans text-xs uppercase tracking-wider text-sanctuary-accent">← Back</Link>

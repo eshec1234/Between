@@ -1,8 +1,8 @@
 export default function LocationConsentModal({ onAgree, onDecline }) {
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-[rgba(10,8,4,0.85)] px-4">
+    <div className="absolute inset-0 z-[500] flex items-center justify-center bg-[rgba(8,6,2,0.88)] px-4">
       <div
-        className="w-[86%] max-w-[320px] rounded-[10px] border border-[rgba(200,168,112,0.35)] bg-[#16120c] px-6 py-7 text-center animate-bpop"
+        className="w-[86%] max-w-[310px] rounded-xl border border-[rgba(200,168,112,0.38)] bg-[#17130d] px-6 py-7 text-center animate-bpop"
         role="dialog"
         aria-labelledby="consent-title"
       >

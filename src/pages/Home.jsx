@@ -110,7 +110,7 @@ export default function Home() {
 
   return (
     <div
-      className={`relative min-h-screen overflow-x-hidden ${
+      className={`relative flex min-h-0 flex-1 flex-col overflow-hidden ${
         isTheophany
           ? 'bg-gradient-to-b from-theophany-bg via-theophany-primary to-theophany-secondary text-theophany-text'
           : 'bg-gradient-to-br from-sanctuary-bg via-sanctuary-primary to-sanctuary-secondary text-sanctuary-text'
@@ -118,14 +118,14 @@ export default function Home() {
     >
       {isTheophany && <Starfield />}
       {isTheophany && (
-        <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
       )}
       {!isTheophany && (
-        <div className="pointer-events-none fixed left-1/2 top-0 z-[1] h-[220px] w-[160%] -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
+        <div className="pointer-events-none absolute left-1/2 top-0 z-[1] h-[220px] w-[160%] max-w-none -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
       )}
 
       <div
-        className={`fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 pt-6 ${
+        className={`sticky top-0 z-40 flex shrink-0 items-center justify-between p-4 pt-6 ${
           isTheophany ? 'bg-theophany-bg/90 backdrop-blur-sm' : 'bg-sanctuary-bg/90 backdrop-blur-sm'
         }`}
       >
@@ -176,7 +176,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="relative z-10 pt-20">
+      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-4">
         <div className="px-4 text-center">
           <p
             className={`font-display text-[10px] uppercase tracking-[0.28em] ${
@@ -242,7 +242,7 @@ export default function Home() {
 
       <Link
         to="/submit"
-        className={`fixed bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-lg transition-colors ${
+        className={`absolute bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-lg transition-colors ${
           isTheophany ? 'bg-theophany-accent text-theophany-bg' : 'bg-sanctuary-accent text-sanctuary-bg'
         }`}
         title="Submit a place"

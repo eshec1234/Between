@@ -1,31 +1,55 @@
 import { useEffect, useRef } from 'react'
 
 export default function ParticleBackground() {
+  const wrapRef = useRef(null)
   const canvasRef = useRef(null)
   const animRef = useRef(null)
   const particlesRef = useRef([])
+  const sizeRef = useRef({ w: 0, h: 0 })
 
   useEffect(() => {
+    const wrap = wrapRef.current
     const cvs = canvasRef.current
-    if (!cvs) return
+    if (!wrap || !cvs) return
     const ctx = cvs.getContext('2d')
-    const w = window.innerWidth
-    const h = window.innerHeight
-    cvs.width = w
-    cvs.height = h
 
-    particlesRef.current = Array.from({ length: 42 }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: 0.5 + Math.random() * 2,
-      speed: 0.1 + Math.random() * 0.14,
-      angle: Math.random() * Math.PI * 2,
-      drift: 0.002 + Math.random() * 0.004,
-      op: 0.05 + Math.random() * 0.2,
-      pulse: Math.random() * Math.PI * 2
-    }))
+    const initParticles = (w, h) => {
+      if (w < 2 || h < 2) return
+      particlesRef.current = Array.from({ length: 42 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.5 + Math.random() * 2,
+        speed: 0.1 + Math.random() * 0.14,
+        angle: Math.random() * Math.PI * 2,
+        drift: 0.002 + Math.random() * 0.004,
+        op: 0.05 + Math.random() * 0.2,
+        pulse: Math.random() * Math.PI * 2
+      }))
+    }
+
+    const applySize = (w, h) => {
+      const prev = sizeRef.current
+      sizeRef.current = { w, h }
+      cvs.width = w
+      cvs.height = h
+      if (prev.w !== w || prev.h !== h) initParticles(w, h)
+    }
+
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0]?.contentRect
+      if (!cr) return
+      const w = Math.max(1, Math.floor(cr.width))
+      const h = Math.max(1, Math.floor(cr.height))
+      applySize(w, h)
+    })
+    ro.observe(wrap)
 
     const draw = () => {
+      const { w, h } = sizeRef.current
+      if (w < 2 || h < 2) {
+        animRef.current = requestAnimationFrame(draw)
+        return
+      }
       const t = Date.now() * 0.001
       const particles = particlesRef.current
       ctx.clearRect(0, 0, w, h)
@@ -87,23 +111,15 @@ export default function ParticleBackground() {
 
     draw()
 
-    const onResize = () => {
-      cvs.width = window.innerWidth
-      cvs.height = window.innerHeight
-    }
-    window.addEventListener('resize', onResize)
-
     return () => {
-      window.removeEventListener('resize', onResize)
+      ro.disconnect()
       if (animRef.current) cancelAnimationFrame(animRef.current)
     }
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 h-full w-full"
-      aria-hidden
-    />
+    <div ref={wrapRef} className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      <canvas ref={canvasRef} className="h-full w-full" aria-hidden />
+    </div>
   )
 }
