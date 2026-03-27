@@ -2,10 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
-import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import Starfield from '../components/Starfield'
 import { getDailyOmen } from '../data/omens'
 import { INTENSITY_LEVELS } from '../data/intensityLegend'
+import { fetchActivityFeed } from '../lib/feed'
+import ActivityFeed from '../components/ActivityFeed'
+import MockAdSlot from '../components/MockAdSlot'
+import InstallPwaPrompt from '../components/InstallPwaPrompt'
+import SourceBadge from '../components/SourceBadge'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 const NEARBY_RADIUS_M = 10000
@@ -49,6 +53,12 @@ export default function Home() {
   const [center, setCenter] = useState(DEFAULT_CENTER)
   const [feedKind, setFeedKind] = useState('nearby')
   const [omen] = useState(() => getDailyOmen())
+  const [feed, setFeed] = useState({
+    recentPlaces: [],
+    recentReports: [],
+    trendingPlaces: []
+  })
+  const [feedLoading, setFeedLoading] = useState(true)
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -60,6 +70,31 @@ export default function Home() {
       { timeout: 12000, maximumAge: 120000 }
     )
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadFeed() {
+      if (!hasSupabaseEnv || !supabase) {
+        setFeed({ recentPlaces: [], recentReports: [], trendingPlaces: [] })
+        setFeedLoading(false)
+        return
+      }
+      setFeedLoading(true)
+      const data = await fetchActivityFeed(supabase, mode)
+      if (!cancelled) {
+        setFeed({
+          recentPlaces: data.recentPlaces,
+          recentReports: data.recentReports,
+          trendingPlaces: data.trendingPlaces
+        })
+        setFeedLoading(false)
+      }
+    }
+    loadFeed()
+    return () => {
+      cancelled = true
+    }
+  }, [mode])
 
   const fetchPlaces = useCallback(async () => {
     setLoading(true)
@@ -176,7 +211,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-4">
+      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-3">
         <div className="px-4 text-center">
           <p
             className={`font-display text-[10px] uppercase tracking-[0.28em] ${
@@ -185,9 +220,32 @@ export default function Home() {
           >
             {isTheophany ? 'A place to notice' : 'A place to remain'}
           </p>
+          <p className={`mt-1 font-sans text-[10px] ${isTheophany ? 'text-theophany-muted/90' : 'text-sanctuary-muted'}`}>
+            Hyperlocal · Anonymous · Feed
+          </p>
         </div>
 
-        <div className="pt-12">
+        <div className="pt-4">
+          <InstallPwaPrompt isTheophany={isTheophany} />
+          <ActivityFeed
+            recentPlaces={feed.recentPlaces}
+            recentReports={feed.recentReports}
+            trendingPlaces={feed.trendingPlaces}
+            isTheophany={isTheophany}
+            loading={feedLoading}
+          />
+        </div>
+
+        <div className="px-4 pt-2">
+          <p
+            className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
+              isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+            }`}
+          >
+            Map
+          </p>
+        </div>
+        <div className="pt-3">
           <Map mode={mode} places={places} mapCenter={mapCenter} />
         </div>
 
@@ -224,6 +282,16 @@ export default function Home() {
             : 'Recent places (nearby unavailable or no matches — run SQL migration 005 for spatial search)'}
         </p>
 
+        <div className="px-4 pt-2">
+          <p
+            className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
+              isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+            }`}
+          >
+            Nearby
+          </p>
+        </div>
+
         <div className="space-y-4 p-4 pb-24">
           {loading ? (
             <p className="pt-8 text-center font-serif italic opacity-60">Finding nearby spaces...</p>
@@ -233,9 +301,17 @@ export default function Home() {
               <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
             </div>
           ) : (
-            places.map((place) => (
-              <PlaceCard key={place.id} place={place} isTheophany={isTheophany} />
-            ))
+            places.flatMap((place, i) => {
+              const cards = [
+                <PlaceCard key={place.id} place={place} isTheophany={isTheophany} />
+              ]
+              if ((i + 1) % 4 === 0) {
+                cards.push(
+                  <MockAdSlot key={`ad-slot-${place.id}`} index={Math.floor(i / 4)} isTheophany={isTheophany} />
+                )
+              }
+              return cards
+            })
           )}
         </div>
       </div>
@@ -258,21 +334,23 @@ function PlaceCard({ place, isTheophany }) {
   const img = place.photos?.[0]
 
   return (
-    <Link to={`/place/${place.id}`}>
+    <Link to={`/place/${place.id}`} className="block">
       <div
-        className={`mb-2.5 overflow-hidden rounded-lg border transition-opacity hover:opacity-90 ${
+        className={`mb-2.5 overflow-hidden rounded-xl border shadow-sm transition-opacity hover:opacity-95 ${
           isTheophany
             ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)]'
-            : 'border-sanctuary-accent/20 bg-[rgba(255,253,247,0.97)]'
+            : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)]'
         }`}
       >
         <div
-          className={`relative h-36 overflow-hidden ${isTheophany ? 'bg-[#050c10]' : 'bg-[#f5ead5]'}`}
+          className={`relative aspect-[4/3] w-full overflow-hidden sm:max-h-[320px] ${
+            isTheophany ? 'bg-[#050c10]' : 'bg-[#f5ead5]'
+          }`}
         >
           {img ? (
             <img
               src={img}
-              alt={place.name}
+              alt=""
               className={`h-full w-full object-cover ${
                 isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
               }`}
@@ -284,29 +362,29 @@ function PlaceCard({ place, isTheophany }) {
             className={`absolute inset-0 ${
               isTheophany
                 ? 'bg-gradient-to-t from-[rgba(4,10,14,0.97)] via-transparent to-transparent'
-                : 'bg-gradient-to-t from-[rgba(255,253,247,0.92)] via-transparent to-transparent'
+                : 'bg-gradient-to-t from-[rgba(255,253,247,0.95)] via-transparent to-transparent'
             }`}
           />
           <div className="absolute left-2.5 top-2.5 rounded bg-black/60 px-2 py-0.5 font-sans text-[9px] uppercase tracking-wider text-white/90">
             {type}
           </div>
-          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} />}
-          <div className="absolute bottom-2.5 right-2.5 rounded bg-black/65 px-2 py-0.5 font-sans text-[9px] uppercase tracking-wider text-[#c8a870]">
-            {place.source}
+          <div className="absolute bottom-2.5 left-2.5">
+            <SourceBadge source={place.source} compact />
           </div>
+          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} />}
         </div>
 
         <div className="px-4 py-3.5">
           <h3
-            className={`font-display mb-1 text-[15px] leading-snug tracking-wide ${
-              isTheophany ? 'text-[#c8e8e8]' : 'text-[#3a2810]'
+            className={`font-display mb-1 text-[16px] leading-snug tracking-wide ${
+              isTheophany ? 'text-[#c8e8e8]' : 'text-sanctuary-text'
             }`}
           >
             {place.name}
           </h3>
           <p
             className={`mb-2 font-sans text-[9px] uppercase tracking-[0.12em] ${
-              isTheophany ? 'text-[#2a5858]' : 'text-[#9a7858]'
+              isTheophany ? 'text-[#2a5858]' : 'text-sanctuary-muted'
             }`}
           >
             {place.city}, {place.state}
@@ -314,7 +392,7 @@ function PlaceCard({ place, isTheophany }) {
           {place.description && (
             <p
               className={`line-clamp-2 font-serif text-xs italic leading-relaxed ${
-                isTheophany ? 'text-[#507070]' : 'text-[#8a6e50]'
+                isTheophany ? 'text-[#507070]' : 'text-sanctuary-muted'
               }`}
             >
               {place.description}
@@ -325,7 +403,6 @@ function PlaceCard({ place, isTheophany }) {
               Traditions: {place.traditions}
             </p>
           )}
-          {isTheophany && <TheophanyDisclaimer />}
         </div>
       </div>
     </Link>

@@ -190,4 +190,16 @@ $$;
 GRANT EXECUTE ON FUNCTION places_nearby(double precision, double precision, double precision, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION report_place_flag(uuid) TO anon, authenticated;
 
+-- --- 006: reviews vs tips + stillness (migration 006_reviews_tips_and_vibe.sql) ----------
+
+ALTER TABLE experience_reports
+  ADD COLUMN IF NOT EXISTS content_kind TEXT NOT NULL DEFAULT 'review'
+    CHECK (content_kind IN ('review', 'tip'));
+
+ALTER TABLE experience_reports
+  ADD COLUMN IF NOT EXISTS stillness_rating INTEGER
+    CHECK (stillness_rating IS NULL OR (stillness_rating >= 1 AND stillness_rating <= 5));
+
+CREATE INDEX IF NOT EXISTS idx_experience_reports_created_at ON experience_reports(created_at DESC);
+
 -- Done. In Supabase: Table Editor → you should see `places` with one row.

@@ -1,7 +1,8 @@
 {
   "name": "Between",
   "short_name": "Between",
-  "description": "Find where the boundary thins",
+  "description": "Hyperlocal anonymous feed of sacred and liminal places. Install for quick access.",
+  "categories": ["lifestyle", "travel"],
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1610",
