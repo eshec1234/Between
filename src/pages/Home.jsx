@@ -12,7 +12,9 @@ import InstallPwaPrompt from '../components/InstallPwaPrompt'
 import SourceBadge from '../components/SourceBadge'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
-const NEARBY_RADIUS_M = 10000
+/** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
+const NEARBY_RADIUS_M = 350000
+const PLACES_LIST_CAP = 24
 
 function readInitialMode() {
   const m = sessionStorage.getItem('between_initial_mode')
@@ -112,27 +114,35 @@ export default function Home() {
       mode_filter: mode
     })
 
-    if (!rpcError && rpcData?.length) {
-      setPlaces(rpcData)
+    const nearby = !rpcError && rpcData?.length ? [...rpcData] : []
+    const seen = new Set(nearby.map((p) => p.id))
+
+    if (nearby.length < PLACES_LIST_CAP) {
+      const { data: more } = await supabase
+        .from('places')
+        .select('*')
+        .or(`mode.eq.${mode},mode.eq.both`)
+        .order('created_at', { ascending: false })
+        .limit(60)
+
+      for (const p of more || []) {
+        if (nearby.length >= PLACES_LIST_CAP) break
+        if (!seen.has(p.id)) {
+          seen.add(p.id)
+          nearby.push(p)
+        }
+      }
+    }
+
+    if (rpcError || !rpcData?.length) {
+      setFeedKind('fallback')
+    } else if (nearby.length > rpcData.length) {
+      setFeedKind('mixed')
+    } else {
       setFeedKind('nearby')
-      setLoading(false)
-      return
     }
 
-    if (!rpcError && rpcData?.length === 0) {
-      setFeedKind('fallback')
-    } else if (rpcError) {
-      setFeedKind('fallback')
-    }
-
-    const { data } = await supabase
-      .from('places')
-      .select('*')
-      .or(`mode.eq.${mode},mode.eq.both`)
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    setPlaces(data || [])
+    setPlaces(nearby.slice(0, PLACES_LIST_CAP))
     setLoading(false)
   }, [center.lat, center.lng, mode])
 
@@ -277,9 +287,11 @@ export default function Home() {
         )}
 
         <p className="px-4 pt-3 font-sans text-[10px] uppercase tracking-wider opacity-50">
-          {feedKind === 'nearby'
-            ? `Within ~${NEARBY_RADIUS_M / 1000} km of your map center`
-            : 'Recent places (nearby unavailable or no matches — run SQL migration 005 for spatial search)'}
+          {feedKind === 'nearby' && `Within ~${NEARBY_RADIUS_M / 1000} km of map center · mode filter`}
+          {feedKind === 'mixed' &&
+            `Nearest within ~${NEARBY_RADIUS_M / 1000} km, then more from the catalog to fill the list`}
+          {feedKind === 'fallback' &&
+            'Catalog order (no nearby match or spatial RPC unavailable — ensure seed SQL ran in Supabase)'}
         </p>
 
         <div className="px-4 pt-2">
