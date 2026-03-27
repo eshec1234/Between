@@ -202,4 +202,8 @@ ALTER TABLE experience_reports
 
 CREATE INDEX IF NOT EXISTS idx_experience_reports_created_at ON experience_reports(created_at DESC);
 
--- Done. In Supabase: Table Editor → you should see `places` with one row.
+-- --- 007: 20 spiritual curated places (10 sanctuary + 10 theophany) with photos ----------
+-- Run the full script in this repo: supabase/migrations/007_seed_spiritual_places_20.sql
+-- (paste the entire file into SQL Editor and execute). Safe to re-run: skips if name+city exists.
+
+-- Done. In Supabase: Table Editor → you should see `places` with rows after running 007.
