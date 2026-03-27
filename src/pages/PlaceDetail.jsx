@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import SourceBadge from '../components/SourceBadge'
+import PlaceWalkthrough from '../components/PlaceWalkthrough'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -211,6 +212,24 @@ export default function PlaceDetail() {
           </p>
         </div>
 
+        <PlaceWalkthrough
+          place={place}
+          isTheophany={isTheophany}
+          borderClass={borderClass}
+          accentClass={accentClass}
+          subClass={subClass}
+          bodyClass={bodyClass}
+        />
+
+        {place.description && place.description.length > 520 && (
+          <details className={`rounded-lg border px-3 py-2 ${borderClass}`}>
+            <summary className={`cursor-pointer font-sans text-[11px] uppercase tracking-wider ${subClass}`}>
+              Full place description
+            </summary>
+            <p className={`mt-2 font-serif text-sm italic leading-relaxed ${bodyClass}`}>{place.description}</p>
+          </details>
+        )}
+
         {avgStillness != null && (place.mode === 'sanctuary' || place.mode === 'both') && (
           <div
             className={`rounded-md border-2 px-3 py-2 font-sans text-sm ${borderClass} ${
@@ -222,8 +241,6 @@ export default function PlaceDetail() {
             <span className={subClass}> / 5</span>
           </div>
         )}
-
-        <p className="font-serif text-base italic leading-relaxed text-current">{place.description}</p>
 
         {isTheophany && <TheophanyDisclaimer />}
 
