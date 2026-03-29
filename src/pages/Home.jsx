@@ -37,6 +37,8 @@ const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
 const NEARBY_RADIUS_M = 350000
 const PLACES_LIST_CAP = 24
+/** Leave headroom so newest catalog rows (e.g. tradition seeds) can merge into the list */
+const MAX_FROM_RPC = 16
 /** Refetch nearby list when you’ve moved at least this far (km) while tracking */
 const TRACK_MIN_MOVE_KM = 0.13
 /** Or this often if you’re stationary (keeps feed fresh on long stays) */
@@ -201,29 +203,28 @@ export default function Home() {
       mode_filter: mode
     })
 
-    const nearby = !rpcError && rpcData?.length ? [...rpcData] : []
+    const nearby = !rpcError && rpcData?.length ? [...rpcData].slice(0, MAX_FROM_RPC) : []
     const seen = new Set(nearby.map((p) => p.id))
 
-    if (nearby.length < PLACES_LIST_CAP) {
-      const { data: more } = await supabase
-        .from('places')
-        .select('*')
-        .or(`mode.eq.${mode},mode.eq.both`)
-        .order('created_at', { ascending: false })
-        .limit(60)
+    const { data: more } = await supabase
+      .from('places')
+      .select('*')
+      .or(`mode.eq.${mode},mode.eq.both`)
+      .order('created_at', { ascending: false })
+      .limit(80)
 
-      for (const p of more || []) {
-        if (nearby.length >= PLACES_LIST_CAP) break
-        if (!seen.has(p.id)) {
-          seen.add(p.id)
-          nearby.push(p)
-        }
+    for (const p of more || []) {
+      if (nearby.length >= PLACES_LIST_CAP) break
+      if (!seen.has(p.id)) {
+        seen.add(p.id)
+        nearby.push(p)
       }
     }
 
+    const rpcBaseCount = !rpcError && rpcData?.length ? Math.min(rpcData.length, MAX_FROM_RPC) : 0
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
-    } else if (nearby.length > rpcData.length) {
+    } else if (nearby.length > rpcBaseCount) {
       setFeedKind('mixed')
     } else {
       setFeedKind('nearby')
