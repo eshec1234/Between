@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
 import { markVisited, markWalkthroughDone, isSaved, toggleSaved } from '../lib/betweenLocal'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
@@ -8,7 +8,7 @@ import PlaceWalkthrough from '../components/PlaceWalkthrough'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
-import { photosForPlace } from '../lib/placePhotoFallback'
+import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -31,6 +31,10 @@ function formatTime(iso) {
 
 export default function PlaceDetail() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const surpriseMode = searchParams.get('surprise') === '1'
+  const [revealed, setRevealed] = useState(true)
+  const walkthroughRef = useRef(null)
   const [place, setPlace] = useState(null)
   const [experienceReports, setExperienceReports] = useState([])
   const [loading, setLoading] = useState(true)
@@ -55,6 +59,20 @@ export default function PlaceDetail() {
     fetchPlace()
     fetchExperienceReports()
   }, [id])
+
+  useEffect(() => {
+    setRevealed(!surpriseMode)
+  }, [id, surpriseMode])
+
+  const walkthroughParam = searchParams.get('walkthrough')
+  useEffect(() => {
+    if (!place || surpriseMode) return
+    if (walkthroughParam !== '1') return
+    const t = window.setTimeout(() => {
+      walkthroughRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 450)
+    return () => window.clearTimeout(t)
+  }, [place?.id, surpriseMode, walkthroughParam])
 
   useEffect(() => {
     if (place?.id) setSaved(isSaved(place.id))
@@ -169,7 +187,7 @@ export default function PlaceDetail() {
     }
 
     if (!error) {
-      setPostFlash(contentKind === 'tip' ? 'Tip posted.' : 'Review posted.')
+      setPostFlash(contentKind === 'tip' ? 'Tip posted.' : 'Experience report posted.')
       setTimeout(() => setPostFlash(''), 4000)
       setReportContent('')
       setSelectedTag('')
@@ -244,6 +262,8 @@ export default function PlaceDetail() {
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
   const gallery = photosForPlace(place)
   const usedFallback = !place?.photos?.length
+  const heroPick = photoForPlaceAtTime(place)
+  const heroSrc = gallery.length ? (gallery.length > 1 ? heroPick.url : gallery[0]) : null
 
   return (
     <div className={`relative min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
@@ -273,16 +293,29 @@ export default function PlaceDetail() {
         </Link>
       </div>
 
-      {gallery[0] && (
+      {surpriseMode && !revealed && (
+        <div className="px-6 pb-2">
+          <p className={`font-serif text-sm italic leading-relaxed ${subClass}`}>
+            A place opens for you — walkthrough first; the name stays hidden until you reveal it.
+          </p>
+        </div>
+      )}
+
+      {heroSrc && (!surpriseMode || revealed) && (
         <div className="relative w-full">
           {usedFallback && (
             <p className={`px-4 pb-2 font-sans text-[9px] uppercase tracking-wider ${subClass}`}>
               Placeholder imagery — add photos in Supabase when you have them
             </p>
           )}
+          {gallery.length > 1 && heroPick.label && (
+            <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
+              Photo mood · {heroPick.label} (local time)
+            </p>
+          )}
           <div className="relative h-56 w-full overflow-hidden sm:h-72">
             <img
-              src={gallery[0]}
+              src={heroSrc}
               alt=""
               className={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
                 isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
@@ -307,160 +340,157 @@ export default function PlaceDetail() {
       )}
 
       <div className={`space-y-4 p-6 ${bodyClass}`}>
-        <div>
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span
-              className={`rounded border px-2 py-0.5 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${accentClass}`}
-            >
-              {place.mode}
-            </span>
-            <SourceBadge source={place.source} />
-          </div>
-          <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
-            <h1 className="font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
-            <button
-              type="button"
-              onClick={() => setSaved(toggleSaved(place.id))}
-              className={`shrink-0 rounded-full border-2 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-wider ${
-                saved
-                  ? isTheophany
-                    ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-accent'
-                    : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-accent'
-                  : `${borderClass} ${subClass} hover:opacity-90`
-              }`}
-              aria-label={saved ? 'Remove from saved' : 'Save place'}
-            >
-              {saved ? 'Saved ♥' : 'Save ♡'}
-            </button>
-          </div>
-          <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
-            {place.address} · {place.city}, {place.state}
-          </p>
-        </div>
+        {(!surpriseMode || revealed) && (
+          <>
+            <div>
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span
+                  className={`rounded border px-2 py-0.5 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${accentClass}`}
+                >
+                  {place.mode}
+                </span>
+                <SourceBadge source={place.source} />
+              </div>
+              <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
+                <h1 className="font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
+                <button
+                  type="button"
+                  onClick={() => setSaved(toggleSaved(place.id))}
+                  className={`shrink-0 rounded-full border-2 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-wider ${
+                    saved
+                      ? isTheophany
+                        ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-accent'
+                        : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-accent'
+                      : `${borderClass} ${subClass} hover:opacity-90`
+                  }`}
+                  aria-label={saved ? 'Remove from saved' : 'Save place'}
+                >
+                  {saved ? 'Saved ♥' : 'Save ♡'}
+                </button>
+              </div>
+              <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
+                {place.address} · {place.city}, {place.state}
+              </p>
+            </div>
 
-        {place.curated_quote && (
-          <blockquote
-            className={`border-l-4 py-1 pl-4 font-serif text-sm italic leading-relaxed ${
-              isTheophany ? 'border-theophany-accent/70 text-violet-200/85' : 'border-sanctuary-accent/70 text-sanctuary-muted'
-            }`}
-          >
-            {place.curated_quote}
-          </blockquote>
+            {place.curated_quote && (
+              <blockquote
+                className={`border-l-4 py-1 pl-4 font-serif text-sm italic leading-relaxed ${
+                  isTheophany ? 'border-theophany-accent/70 text-violet-200/85' : 'border-sanctuary-accent/70 text-sanctuary-muted'
+                }`}
+              >
+                {place.curated_quote}
+              </blockquote>
+            )}
+
+            {hasSupabaseEnv && (
+              <div
+                className={`flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2.5 ${borderClass} ${
+                  isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+                }`}
+              >
+                <p className={`font-sans text-[11px] ${subClass}`}>
+                  <span className="font-medium text-current">{resonanceCount}</span> visitors said this place stayed with
+                  them
+                </p>
+                <button
+                  type="button"
+                  disabled={resonanceSelf || resonanceBusy}
+                  onClick={addResonance}
+                  className={`rounded-full border px-3 py-1 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors disabled:opacity-45 ${
+                    isTheophany
+                      ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                      : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
+                  }`}
+                >
+                  {resonanceSelf ? 'Counted for you' : resonanceBusy ? '…' : 'This stayed with me'}
+                </button>
+              </div>
+            )}
+          </>
         )}
 
-        {hasSupabaseEnv && (
-          <div
-            className={`flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2.5 ${borderClass} ${
-              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
-            }`}
-          >
-            <p className={`font-sans text-[11px] ${subClass}`}>
-              <span className="font-medium text-current">{resonanceCount}</span> visitors said this place stayed with
-              them
-            </p>
+        <div ref={walkthroughRef}>
+          <PlaceWalkthrough
+            place={place}
+            isTheophany={isTheophany}
+            borderClass={borderClass}
+            accentClass={accentClass}
+            subClass={subClass}
+            bodyClass={bodyClass}
+            onReachedLastStep={() => markWalkthroughDone(place.id)}
+          />
+        </div>
+
+        {surpriseMode && !revealed && (
+          <div className="pt-2">
             <button
               type="button"
-              disabled={resonanceSelf || resonanceBusy}
-              onClick={addResonance}
-              className={`rounded-full border px-3 py-1 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors disabled:opacity-45 ${
+              onClick={() => setRevealed(true)}
+              className={`w-full rounded-xl border-2 px-4 py-3 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors ${
                 isTheophany
                   ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
                   : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
               }`}
             >
-              {resonanceSelf ? 'Counted for you' : resonanceBusy ? '…' : 'This stayed with me'}
+              Reveal this place
             </button>
           </div>
         )}
 
-        <PlaceWalkthrough
-          place={place}
-          isTheophany={isTheophany}
-          borderClass={borderClass}
-          accentClass={accentClass}
-          subClass={subClass}
-          bodyClass={bodyClass}
-          onReachedLastStep={() => markWalkthroughDone(place.id)}
-        />
-
-        {place.description && place.description.length > 520 && (
-          <details className={`rounded-lg border px-3 py-2 ${borderClass}`}>
-            <summary className={`cursor-pointer font-sans text-[11px] uppercase tracking-wider ${subClass}`}>
-              Full place description
-            </summary>
-            <p className={`mt-2 font-serif text-sm italic leading-relaxed ${bodyClass}`}>{place.description}</p>
-          </details>
-        )}
-
-        {avgStillness != null && (place.mode === 'sanctuary' || place.mode === 'both') && (
-          <div
-            className={`rounded-md border-2 px-3 py-2 font-sans text-sm ${borderClass} ${
-              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
-            }`}
-          >
-            <span className={`font-semibold ${subClass}`}>Avg. stillness (visitors):</span>{' '}
-            <span className="text-current">{avgStillness}</span>
-            <span className={subClass}> / 5</span>
-          </div>
-        )}
-
-        {isTheophany && <TheophanyDisclaimer />}
-
-        {(place.traditions || place.cultural_sensitivities || place.access_protocols) && (
-          <div
-            className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
-              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
-            }`}
-          >
-            <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Cultural Context</h3>
-            {place.traditions && (
-              <p className="font-sans text-sm leading-relaxed text-current">
-                <span className={`font-medium ${subClass}`}>Traditions:</span> {place.traditions}
-              </p>
+        {(!surpriseMode || revealed) && (
+          <>
+            {place.description && place.description.length > 520 && (
+              <details className={`rounded-lg border px-3 py-2 ${borderClass}`}>
+                <summary className={`cursor-pointer font-sans text-[11px] uppercase tracking-wider ${subClass}`}>
+                  Full place description
+                </summary>
+                <p className={`mt-2 font-serif text-sm italic leading-relaxed ${bodyClass}`}>{place.description}</p>
+              </details>
             )}
-            {place.cultural_sensitivities && (
-              <p className="font-sans text-sm leading-relaxed text-current">
-                <span className={`font-medium ${subClass}`}>Sensitivities:</span> {place.cultural_sensitivities}
-              </p>
-            )}
-            {place.access_protocols && (
-              <p className="font-sans text-sm leading-relaxed text-current">
-                <span className={`font-medium ${subClass}`}>Access:</span> {place.access_protocols}
-              </p>
-            )}
-          </div>
-        )}
 
-        {place.category_tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {place.category_tags.map((tag) => (
-              <span
-                key={tag}
-                className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
+            {avgStillness != null && (place.mode === 'sanctuary' || place.mode === 'both') && (
+              <div
+                className={`rounded-md border-2 px-3 py-2 font-sans text-sm ${borderClass} ${
+                  isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+                }`}
               >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {(place.intensity != null || place.approach_tags?.length > 0) && (
-          <div
-            className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
-              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
-            }`}
-          >
-            <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Vibe</h3>
-            {place.intensity != null && (
-              <p className="font-sans text-sm text-current">
-                <span className={`font-medium ${subClass}`}>Intensity:</span>{' '}
-                {'●'.repeat(place.intensity)}
-                {'○'.repeat(5 - place.intensity)}
-              </p>
+                <span className={`font-semibold ${subClass}`}>Avg. stillness (visitors):</span>{' '}
+                <span className="text-current">{avgStillness}</span>
+                <span className={subClass}> / 5</span>
+              </div>
             )}
-            {place.approach_tags?.length > 0 && (
+
+            {isTheophany && <TheophanyDisclaimer />}
+
+            {(place.traditions || place.cultural_sensitivities || place.access_protocols) && (
+              <div
+                className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
+                  isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+                }`}
+              >
+                <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Cultural Context</h3>
+                {place.traditions && (
+                  <p className="font-sans text-sm leading-relaxed text-current">
+                    <span className={`font-medium ${subClass}`}>Traditions:</span> {place.traditions}
+                  </p>
+                )}
+                {place.cultural_sensitivities && (
+                  <p className="font-sans text-sm leading-relaxed text-current">
+                    <span className={`font-medium ${subClass}`}>Sensitivities:</span> {place.cultural_sensitivities}
+                  </p>
+                )}
+                {place.access_protocols && (
+                  <p className="font-sans text-sm leading-relaxed text-current">
+                    <span className={`font-medium ${subClass}`}>Access:</span> {place.access_protocols}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {place.category_tags?.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {place.approach_tags.map((tag) => (
+                {place.category_tags.map((tag) => (
                   <span
                     key={tag}
                     className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
@@ -470,34 +500,64 @@ export default function PlaceDetail() {
                 ))}
               </div>
             )}
-          </div>
-        )}
 
-        {place.source === 'community' && (
-          <p className={`font-sans text-xs leading-relaxed ${subClass}`}>
-            Community listings are reviewed asynchronously. Moderators may hide or edit entries that break site guidelines.
-          </p>
-        )}
+            {(place.intensity != null || place.approach_tags?.length > 0) && (
+              <div
+                className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
+                  isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+                }`}
+              >
+                <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Vibe</h3>
+                {place.intensity != null && (
+                  <p className="font-sans text-sm text-current">
+                    <span className={`font-medium ${subClass}`}>Intensity:</span>{' '}
+                    {'●'.repeat(place.intensity)}
+                    {'○'.repeat(5 - place.intensity)}
+                  </p>
+                )}
+                {place.approach_tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {place.approach_tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={reportPlaceForReview}
-            disabled={flagBusy || flagDone}
-            className={`rounded-md border-2 px-4 py-2 font-sans text-xs font-medium uppercase tracking-wider transition-colors disabled:opacity-40 ${
-              isTheophany
-                ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
-                : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/15'
-            }`}
-          >
-            {flagDone ? 'Thanks — flagged for review' : flagBusy ? 'Sending…' : 'Flag for moderator review'}
-          </button>
-        </div>
+            {place.source === 'community' && (
+              <p className={`font-sans text-xs leading-relaxed ${subClass}`}>
+                Community listings are reviewed asynchronously. Moderators may hide or edit entries that break site guidelines.
+              </p>
+            )}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={reportPlaceForReview}
+                disabled={flagBusy || flagDone}
+                className={`rounded-md border-2 px-4 py-2 font-sans text-xs font-medium uppercase tracking-wider transition-colors disabled:opacity-40 ${
+                  isTheophany
+                    ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                    : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/15'
+                }`}
+              >
+                {flagDone ? 'Thanks — flagged for review' : flagBusy ? 'Sending…' : 'Flag for moderator review'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
+      {(!surpriseMode || revealed) && (
       <div className={`space-y-6 border-t-2 p-6 ${borderClass} ${bodyClass}`}>
         <div>
-          <h2 className="font-serif text-lg font-medium text-current">Reviews & tips</h2>
+          <h2 className="font-serif text-lg font-medium text-current">Experience reports & tips</h2>
           <p className={`mt-1 font-sans text-[11px] ${subClass}`}>Anonymous · No names · Timestamped</p>
         </div>
 
@@ -537,7 +597,7 @@ export default function PlaceDetail() {
                     : `${borderClass} ${subClass}`
                 }`}
               >
-                Review
+                Experience report
               </button>
             </div>
 
@@ -612,7 +672,7 @@ export default function PlaceDetail() {
                   : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent hover:text-sanctuary-bg'
               }`}
             >
-              {submitting ? 'Posting…' : contentKind === 'tip' ? 'Post tip' : 'Post review'}
+              {submitting ? 'Posting…' : contentKind === 'tip' ? 'Post tip' : 'Post experience report'}
             </button>
           </form>
 
@@ -631,7 +691,7 @@ export default function PlaceDetail() {
         )}
 
         <div>
-          <h3 className={`mb-2 font-sans text-[10px] uppercase tracking-widest ${subClass}`}>Reviews</h3>
+          <h3 className={`mb-2 font-sans text-[10px] uppercase tracking-widest ${subClass}`}>Experience reports</h3>
           {reviews.length === 0 ? (
             <div
               className={`rounded-lg border-2 px-4 py-4 ${borderClass} ${
@@ -682,6 +742,7 @@ export default function PlaceDetail() {
           )}
         </div>
       </div>
+      )}
       </div>
     </div>
   )

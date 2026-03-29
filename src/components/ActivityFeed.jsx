@@ -12,7 +12,8 @@ export default function ActivityFeed({
   recentReports = [],
   trendingPlaces = [],
   isTheophany,
-  loading
+  loading,
+  trendingSectionTitle = 'Gathering light'
 }) {
   const stream = mergeActivityStream(recentPlaces, recentReports, 14)
 
@@ -64,7 +65,7 @@ export default function ActivityFeed({
               isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
             }`}
           >
-            Trending
+            {trendingSectionTitle}
           </p>
           <div className="flex flex-wrap gap-2">
             {trendingPlaces.slice(0, 5).map((p) => (

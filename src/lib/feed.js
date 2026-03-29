@@ -68,6 +68,29 @@ export async function fetchActivityFeed(supabase, mode) {
   }
 }
 
+/** Low flags + older first — long-tail spots that are not the “hot” set */
+export async function fetchDarkHorsePlaces(supabase, mode, trendingIds = []) {
+  const modeFilter = mode === 'sanctuary' ? 'mode.eq.sanctuary,mode.eq.both' : 'mode.eq.theophany,mode.eq.both'
+  const hot = new Set(trendingIds.filter(Boolean))
+
+  const { data, error } = await supabase
+    .from('places')
+    .select('id, name, city, state, mode, source, flags, created_at, photos, category_tags, description, traditions, intensity')
+    .or(modeFilter)
+    .limit(120)
+
+  if (error || !data?.length) return []
+
+  const pool = data.filter((p) => !hot.has(p.id))
+  const sorted = [...pool].sort((a, b) => {
+    const fa = a.flags ?? 0
+    const fb = b.flags ?? 0
+    if (fa !== fb) return fa - fb
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  })
+  return sorted.slice(0, 8)
+}
+
 /** Merge into a single time-ordered stream for the “Latest” strip */
 export function mergeActivityStream(recentPlaces, recentReports, max = 14) {
   const rows = []

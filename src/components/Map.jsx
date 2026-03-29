@@ -11,7 +11,9 @@ export default function Map({
   zoom = 11,
   visitedIds = null,
   savedIds = null,
-  walkthroughDoneIds = null
+  walkthroughDoneIds = null,
+  /** e.g. h-72 md:min-h-[360px] for “near me” discovery */
+  heightClass = 'h-56'
 }) {
   const mapContainer = useRef(null)
   const map = useRef(null)
@@ -105,10 +107,10 @@ export default function Map({
     hasMapboxEnv ? (
       <div
         ref={mapContainer}
-        className={`w-full h-56 ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
+        className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
       />
     ) : (
-      <div className="w-full h-56 flex items-center justify-center bg-black/5 text-center px-4">
+      <div className={`w-full ${heightClass} flex items-center justify-center bg-black/5 text-center px-4`}>
         <p className="font-sans text-xs uppercase tracking-wider opacity-60">
           Map unavailable. Set VITE_MAPBOX_TOKEN (or VITE_MAPBOX_ACCESS_TOKEN).
         </p>

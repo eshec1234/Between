@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import Starfield from '../components/Starfield'
@@ -10,7 +10,7 @@ import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
 import InstallPwaPrompt from '../components/InstallPwaPrompt'
 import SourceBadge from '../components/SourceBadge'
-import { photosForPlace } from '../lib/placePhotoFallback'
+import { photoForPlaceAtTime } from '../lib/placePhotoFallback'
 import {
   getIntention,
   setIntention,
@@ -67,6 +67,7 @@ function IntensityBar({ level, isTheophany }) {
 
 export default function Home() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [mode, setMode] = useState(readInitialMode)
   const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(true)
@@ -79,6 +80,7 @@ export default function Home() {
     trendingPlaces: []
   })
   const [feedLoading, setFeedLoading] = useState(true)
+  const [darkHorsePlaces, setDarkHorsePlaces] = useState([])
   const [intent, setIntent] = useState(() => getIntention())
   const [localTick, setLocalTick] = useState(0)
   const [filterTag, setFilterTag] = useState('')
@@ -121,6 +123,20 @@ export default function Home() {
       cancelled = true
     }
   }, [mode])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadDark() {
+      if (!hasSupabaseEnv || !supabase || feedLoading) return
+      const ids = (feed.trendingPlaces || []).map((p) => p.id)
+      const rows = await fetchDarkHorsePlaces(supabase, mode, ids)
+      if (!cancelled) setDarkHorsePlaces(rows)
+    }
+    loadDark()
+    return () => {
+      cancelled = true
+    }
+  }, [mode, feedLoading, feed.trendingPlaces])
 
   const fetchPlaces = useCallback(async () => {
     setLoading(true)
@@ -211,6 +227,13 @@ export default function Home() {
   const walkthroughDoneIds = useMemo(() => getWalkthroughDoneIds(), [places, localTick, location.key])
 
   const mapCenter = [center.lng, center.lat]
+
+  const onSurpriseMe = useCallback(() => {
+    const pool = filteredPlaces.length ? filteredPlaces : places
+    if (!pool.length) return
+    const pick = pool[Math.floor(Math.random() * pool.length)]
+    navigate(`/place/${pick.id}?surprise=1`)
+  }, [filteredPlaces, places, navigate])
 
   const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
@@ -335,6 +358,7 @@ export default function Home() {
             trendingPlaces={feed.trendingPlaces}
             isTheophany={isTheophany}
             loading={feedLoading}
+            trendingSectionTitle={isTheophany ? 'Bright threads' : 'Gathering light'}
           />
         </div>
 
@@ -370,28 +394,83 @@ export default function Home() {
           accentClass={accent}
         />
 
-        <div className="px-4 pt-2">
+        <div className="px-4 pt-5">
+          <button
+            type="button"
+            onClick={onSurpriseMe}
+            disabled={!places.length}
+            className={`w-full rounded-xl border-2 px-4 py-3.5 font-display text-sm tracking-[0.2em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+              isTheophany
+                ? 'border-theophany-accent/50 bg-black/25 text-theophany-accent hover:bg-theophany-accent/10'
+                : 'border-sanctuary-accent/45 bg-white/50 text-sanctuary-text hover:bg-sanctuary-accent/10'
+            }`}
+          >
+            Surprise me
+          </button>
+          <p className={`mt-2 text-center font-sans text-[9px] leading-relaxed ${subMuted}`}>
+            A random place — walkthrough first, no name until you choose to reveal.
+          </p>
+        </div>
+
+        <div className="px-4 pt-6">
           <p
             className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
               isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
             }`}
           >
-            Map
+            Near me now
           </p>
           <p className={`mt-1 font-sans text-[9px] ${subMuted}`}>
-            Ring: opened · gold glow: finished walkthrough · larger dot: saved
+            Your location centers the map · ring: opened · gold glow: finished walkthrough · larger dot: saved
           </p>
+          <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+            <Map
+              mode={mode}
+              places={filteredPlaces}
+              mapCenter={mapCenter}
+              visitedIds={visitedIds}
+              savedIds={savedIds}
+              walkthroughDoneIds={walkthroughDoneIds}
+              heightClass="h-[min(52vh,420px)] min-h-[260px] md:min-h-[360px]"
+              zoom={10.5}
+            />
+          </div>
         </div>
-        <div className="pt-3">
-          <Map
-            mode={mode}
-            places={filteredPlaces}
-            mapCenter={mapCenter}
-            visitedIds={visitedIds}
-            savedIds={savedIds}
-            walkthroughDoneIds={walkthroughDoneIds}
-          />
-        </div>
+
+        {darkHorsePlaces.length > 0 && (
+          <div className="px-4 pt-8">
+            <p
+              className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
+                isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+              }`}
+            >
+              Dark horse
+            </p>
+            <p className={`mt-1 max-w-md font-sans text-[11px] leading-relaxed ${subMuted}`}>
+              Quiet corners — older or seldom-flagged spots that deserve another look.
+            </p>
+            <div className="-mx-1 mt-3 flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              {darkHorsePlaces.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/place/${p.id}`}
+                  className={`min-w-[200px] max-w-[220px] shrink-0 rounded-lg border p-3 transition-colors ${
+                    isTheophany
+                      ? 'border-theophany-muted/35 bg-black/30 hover:border-theophany-accent/40'
+                      : 'border-sanctuary-muted/30 bg-white/70 hover:border-sanctuary-accent/35'
+                  }`}
+                >
+                  <p className={`font-display text-sm leading-tight ${isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'}`}>
+                    {p.name}
+                  </p>
+                  <p className={`mt-1 font-sans text-[9px] ${subMuted}`}>
+                    {p.city}, {p.state}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isTheophany && (
           <div className="mx-4 mt-3 rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
@@ -487,7 +566,7 @@ export default function Home() {
 
 function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
   const type = placeTypeLabel(place)
-  const img = photosForPlace(place)[0]
+  const { url: img, label: timeLabel } = photoForPlaceAtTime(place)
   const [saved, setSaved] = useState(() => isSaved(place.id))
 
   useEffect(() => {
@@ -547,6 +626,12 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
           ) : (
             <div className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`} />
           )}
+          {!isTheophany && (
+            <>
+              <div className="bf-card-candle pointer-events-none absolute inset-0" aria-hidden />
+              <div className="bf-card-fog pointer-events-none absolute inset-0" aria-hidden />
+            </>
+          )}
           <div
             className={`absolute inset-0 ${
               isTheophany
@@ -554,6 +639,11 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
                 : 'bg-gradient-to-t from-[rgba(255,253,247,0.95)] via-transparent to-transparent'
             }`}
           />
+          {timeLabel && (
+            <div className="absolute right-14 top-2.5 z-10 rounded bg-black/45 px-2 py-0.5 font-sans text-[8px] uppercase tracking-wider text-white/85">
+              {timeLabel}
+            </div>
+          )}
           <div className="absolute left-2.5 top-2.5 rounded bg-black/60 px-2 py-0.5 font-sans text-[9px] uppercase tracking-wider text-white/90">
             {type}
           </div>

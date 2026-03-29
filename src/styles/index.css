@@ -135,14 +135,65 @@ body {
   animation: bf-shimmer 1.8s ease-in-out infinite;
 }
 
+/* Sanctuary place cards — candle-adjacent warmth + slow fog (subtle, not loud) */
+@keyframes bf-candle-flicker {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  33% {
+    opacity: 0.55;
+  }
+  66% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes bf-fog-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.bf-card-candle {
+  animation: bf-candle-flicker 5.5s ease-in-out infinite;
+  mix-blend-mode: soft-light;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 100%,
+    rgba(255, 210, 150, 0.22) 0%,
+    transparent 65%
+  );
+}
+
+.bf-card-fog {
+  animation: bf-fog-drift 28s linear infinite;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 252, 245, 0.12) 45%,
+    rgba(245, 235, 220, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bf-float-slow,
   .bf-hero-kenburns,
   .bf-enter-card,
-  .bf-skeleton {
+  .bf-skeleton,
+  .bf-card-candle,
+  .bf-card-fog {
     animation: none !important;
   }
   .bf-enter-card {
     opacity: 1;
+  }
+  .bf-card-fog {
+    opacity: 0.35;
   }
 }
