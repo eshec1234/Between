@@ -1,9 +1,17 @@
 -- =============================================================================
--- BETWEEN — Run this ENTIRE file once in Supabase: SQL Editor → New query → Run
+-- BETWEEN — Supabase SQL (one file; section 010 is at the bottom)
 --
--- Supabase Pro does NOT create these tables for you. You must run SQL yourself.
--- Use the SAME Supabase project as your Vercel env VITE_SUPABASE_URL (check URL host).
+-- OPTION A — New / empty project (full setup)
+--   SQL Editor → New query → paste THIS ENTIRE FILE → Run once.
+--   Creates schema, policies, seeds, and 010 tradition places (last block).
 --
+-- OPTION B — Tables already exist; you only want the 6 tradition seeds
+--   SQL Editor → New query (new tab is fine) → paste ONLY the contents of:
+--     supabase/migrations/010_seed_sanctuary_traditions_diverse.sql
+--   OR copy from the line "-- --- 010:" below through the final "SELECT name, city..."
+--   then Run. Safe to re-run (skips duplicate name+city).
+--
+-- Use the SAME Supabase project as your Vercel env VITE_SUPABASE_URL (host must match).
 -- If PostGIS fails: Dashboard → Database → Extensions → enable "postgis" first.
 -- =============================================================================
 

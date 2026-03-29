@@ -1,6 +1,9 @@
 -- One curated Sanctuary row per underserved tradition filter (Christianity already in 007).
 -- PA / NJ / NY — public-facing names; coordinates approximate. Safe to re-run: skips if name+city exists.
 -- Matches RUN_THIS section 010 (ASCII hyphens in text fields).
+--
+-- Use alone: Supabase SQL Editor → New query → paste this whole file → Run.
+-- Or: same INSERT is embedded at the bottom of RUN_THIS_IN_SUPABASE_SQL_EDITOR.sql (run full file for setup).
 
 INSERT INTO places (
   name,
