@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { buildWalkthroughSteps } from '../lib/placeNarration'
-import { pickAsmrVoice, ASMR_UTTERANCE, speakAsmrText } from '../lib/speechVoice'
+import { pickAsmrVoice, speakAsmrText, SANCTUARY_UTTERANCE, THEOPHANY_UTTERANCE } from '../lib/speechVoice'
 import { safeCharacterAiUrl } from '../lib/safeCharacterAiUrl'
 import { isCloudNarrationConfigured, fetchNarrationTts } from '../lib/fetchNarrationTts'
 
@@ -105,15 +105,16 @@ export default function PlaceWalkthrough({
   const speakDevice = useCallback((text) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return
     setSpeaking(true)
+    const ut = isTheophany ? THEOPHANY_UTTERANCE : SANCTUARY_UTTERANCE
     speakAsmrText(text, window.speechSynthesis, {
       getVoice: (voices) => pickAsmrVoice(voices),
-      rate: ASMR_UTTERANCE.rate,
-      pitch: ASMR_UTTERANCE.pitch,
-      volume: ASMR_UTTERANCE.volume,
+      rate: ut.rate,
+      pitch: ut.pitch,
+      volume: ut.volume,
       onEnd: () => setSpeaking(false),
       onError: () => setSpeaking(false)
     })
-  }, [])
+  }, [isTheophany])
 
   const speakStep = useCallback(async () => {
     if (typeof window === 'undefined' || !step) return
@@ -127,7 +128,10 @@ export default function PlaceWalkthrough({
       fetchAbortRef.current = ac
       setLoadingCloud(true)
       try {
-        const blob = await fetchNarrationTts(text, { signal: ac.signal })
+        const blob = await fetchNarrationTts(text, {
+          signal: ac.signal,
+          mode: isTheophany ? 'theophany' : 'sanctuary'
+        })
         if (fetchAbortRef.current === ac) fetchAbortRef.current = null
         const objectUrl = URL.createObjectURL(blob)
         objectUrlRef.current = objectUrl
@@ -148,7 +152,7 @@ export default function PlaceWalkthrough({
     }
 
     speakDevice(text)
-  }, [step, stopSpeak, cloudNarration, speakDevice])
+  }, [step, stopSpeak, cloudNarration, speakDevice, isTheophany])
 
   if (!steps.length) return null
 
@@ -173,9 +177,19 @@ export default function PlaceWalkthrough({
           )}
           {voiceReady && cloudNarration && (
             <p className={`mt-2 max-w-[min(100%,24rem)] font-sans text-[10px] leading-snug opacity-75 ${subClass}`}>
-              Narration uses OpenAI’s neural text-to-speech with style instructions (soft, slow, ASMR-inspired). It
-              sounds human but is AI-generated, not a human recording (OpenAI’s usage policy). If the request fails,
-              the app falls back to your device voice.
+              {isTheophany ? (
+                <>
+                  Narration uses OpenAI’s neural text-to-speech with intimate, slow, ASMR-style instructions. It sounds
+                  human but is AI-generated, not a human recording (OpenAI’s usage policy). If the request fails, the app
+                  falls back to your device voice.
+                </>
+              ) : (
+                <>
+                  Narration uses OpenAI’s neural text-to-speech tuned for a warm, clear, calming delivery—like a guided
+                  rest or sleep story (not whisper-creepy). It is AI-generated, not a human recording (OpenAI’s usage
+                  policy). If the request fails, the app falls back to your device voice.
+                </>
+              )}
             </p>
           )}
           {voiceReady && !cloudNarration && (
@@ -198,11 +212,21 @@ export default function PlaceWalkthrough({
             speaking || loadingCloud
               ? 'Stop narration'
               : cloudNarration
-                ? 'Play neural narration with soft ASMR-style delivery'
+                ? isTheophany
+                  ? 'Play neural narration with intimate ASMR-style delivery'
+                  : 'Play neural narration with calm, entrancing delivery'
                 : 'Read this step aloud using device text-to-speech'
           }
         >
-          {loadingCloud ? 'Loading…' : speaking ? 'Stop' : cloudNarration ? 'Natural voice' : 'Read aloud softly'}
+          {loadingCloud
+            ? 'Loading…'
+            : speaking
+              ? 'Stop'
+              : cloudNarration
+                ? isTheophany
+                  ? 'Liminal voice'
+                  : 'Calm voice'
+                : 'Read aloud softly'}
         </button>
       </div>
 

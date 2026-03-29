@@ -13,10 +13,31 @@ const corsHeaders: Record<string, string> = {
 
 const MAX_CHARS = 4096
 
-const INSTRUCTIONS =
-  'Speak slowly and softly with a warm, calming, ASMR-inspired delivery. ' +
-  'Use a gentle, near-whisper intimacy—close and relaxed, not a broadcast or announcer voice. ' +
-  'Leave small pauses between phrases. Sound human, breath-adjacent, and unhurried.'
+/** Sanctuary: clear, warm, entrancing — safe to drift off to; never whisper-creepy */
+const INSTRUCTIONS_SANCTUARY =
+  'Speak in a warm, clear, gentle tone—like a guided meditation or sleep story. ' +
+  'Pace is slow and even with spacious pauses; sound reassuring, grounded, and luminous. ' +
+  'Smooth, breathable delivery—open and aesthetic, not close-mic, not stage whisper, not uncanny. ' +
+  'Avoid vocal fry, hush-whisper, or anything haunted or unsettling. Sound safe and entrancing.'
+
+/** Theophany: intimate, liminal ASMR — can stay unsettling */
+const INSTRUCTIONS_THEOPHANY =
+  'Speak slowly and softly with a low, intimate, ASMR-inspired delivery. ' +
+  'Use a gentle near-whisper—close, slightly unsettling, liminal. ' +
+  'Small pauses between phrases. Sound human, breath-adjacent, unhurried—never bright or cheerful.'
+
+function resolveVoice(mode: string | undefined): string {
+  const global = Deno.env.get('OPENAI_TTS_VOICE')
+  if (global) return global
+  if (mode === 'theophany') {
+    return Deno.env.get('OPENAI_TTS_VOICE_THEOPHANY') || 'marin'
+  }
+  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'shimmer'
+}
+
+function resolveInstructions(mode: string | undefined): string {
+  return mode === 'theophany' ? INSTRUCTIONS_THEOPHANY : INSTRUCTIONS_SANCTUARY
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -39,9 +60,12 @@ serve(async (req) => {
   }
 
   let text = ''
+  let mode: string | undefined
   try {
     const body = await req.json()
     text = typeof body.text === 'string' ? body.text : ''
+    const m = typeof body.mode === 'string' ? body.mode.trim().toLowerCase() : ''
+    if (m === 'theophany' || m === 'sanctuary') mode = m
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
@@ -57,7 +81,8 @@ serve(async (req) => {
     })
   }
 
-  const voice = Deno.env.get('OPENAI_TTS_VOICE') || 'marin'
+  const voice = resolveVoice(mode)
+  const instructions = resolveInstructions(mode)
 
   const upstream = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
@@ -69,7 +94,7 @@ serve(async (req) => {
       model: 'gpt-4o-mini-tts',
       voice,
       input: trimmed,
-      instructions: INSTRUCTIONS,
+      instructions,
       response_format: 'mp3'
     })
   })

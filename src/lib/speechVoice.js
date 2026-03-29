@@ -75,6 +75,20 @@ export const ASMR_UTTERANCE = {
   volume: 0.88
 }
 
+/** Sanctuary device fallback: slower, brighter, open — calming / sleep-story */
+export const SANCTUARY_UTTERANCE = {
+  rate: 0.54,
+  pitch: 0.94,
+  volume: 0.92
+}
+
+/** Theophany device fallback: lower, quieter — liminal whisper-adjacent */
+export const THEOPHANY_UTTERANCE = {
+  rate: 0.6,
+  pitch: 0.82,
+  volume: 0.85
+}
+
 /**
  * Split narration into short segments so the engine inserts natural pauses (ASMR-like pacing).
  */

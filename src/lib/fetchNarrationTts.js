@@ -13,13 +13,14 @@ export function isCloudNarrationConfigured() {
 
 /**
  * @param {string} text
- * @param {{ signal?: AbortSignal }} [options]
+ * @param {{ signal?: AbortSignal, mode?: 'sanctuary' | 'theophany' }} [options]
  * @returns {Promise<Blob>}
  */
 export async function fetchNarrationTts(text, options = {}) {
   const base = String(import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
   const url = `${base}/functions/v1/tts-narration`
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const mode = options.mode === 'theophany' ? 'theophany' : 'sanctuary'
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -27,7 +28,7 @@ export async function fetchNarrationTts(text, options = {}) {
       Authorization: `Bearer ${key}`,
       apikey: key
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, mode }),
     signal: options.signal
   })
   if (!res.ok) {

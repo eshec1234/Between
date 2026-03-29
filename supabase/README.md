@@ -23,7 +23,7 @@ Spatial search and moderation flags require section **005** in that file (or run
 The walkthrough can use **OpenAI `gpt-4o-mini-tts`** (neural voice + style prompts for soft, slow, ASMR-inspired speech) via a **Supabase Edge Function** so your API key never ships to the browser.
 
 1. Install [Supabase CLI](https://supabase.com/docs/guides/cli), link this project.
-2. In the Supabase Dashboard → **Edge Functions** → **Secrets**, add `OPENAI_API_KEY` (your OpenAI API key). Optionally set `OPENAI_TTS_VOICE` to `marin`, `shimmer`, `coral`, etc.
+2. In the Supabase Dashboard → **Edge Functions** → **Secrets**, add `OPENAI_API_KEY` (your OpenAI API key). Optionally set `OPENAI_TTS_VOICE` to force one voice for **both** modes. For per-mode voices (recommended), leave `OPENAI_TTS_VOICE` unset and set `OPENAI_TTS_VOICE_SANCTUARY` (default `shimmer` — warm, calming) and `OPENAI_TTS_VOICE_THEOPHANY` (default `marin` — lower, liminal). Redeploy `tts-narration` after changing the function code.
 3. Deploy: `supabase functions deploy tts-narration`
 4. In `.env` / Vercel env: `VITE_USE_CLOUD_NARRATION=true` (and existing `VITE_SUPABASE_*` vars).
 
