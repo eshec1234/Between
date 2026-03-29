@@ -4,7 +4,7 @@ import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import Starfield from '../components/Starfield'
 import { getDailyOmen } from '../data/omens'
-import { INTENSITY_LEVELS } from '../data/intensityLegend'
+import { INTENSITY_LEVELS, INTENSITY_LEVELS_THEOPHANY } from '../data/intensityLegend'
 import { fetchActivityFeed } from '../lib/feed'
 import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
@@ -44,16 +44,18 @@ function placeTypeLabel(place) {
   return 'Place'
 }
 
-function IntensityBar({ level }) {
+function IntensityBar({ level, isTheophany }) {
   if (level == null || level < 1 || level > 5) return null
-  const meta = INTENSITY_LEVELS[level - 1]
+  const scale = isTheophany ? INTENSITY_LEVELS_THEOPHANY : INTENSITY_LEVELS
+  const meta = scale[level - 1]
+  const empty = isTheophany ? 'rgba(120,90,160,0.22)' : 'rgba(255,255,255,0.1)'
   return (
     <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
         <div
           key={n}
           className="h-[3px] w-3 rounded-sm"
-          style={{ background: n <= level ? meta.c : 'rgba(255,255,255,0.1)' }}
+          style={{ background: n <= level ? meta.c : empty }}
         />
       ))}
       <span className="ml-1 font-sans text-[9px] uppercase tracking-wider" style={{ color: meta.c }}>
@@ -224,7 +226,13 @@ export default function Home() {
     >
       {isTheophany && <Starfield pinToViewport />}
       {isTheophany && (
-        <div className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+        <div
+          className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh]"
+          style={{
+            background:
+              'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.22), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.12), transparent 45%), radial-gradient(ellipse_at_center, transparent 16%, rgba(0,0,0,0.78) 100%)'
+          }}
+        />
       )}
       {!isTheophany && (
         <div className="pointer-events-none absolute left-1/2 top-0 z-[1] h-[220px] w-[160%] max-w-none -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
@@ -386,21 +394,21 @@ export default function Home() {
         </div>
 
         {isTheophany && (
-          <div className="mx-4 mt-3 rounded-md border border-[#0a2020] bg-black/45 px-3 py-3.5 text-center">
-            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-[#1e4040]">
+          <div className="mx-4 mt-3 rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
+            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">
               Today&apos;s omen
             </div>
-            <p className="m-0 font-serif text-sm italic leading-relaxed text-[#7ac8c8]">{omen}</p>
+            <p className="m-0 font-serif text-sm italic leading-relaxed text-violet-100/90">{omen}</p>
           </div>
         )}
 
         {isTheophany && (
-          <div className="mx-4 mt-3 rounded border border-[#0a1818] bg-black/28 px-3 py-2.5">
-            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-[#1e4040]">
+          <div className="mx-4 mt-3 rounded border border-violet-950/45 bg-[rgba(8,4,18,0.55)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(167,139,250,0.08)] backdrop-blur-sm">
+            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-violet-500/45">
               Intensity scale
             </div>
             <div className="flex flex-wrap gap-2.5">
-              {INTENSITY_LEVELS.map((l) => (
+              {INTENSITY_LEVELS_THEOPHANY.map((l) => (
                 <div key={l.label} className="flex items-center gap-1">
                   <div className="h-2 w-2 rounded-full" style={{ background: l.c }} />
                   <span className="font-sans text-[8px]" style={{ color: l.c }}>
@@ -519,13 +527,13 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
       <div
         className={`group overflow-hidden rounded-xl border shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
           isTheophany
-            ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)] hover:border-theophany-accent/30 hover:shadow-[0_28px_64px_-20px_rgba(0,0,0,0.75)]'
+            ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
         }`}
       >
         <div
           className={`relative aspect-[4/3] w-full overflow-hidden sm:max-h-[320px] ${
-            isTheophany ? 'bg-[#050c10]' : 'bg-[#f5ead5]'
+            isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
           }`}
         >
           {img ? (
@@ -537,7 +545,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
               }`}
             />
           ) : (
-            <div className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#0a1518] to-[#030608]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`} />
+            <div className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`} />
           )}
           <div
             className={`absolute inset-0 ${
@@ -552,20 +560,20 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
           <div className="absolute bottom-2.5 left-2.5">
             <SourceBadge source={place.source} compact />
           </div>
-          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} />}
+          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} isTheophany />}
         </div>
 
         <div className="px-4 py-3.5">
           <h3
             className={`font-display mb-1 text-[16px] leading-snug tracking-wide ${
-              isTheophany ? 'text-[#c8e8e8]' : 'text-sanctuary-text'
+              isTheophany ? 'text-[#ece8f4]' : 'text-sanctuary-text'
             }`}
           >
             {place.name}
           </h3>
           <p
             className={`mb-2 font-sans text-[9px] uppercase tracking-[0.12em] ${
-              isTheophany ? 'text-[#2a5858]' : 'text-sanctuary-muted'
+              isTheophany ? 'text-violet-400/45' : 'text-sanctuary-muted'
             }`}
           >
             {place.city}, {place.state}
@@ -573,7 +581,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
           {place.description && (
             <p
               className={`line-clamp-2 font-serif text-xs italic leading-relaxed ${
-                isTheophany ? 'text-[#507070]' : 'text-sanctuary-muted'
+                isTheophany ? 'text-violet-300/40' : 'text-sanctuary-muted'
               }`}
             >
               {place.description}

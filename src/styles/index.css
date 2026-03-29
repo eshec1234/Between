@@ -10,13 +10,13 @@
   --color-sanctuary-accent: #b8893a;
   --color-sanctuary-muted: #5c4a32;
 
-  /* Theophany — near-black, light text */
-  --color-theophany-bg: #030608;
-  --color-theophany-primary: #050c10;
-  --color-theophany-secondary: #081018;
-  --color-theophany-text: #e4f2f2;
-  --color-theophany-accent: #8ecbcb;
-  --color-theophany-muted: #6a9a9a;
+  /* Theophany — void purple / liminal premium (creepy-calm, not neon) */
+  --color-theophany-bg: #0a0614;
+  --color-theophany-primary: #0e0a1c;
+  --color-theophany-secondary: #150c28;
+  --color-theophany-text: #ece8f4;
+  --color-theophany-accent: #a78bfa;
+  --color-theophany-muted: #8b7aa8;
 }
 
 /* Base resets */
@@ -46,9 +46,9 @@ body {
   filter: sepia(20%) brightness(0.95);
 }
 
-/* Theophany mode map filter */
+/* Theophany mode map — cold purple night */
 .map-theophany .mapboxgl-canvas {
-  filter: invert(100%) hue-rotate(180deg) brightness(0.7) saturate(1.5);
+  filter: brightness(0.58) saturate(1.35) hue-rotate(268deg) contrast(1.08);
 }
 
 /* Line clamp utility */

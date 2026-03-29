@@ -69,15 +69,21 @@ export default function Map({
 
       const el = document.createElement('div')
       el.className = 'between-marker'
-      const base = mode === 'theophany' ? '#7ababa' : '#c8a870'
-      const ring = walked ? '0 0 0 3px rgba(255,200,120,0.95)' : visited ? '0 0 0 2px rgba(255,255,255,0.85)' : 'none'
+      const base = mode === 'theophany' ? '#a78bfa' : '#c8a870'
+      const ring = walked
+        ? mode === 'theophany'
+          ? '0 0 0 3px rgba(192,167,255,0.92)'
+          : '0 0 0 3px rgba(255,200,120,0.95)'
+        : visited
+          ? '0 0 0 2px rgba(255,255,255,0.85)'
+          : 'none'
       const size = saved ? 14 : 12
       el.style.cssText = `
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
         background: ${base};
-        border: 2px solid ${mode === 'theophany' ? '#010407' : '#fffef8'};
+        border: 2px solid ${mode === 'theophany' ? '#1e0b32' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
       `

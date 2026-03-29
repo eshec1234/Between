@@ -250,7 +250,13 @@ export default function PlaceDetail() {
       {isTheophany && (
         <>
           <Starfield pinToViewport />
-          <div className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+          <div
+            className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh]"
+            style={{
+              background:
+                'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.22), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.12), transparent 45%), radial-gradient(ellipse_at_center, transparent 16%, rgba(0,0,0,0.78) 100%)'
+            }}
+          />
         </>
       )}
       {!isTheophany && (
@@ -335,7 +341,7 @@ export default function PlaceDetail() {
         {place.curated_quote && (
           <blockquote
             className={`border-l-4 py-1 pl-4 font-serif text-sm italic leading-relaxed ${
-              isTheophany ? 'border-theophany-accent/70 text-[#a8d0d0]' : 'border-sanctuary-accent/70 text-sanctuary-muted'
+              isTheophany ? 'border-theophany-accent/70 text-violet-200/85' : 'border-sanctuary-accent/70 text-sanctuary-muted'
             }`}
           >
             {place.curated_quote}

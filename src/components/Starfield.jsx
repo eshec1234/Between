@@ -31,7 +31,7 @@ export default function Starfield({ pinToViewport = false }) {
           cx={s.cx}
           cy={s.cy}
           r={s.r}
-          fill="#9dd4d4"
+          fill="#c4b5fd"
           style={{
             animation: `btwink ${s.dur}s ease-in-out infinite`,
             animationDelay: `${s.delay}s`

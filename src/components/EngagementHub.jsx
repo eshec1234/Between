@@ -90,7 +90,7 @@ export default function EngagementHub({
             Streak: <span className={accentClass}>{streak.streakDays}</span> day{streak.streakDays === 1 ? '' : 's'}
           </span>
         </div>
-        <p className={`mt-3 font-serif text-sm italic leading-relaxed ${isTheophany ? 'text-[#9ec8c8]' : 'text-sanctuary-text'}`}>
+        <p className={`mt-3 font-serif text-sm italic leading-relaxed ${isTheophany ? 'text-violet-200/75' : 'text-sanctuary-text'}`}>
           {weekly}
         </p>
       </div>
@@ -143,7 +143,7 @@ export default function EngagementHub({
               <li
                 key={route.id}
                 className={`rounded-lg border px-3 py-2.5 ${
-                  isTheophany ? 'border-[#0e2828] bg-black/22' : 'border-sanctuary-accent/20 bg-black/[0.03]'
+                  isTheophany ? 'border-violet-950/45 bg-black/22' : 'border-sanctuary-accent/20 bg-black/[0.03]'
                 }`}
               >
                 <p className={`font-display text-sm tracking-wide ${accentClass}`}>{route.title}</p>
