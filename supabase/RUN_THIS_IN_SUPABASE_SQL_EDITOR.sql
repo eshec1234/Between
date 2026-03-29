@@ -130,7 +130,10 @@ SELECT
   'Public-facing areas during posted open hours.',
   'community',
   'A calm church setting used as a seed location for testing Between app functionality.',
-  ARRAY[]::TEXT[]
+  ARRAY[
+    'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80'
+  ]::TEXT[]
 WHERE NOT EXISTS (
   SELECT 1
   FROM places
@@ -205,5 +208,53 @@ CREATE INDEX IF NOT EXISTS idx_experience_reports_created_at ON experience_repor
 -- --- 007: 20 spiritual curated places (10 sanctuary + 10 theophany) with photos ----------
 -- Run the full script in this repo: supabase/migrations/007_seed_spiritual_places_20.sql
 -- (paste the entire file into SQL Editor and execute). Safe to re-run: skips if name+city exists.
+
+-- --- 008: backfill photos for rows that still have empty arrays --------------------------
+
+UPDATE places
+SET photos = ARRAY[
+  'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80'
+]::text[]
+WHERE COALESCE(array_length(photos, 1), 0) = 0;
+
+-- --- 009: curated quotes + place resonance (migration 009_curated_quotes_resonance.sql) ----------
+
+ALTER TABLE places ADD COLUMN IF NOT EXISTS curated_quote TEXT;
+
+UPDATE places SET curated_quote = 'Silence is not empty; it is where the world stops insisting.'
+WHERE name = 'Heinz Memorial Chapel' AND curated_quote IS NULL;
+
+UPDATE places SET curated_quote = 'What we seek in high stone is often something we already carry.'
+WHERE name = 'Cathedral Basilica of Saints Peter and Paul' AND curated_quote IS NULL;
+
+UPDATE places SET curated_quote = 'Light moves slowly where generations learned to listen.'
+WHERE name = 'Princeton University Chapel' AND curated_quote IS NULL;
+
+UPDATE places SET curated_quote = 'Every vault is a question held open long enough to soften.'
+WHERE name = 'Cathedral Basilica of the Sacred Heart' AND curated_quote IS NULL;
+
+UPDATE places SET curated_quote = 'Between traffic and transaction, a door that remembers older weather.'
+WHERE name = 'St. Patrick''s Cathedral' AND curated_quote IS NULL;
+
+CREATE TABLE IF NOT EXISTS place_resonance (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  place_id UUID NOT NULL REFERENCES places(id) ON DELETE CASCADE,
+  session_id TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE (place_id, session_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_place_resonance_place ON place_resonance(place_id);
+
+ALTER TABLE place_resonance ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Resonance readable by everyone" ON place_resonance;
+CREATE POLICY "Resonance readable by everyone"
+  ON place_resonance FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Anyone may record resonance once per place" ON place_resonance;
+CREATE POLICY "Anyone may record resonance once per place"
+  ON place_resonance FOR INSERT WITH CHECK (true);
 
 -- Done. In Supabase: Table Editor → you should see `places` with rows after running 007.

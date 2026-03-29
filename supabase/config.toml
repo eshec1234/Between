@@ -1,0 +1,4 @@
+# Supabase CLI (optional). Edge Functions: deploy tts-narration and set OPENAI_API_KEY in Dashboard → Edge Functions → Secrets.
+
+[functions.tts-narration]
+verify_jwt = false

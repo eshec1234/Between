@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
 import Starfield from '../components/Starfield'
@@ -10,6 +10,19 @@ import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
 import InstallPwaPrompt from '../components/InstallPwaPrompt'
 import SourceBadge from '../components/SourceBadge'
+import { photosForPlace } from '../lib/placePhotoFallback'
+import {
+  getIntention,
+  setIntention,
+  getVisitedIds,
+  getSavedIds,
+  getWalkthroughDoneIds,
+  toggleSaved,
+  isSaved
+} from '../lib/betweenLocal'
+import { placeMatchesIntention } from '../data/intentions'
+import EngagementHub from '../components/EngagementHub'
+import FeedFilters from '../components/FeedFilters'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
@@ -49,6 +62,7 @@ function IntensityBar({ level }) {
 }
 
 export default function Home() {
+  const location = useLocation()
   const [mode, setMode] = useState(readInitialMode)
   const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(true)
@@ -61,6 +75,12 @@ export default function Home() {
     trendingPlaces: []
   })
   const [feedLoading, setFeedLoading] = useState(true)
+  const [intent, setIntent] = useState(() => getIntention())
+  const [localTick, setLocalTick] = useState(0)
+  const [filterTag, setFilterTag] = useState('')
+  const [minIntensity, setMinIntensity] = useState(0)
+  const [hideVisited, setHideVisited] = useState(false)
+  const [savedOnly, setSavedOnly] = useState(false)
 
   useEffect(() => {
     if (!navigator.geolocation) return
@@ -151,7 +171,46 @@ export default function Home() {
   }, [fetchPlaces])
 
   const isTheophany = mode === 'theophany'
+
+  const allTags = useMemo(() => {
+    const s = new Set()
+    for (const p of places) {
+      for (const t of p.category_tags || []) s.add(t)
+    }
+    return [...s].sort()
+  }, [places])
+
+  const filteredPlaces = useMemo(() => {
+    let list = places
+    if (intent) {
+      list = list.filter((p) => placeMatchesIntention(p, intent))
+    }
+    if (filterTag) {
+      list = list.filter((p) => (p.category_tags || []).includes(filterTag))
+    }
+    if (isTheophany && minIntensity > 0) {
+      list = list.filter((p) => p.intensity != null && p.intensity >= minIntensity)
+    }
+    if (hideVisited) {
+      const v = getVisitedIds()
+      list = list.filter((p) => !v.has(p.id))
+    }
+    if (savedOnly) {
+      const s = getSavedIds()
+      list = list.filter((p) => s.has(p.id))
+    }
+    return list
+  }, [places, intent, filterTag, minIntensity, hideVisited, savedOnly, isTheophany, localTick, location.key])
+
+  const visitedIds = useMemo(() => getVisitedIds(), [places, localTick, location.key])
+  const savedIds = useMemo(() => getSavedIds(), [places, localTick, location.key])
+  const walkthroughDoneIds = useMemo(() => getWalkthroughDoneIds(), [places, localTick, location.key])
+
   const mapCenter = [center.lng, center.lat]
+
+  const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+  const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
+  const bord = isTheophany ? 'border-theophany-accent/45' : 'border-sanctuary-accent/45'
 
   return (
     <div
@@ -233,6 +292,10 @@ export default function Home() {
           <p className={`mt-1 font-sans text-[10px] ${isTheophany ? 'text-theophany-muted/90' : 'text-sanctuary-muted'}`}>
             Hyperlocal · Anonymous · Feed
           </p>
+          <p className={`mx-auto mt-2 max-w-md font-sans text-[11px] leading-relaxed ${isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>
+            Set an intention, follow a mini-route, or browse — open a place for a walkthrough and reflections. Saved and
+            visited states stay on this device.
+          </p>
         </div>
 
         <div className="pt-4">
@@ -246,6 +309,38 @@ export default function Home() {
           />
         </div>
 
+        <div className="pt-5">
+          <EngagementHub
+            places={places}
+            center={center}
+            isTheophany={isTheophany}
+            subClass={subMuted}
+            accentClass={accent}
+            borderClass={bord}
+            intent={intent}
+            onIntentChange={(next) => {
+              setIntent(next)
+              setIntention(next)
+            }}
+          />
+        </div>
+
+        <FeedFilters
+          isTheophany={isTheophany}
+          allTags={allTags}
+          filterTag={filterTag}
+          setFilterTag={setFilterTag}
+          minIntensity={minIntensity}
+          setMinIntensity={setMinIntensity}
+          hideVisited={hideVisited}
+          setHideVisited={setHideVisited}
+          savedOnly={savedOnly}
+          setSavedOnly={setSavedOnly}
+          subClass={subMuted}
+          borderClass={bord}
+          accentClass={accent}
+        />
+
         <div className="px-4 pt-2">
           <p
             className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
@@ -254,9 +349,19 @@ export default function Home() {
           >
             Map
           </p>
+          <p className={`mt-1 font-sans text-[9px] ${subMuted}`}>
+            Ring: opened · gold glow: finished walkthrough · larger dot: saved
+          </p>
         </div>
         <div className="pt-3">
-          <Map mode={mode} places={places} mapCenter={mapCenter} />
+          <Map
+            mode={mode}
+            places={filteredPlaces}
+            mapCenter={mapCenter}
+            visitedIds={visitedIds}
+            savedIds={savedIds}
+            walkthroughDoneIds={walkthroughDoneIds}
+          />
         </div>
 
         {isTheophany && (
@@ -307,15 +412,24 @@ export default function Home() {
         <div className="space-y-4 p-4 pb-24">
           {loading ? (
             <p className="pt-8 text-center font-serif italic opacity-60">Finding nearby spaces...</p>
-          ) : places.length === 0 ? (
+          ) : filteredPlaces.length === 0 ? (
             <div className="space-y-3 pt-12 text-center">
-              <p className="font-serif italic opacity-60">No places here yet.</p>
-              <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
+              <p className="font-serif italic opacity-60">
+                {places.length === 0 ? 'No places here yet.' : 'Nothing matches these filters — try clearing intention or saved-only.'}
+              </p>
+              {places.length === 0 && (
+                <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
+              )}
             </div>
           ) : (
-            places.flatMap((place, i) => {
+            filteredPlaces.flatMap((place, i) => {
               const cards = [
-                <PlaceCard key={place.id} place={place} isTheophany={isTheophany} />
+                <PlaceCard
+                  key={place.id}
+                  place={place}
+                  isTheophany={isTheophany}
+                  onSaveToggle={() => setLocalTick((t) => t + 1)}
+                />
               ]
               if ((i + 1) % 4 === 0) {
                 cards.push(
@@ -341,14 +455,44 @@ export default function Home() {
   )
 }
 
-function PlaceCard({ place, isTheophany }) {
+function PlaceCard({ place, isTheophany, onSaveToggle }) {
   const type = placeTypeLabel(place)
-  const img = place.photos?.[0]
+  const img = photosForPlace(place)[0]
+  const [saved, setSaved] = useState(() => isSaved(place.id))
+
+  useEffect(() => {
+    setSaved(isSaved(place.id))
+  }, [place.id])
+
+  const onSave = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setSaved(toggleSaved(place.id))
+    onSaveToggle?.()
+  }
 
   return (
-    <Link to={`/place/${place.id}`} className="block">
+    <div className="relative mb-2.5">
+      <button
+        type="button"
+        onClick={onSave}
+        className={`absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border text-lg shadow-md transition-colors ${
+          isTheophany
+            ? saved
+              ? 'border-theophany-accent bg-black/60 text-theophany-accent'
+              : 'border-white/20 bg-black/50 text-white/80 hover:bg-black/70'
+            : saved
+              ? 'border-sanctuary-accent bg-white/95 text-sanctuary-accent'
+              : 'border-sanctuary-accent/40 bg-white/90 text-sanctuary-muted hover:bg-white'
+        }`}
+        aria-label={saved ? 'Remove from saved' : 'Save place'}
+        title={saved ? 'Saved' : 'Save'}
+      >
+        {saved ? '♥' : '♡'}
+      </button>
+      <Link to={`/place/${place.id}`} className="block">
       <div
-        className={`mb-2.5 overflow-hidden rounded-xl border shadow-sm transition-opacity hover:opacity-95 ${
+        className={`overflow-hidden rounded-xl border shadow-sm transition-opacity hover:opacity-95 ${
           isTheophany
             ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)]'
@@ -418,5 +562,6 @@ function PlaceCard({ place, isTheophany }) {
         </div>
       </div>
     </Link>
+    </div>
   )
 }

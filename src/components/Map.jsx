@@ -4,7 +4,15 @@ import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
 
-export default function Map({ mode, places, mapCenter = [-75.1652, 39.9526], zoom = 11 }) {
+export default function Map({
+  mode,
+  places,
+  mapCenter = [-75.1652, 39.9526],
+  zoom = 11,
+  visitedIds = null,
+  savedIds = null,
+  walkthroughDoneIds = null
+}) {
   const mapContainer = useRef(null)
   const map = useRef(null)
 
@@ -55,14 +63,22 @@ export default function Map({ mode, places, mapCenter = [-75.1652, 39.9526], zoo
     places.forEach((place) => {
       if (!place.coordinates) return
 
+      const visited = visitedIds?.has?.(place.id)
+      const saved = savedIds?.has?.(place.id)
+      const walked = walkthroughDoneIds?.has?.(place.id)
+
       const el = document.createElement('div')
       el.className = 'between-marker'
+      const base = mode === 'theophany' ? '#7ababa' : '#c8a870'
+      const ring = walked ? '0 0 0 3px rgba(255,200,120,0.95)' : visited ? '0 0 0 2px rgba(255,255,255,0.85)' : 'none'
+      const size = saved ? 14 : 12
       el.style.cssText = `
-        width: 12px;
-        height: 12px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
-        background: ${mode === 'theophany' ? '#7ababa' : '#c8a870'};
+        background: ${base};
         border: 2px solid ${mode === 'theophany' ? '#010407' : '#fffef8'};
+        box-shadow: ${ring};
         cursor: pointer;
       `
 
@@ -77,7 +93,7 @@ export default function Map({ mode, places, mapCenter = [-75.1652, 39.9526], zoo
         )
         .addTo(map.current)
     })
-  }, [places, mode])
+  }, [places, mode, visitedIds, savedIds, walkthroughDoneIds])
 
   return (
     hasMapboxEnv ? (

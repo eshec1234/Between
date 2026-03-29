@@ -18,6 +18,21 @@ The app talks to **your** Supabase project. Tables are **not** created by Vercel
 
 Spatial search and moderation flags require section **005** in that file (or run `migrations/005_spatial_rpc_and_moderation.sql`). Without it, the app falls back to a non-spatial feed.
 
+## Natural narration (OpenAI TTS, optional)
+
+The walkthrough can use **OpenAI `gpt-4o-mini-tts`** (neural voice + style prompts for soft, slow, ASMR-inspired speech) via a **Supabase Edge Function** so your API key never ships to the browser.
+
+1. Install [Supabase CLI](https://supabase.com/docs/guides/cli), link this project.
+2. In the Supabase Dashboard → **Edge Functions** → **Secrets**, add `OPENAI_API_KEY` (your OpenAI API key). Optionally set `OPENAI_TTS_VOICE` to `marin`, `shimmer`, `coral`, etc.
+3. Deploy: `supabase functions deploy tts-narration`
+4. In `.env` / Vercel env: `VITE_USE_CLOUD_NARRATION=true` (and existing `VITE_SUPABASE_*` vars).
+
+Without this, narration stays on **device text-to-speech** only. OpenAI’s policy requires disclosing that the voice is AI-generated; the UI includes that when cloud narration is enabled.
+
+## Curated quotes & resonance (optional)
+
+Run migration `009_curated_quotes_resonance.sql` (or the **009** block appended to `RUN_THIS_IN_SUPABASE_SQL_EDITOR.sql`) to add `places.curated_quote` and the `place_resonance` table for anonymous “this stayed with me” tallies. Without it, the app still runs; resonance UI hides if queries fail.
+
 If `CREATE EXTENSION postgis` fails: **Database** → **Extensions** → enable **postgis**, then run the file again.
 
 ## Migrations folder

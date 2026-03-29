@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
+import { markVisited, markWalkthroughDone, isSaved, toggleSaved } from '../lib/betweenLocal'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import SourceBadge from '../components/SourceBadge'
 import PlaceWalkthrough from '../components/PlaceWalkthrough'
+import { photosForPlace } from '../lib/placePhotoFallback'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -37,6 +39,10 @@ export default function PlaceDetail() {
   const [postFlash, setPostFlash] = useState('')
   const [flagDone, setFlagDone] = useState(false)
   const [flagBusy, setFlagBusy] = useState(false)
+  const [resonanceCount, setResonanceCount] = useState(0)
+  const [resonanceSelf, setResonanceSelf] = useState(false)
+  const [resonanceBusy, setResonanceBusy] = useState(false)
+  const [saved, setSaved] = useState(false)
   const textareaRef = useRef(null)
 
   const isTheophany = place?.mode === 'theophany' || place?.mode === 'both'
@@ -45,6 +51,44 @@ export default function PlaceDetail() {
   useEffect(() => {
     fetchPlace()
     fetchExperienceReports()
+  }, [id])
+
+  useEffect(() => {
+    if (place?.id) setSaved(isSaved(place.id))
+  }, [place?.id])
+
+  useEffect(() => {
+    if (id) markVisited(id)
+  }, [id])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadResonance() {
+      if (!hasSupabaseEnv || !supabase || !id) return
+      try {
+        const { count, error: cErr } = await supabase
+          .from('place_resonance')
+          .select('*', { count: 'exact', head: true })
+          .eq('place_id', id)
+        if (cErr) return
+        if (!cancelled) setResonanceCount(count ?? 0)
+        const sid = getOrCreateSession()
+        const { data, error: rErr } = await supabase
+          .from('place_resonance')
+          .select('id')
+          .eq('place_id', id)
+          .eq('session_id', sid)
+          .maybeSingle()
+        if (rErr) return
+        if (!cancelled) setResonanceSelf(!!data)
+      } catch {
+        /* table missing until migration 009 */
+      }
+    }
+    loadResonance()
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   const fetchPlace = async () => {
@@ -145,6 +189,20 @@ export default function PlaceDetail() {
     textareaRef.current?.focus()
   }
 
+  const addResonance = async () => {
+    if (!hasSupabaseEnv || !supabase || resonanceSelf || resonanceBusy) return
+    setResonanceBusy(true)
+    const { error } = await supabase.from('place_resonance').insert({
+      place_id: id,
+      session_id: getOrCreateSession()
+    })
+    if (!error) {
+      setResonanceSelf(true)
+      setResonanceCount((c) => c + 1)
+    }
+    setResonanceBusy(false)
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center bg-sanctuary-bg">
@@ -172,6 +230,8 @@ export default function PlaceDetail() {
   const bodyClass = isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'
   const subClass = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
+  const gallery = photosForPlace(place)
+  const usedFallback = !place?.photos?.length
 
   return (
     <div className={`min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
@@ -181,14 +241,19 @@ export default function PlaceDetail() {
         </Link>
       </div>
 
-      {place.photos?.[0] && (
+      {gallery[0] && (
         <div className="relative w-full">
+          {usedFallback && (
+            <p className={`px-4 pb-2 font-sans text-[9px] uppercase tracking-wider ${subClass}`}>
+              Placeholder imagery — add photos in Supabase when you have them
+            </p>
+          )}
           <div className="h-52 w-full sm:h-64">
-            <img src={place.photos[0]} alt="" className="h-full w-full object-cover" />
+            <img src={gallery[0]} alt="" className="h-full w-full object-cover" />
           </div>
-          {place.photos.length > 1 && (
+          {gallery.length > 1 && (
             <div className="flex gap-2 overflow-x-auto px-4 py-2">
-              {place.photos.slice(1).map((url) => (
+              {gallery.slice(1).map((url) => (
                 <img key={url} src={url} alt="" className="h-20 w-28 shrink-0 rounded object-cover" />
               ))}
             </div>
@@ -206,11 +271,62 @@ export default function PlaceDetail() {
             </span>
             <SourceBadge source={place.source} />
           </div>
-          <h1 className="mt-2 font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
+          <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
+            <h1 className="font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
+            <button
+              type="button"
+              onClick={() => setSaved(toggleSaved(place.id))}
+              className={`shrink-0 rounded-full border-2 px-3 py-1 font-sans text-xs font-semibold uppercase tracking-wider ${
+                saved
+                  ? isTheophany
+                    ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-accent'
+                    : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-accent'
+                  : `${borderClass} ${subClass} hover:opacity-90`
+              }`}
+              aria-label={saved ? 'Remove from saved' : 'Save place'}
+            >
+              {saved ? 'Saved ♥' : 'Save ♡'}
+            </button>
+          </div>
           <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
             {place.address} · {place.city}, {place.state}
           </p>
         </div>
+
+        {place.curated_quote && (
+          <blockquote
+            className={`border-l-4 py-1 pl-4 font-serif text-sm italic leading-relaxed ${
+              isTheophany ? 'border-theophany-accent/70 text-[#a8d0d0]' : 'border-sanctuary-accent/70 text-sanctuary-muted'
+            }`}
+          >
+            {place.curated_quote}
+          </blockquote>
+        )}
+
+        {hasSupabaseEnv && (
+          <div
+            className={`flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2.5 ${borderClass} ${
+              isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
+            }`}
+          >
+            <p className={`font-sans text-[11px] ${subClass}`}>
+              <span className="font-medium text-current">{resonanceCount}</span> visitors said this place stayed with
+              them
+            </p>
+            <button
+              type="button"
+              disabled={resonanceSelf || resonanceBusy}
+              onClick={addResonance}
+              className={`rounded-full border px-3 py-1 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors disabled:opacity-45 ${
+                isTheophany
+                  ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                  : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
+              }`}
+            >
+              {resonanceSelf ? 'Counted for you' : resonanceBusy ? '…' : 'This stayed with me'}
+            </button>
+          </div>
+        )}
 
         <PlaceWalkthrough
           place={place}
@@ -219,6 +335,7 @@ export default function PlaceDetail() {
           accentClass={accentClass}
           subClass={subClass}
           bodyClass={bodyClass}
+          onReachedLastStep={() => markWalkthroughDone(place.id)}
         />
 
         {place.description && place.description.length > 520 && (
@@ -471,7 +588,30 @@ export default function PlaceDetail() {
         <div>
           <h3 className={`mb-2 font-sans text-[10px] uppercase tracking-widest ${subClass}`}>Reviews</h3>
           {reviews.length === 0 ? (
-            <p className={`font-serif text-sm italic ${subClass}`}>No reviews yet.</p>
+            <div
+              className={`rounded-lg border-2 px-4 py-4 ${borderClass} ${
+                isTheophany ? 'bg-theophany-primary/50' : 'bg-white/80'
+              }`}
+            >
+              <p className={`font-serif text-sm italic leading-relaxed ${bodyClass}`}>
+                No reflections yet — scroll up for the walkthrough, then come back here when something lingers.
+              </p>
+              <p className={`mt-2 font-sans text-[11px] ${subClass}`}>Prompt: What did you notice first when you imagined standing there?</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setContentKind('review')
+                  focusComposer()
+                }}
+                className={`mt-3 rounded-md border-2 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-wider ${
+                  isTheophany
+                    ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                    : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
+                }`}
+              >
+                Write a reflection
+              </button>
+            </div>
           ) : (
             <div className="space-y-4">
               {reviews.map((report) => (

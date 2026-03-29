@@ -1,5 +1,8 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { buildWalkthroughSteps } from '../lib/placeNarration'
+import { pickAsmrVoice, ASMR_UTTERANCE, speakAsmrText } from '../lib/speechVoice'
+import { safeCharacterAiUrl } from '../lib/safeCharacterAiUrl'
+import { isCloudNarrationConfigured, fetchNarrationTts } from '../lib/fetchNarrationTts'
 
 export default function PlaceWalkthrough({
   place,
@@ -7,17 +10,72 @@ export default function PlaceWalkthrough({
   borderClass,
   accentClass,
   subClass,
-  bodyClass
+  bodyClass,
+  onReachedLastStep
 }) {
   const steps = useMemo(() => buildWalkthroughSteps(place), [place])
   const [i, setI] = useState(0)
   const [speaking, setSpeaking] = useState(false)
+  const [loadingCloud, setLoadingCloud] = useState(false)
+  const [voiceReady, setVoiceReady] = useState(false)
+  const audioRef = useRef(null)
+  const objectUrlRef = useRef(null)
+  const fetchAbortRef = useRef(null)
+
+  const cloudNarration = useMemo(() => isCloudNarrationConfigured(), [])
 
   const step = steps[i] || steps[0]
   const last = steps.length - 1
+  const lastStepFired = useRef(false)
+
+  useEffect(() => {
+    lastStepFired.current = false
+  }, [place?.id])
+
+  useEffect(() => {
+    if (!place?.id || steps.length === 0) return
+    if (i !== last) return
+    if (lastStepFired.current) return
+    lastStepFired.current = true
+    onReachedLastStep?.(place.id)
+  }, [i, last, place?.id, steps.length, onReachedLastStep])
+
+  const characterAiHref = useMemo(
+    () => safeCharacterAiUrl(import.meta.env.VITE_CHARACTER_AI_URL),
+    []
+  )
+
+  useEffect(() => {
+    if (cloudNarration) {
+      setVoiceReady(true)
+      return
+    }
+    if (typeof window === 'undefined' || !window.speechSynthesis) return
+    const sync = () => {
+      if (window.speechSynthesis.getVoices().length) setVoiceReady(true)
+    }
+    sync()
+    window.speechSynthesis.addEventListener('voiceschanged', sync)
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', sync)
+      window.speechSynthesis.cancel()
+    }
+  }, [cloudNarration])
 
   useEffect(() => {
     return () => {
+      if (fetchAbortRef.current) {
+        fetchAbortRef.current.abort()
+        fetchAbortRef.current = null
+      }
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+        objectUrlRef.current = null
+      }
       if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel()
       }
@@ -25,22 +83,72 @@ export default function PlaceWalkthrough({
   }, [])
 
   const stopSpeak = useCallback(() => {
+    if (fetchAbortRef.current) {
+      fetchAbortRef.current.abort()
+      fetchAbortRef.current = null
+    }
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current = null
+    }
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current)
+      objectUrlRef.current = null
+    }
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel()
     }
     setSpeaking(false)
+    setLoadingCloud(false)
   }, [])
 
-  const speakStep = useCallback(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis || !step) return
-    stopSpeak()
-    const u = new SpeechSynthesisUtterance(`${step.title}. ${step.body.replace(/\n+/g, ' ')}`)
-    u.rate = 0.92
-    u.onend = () => setSpeaking(false)
-    u.onerror = () => setSpeaking(false)
+  const speakDevice = useCallback((text) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return
     setSpeaking(true)
-    window.speechSynthesis.speak(u)
-  }, [step, stopSpeak])
+    speakAsmrText(text, window.speechSynthesis, {
+      getVoice: (voices) => pickAsmrVoice(voices),
+      rate: ASMR_UTTERANCE.rate,
+      pitch: ASMR_UTTERANCE.pitch,
+      volume: ASMR_UTTERANCE.volume,
+      onEnd: () => setSpeaking(false),
+      onError: () => setSpeaking(false)
+    })
+  }, [])
+
+  const speakStep = useCallback(async () => {
+    if (typeof window === 'undefined' || !step) return
+    if (!cloudNarration && !window.speechSynthesis) return
+
+    stopSpeak()
+    const text = `${step.title}. ${step.body.replace(/\n+/g, ' ')}`
+
+    if (cloudNarration) {
+      const ac = new AbortController()
+      fetchAbortRef.current = ac
+      setLoadingCloud(true)
+      try {
+        const blob = await fetchNarrationTts(text, { signal: ac.signal })
+        if (fetchAbortRef.current === ac) fetchAbortRef.current = null
+        const objectUrl = URL.createObjectURL(blob)
+        objectUrlRef.current = objectUrl
+        const audio = new Audio(objectUrl)
+        audio.setAttribute('playsInline', 'true')
+        audioRef.current = audio
+        audio.onended = () => stopSpeak()
+        audio.onerror = () => stopSpeak()
+        await audio.play()
+        setSpeaking(true)
+      } catch (e) {
+        if (e?.name === 'AbortError') return
+        if (window.speechSynthesis) speakDevice(text)
+      } finally {
+        setLoadingCloud(false)
+      }
+      return
+    }
+
+    speakDevice(text)
+  }, [step, stopSpeak, cloudNarration, speakDevice])
 
   if (!steps.length) return null
 
@@ -60,19 +168,63 @@ export default function PlaceWalkthrough({
           <p className={`mt-1 max-w-prose font-sans text-[11px] leading-relaxed ${subClass}`}>
             A slow, second-person walk — step through as if you were standing in the space.
           </p>
+          {!voiceReady && (
+            <p className={`mt-1 font-sans text-[10px] italic ${subClass}`}>Loading voices…</p>
+          )}
+          {voiceReady && cloudNarration && (
+            <p className={`mt-2 max-w-[min(100%,24rem)] font-sans text-[10px] leading-snug opacity-75 ${subClass}`}>
+              Narration uses OpenAI’s neural text-to-speech with style instructions (soft, slow, ASMR-inspired). It
+              sounds human but is AI-generated, not a human recording (OpenAI’s usage policy). If the request fails,
+              the app falls back to your device voice.
+            </p>
+          )}
+          {voiceReady && !cloudNarration && (
+            <p className={`mt-2 max-w-[min(100%,22rem)] font-sans text-[10px] leading-snug opacity-75 ${subClass}`}>
+              This uses your device’s built-in text-to-speech. Softer speech comes from your OS: on Mac,{' '}
+              <span className="whitespace-nowrap">System Settings → Accessibility → Spoken Content</span>; on Windows,{' '}
+              <span className="whitespace-nowrap">Settings → Accessibility → Narrator</span> (voice list).
+            </p>
+          )}
         </div>
         <button
           type="button"
-          onClick={speaking ? stopSpeak : speakStep}
+          onClick={speaking || loadingCloud ? stopSpeak : speakStep}
           className={`shrink-0 rounded-full border px-3 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors ${
             isTheophany
               ? 'border-theophany-accent/60 text-theophany-accent hover:bg-theophany-accent/10'
               : 'border-sanctuary-accent/50 text-sanctuary-accent hover:bg-sanctuary-accent/10'
           }`}
+          aria-label={
+            speaking || loadingCloud
+              ? 'Stop narration'
+              : cloudNarration
+                ? 'Play neural narration with soft ASMR-style delivery'
+                : 'Read this step aloud using device text-to-speech'
+          }
         >
-          {speaking ? 'Stop' : 'Read aloud'}
+          {loadingCloud ? 'Loading…' : speaking ? 'Stop' : cloudNarration ? 'Natural voice' : 'Read aloud softly'}
         </button>
       </div>
+
+      {characterAiHref && (
+        <div className="mb-4">
+          <a
+            href={characterAiHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-1 font-sans text-[11px] font-medium underline-offset-2 hover:underline ${
+              isTheophany ? 'text-theophany-accent/90' : 'text-sanctuary-accent'
+            }`}
+          >
+            Continue on Character.AI
+            <span aria-hidden="true">↗</span>
+          </a>
+          <p className={`mt-1 max-w-prose font-sans text-[10px] leading-snug opacity-70 ${subClass}`}>
+            Opens your Character.AI chat in a new tab (voice and persona live there—there is no public API to embed it
+            inside this app).
+          </p>
+        </div>
+      )}
 
       <div className="mb-4 flex justify-center gap-1.5">
         {steps.map((s, idx) => (
