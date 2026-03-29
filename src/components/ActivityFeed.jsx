@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { mergeActivityStream } from '../lib/feed'
-import { photoForPlaceAtTime } from '../lib/placePhotoFallback'
+import PlaceImage from './PlaceImage'
 
 function snippet(text, n = 72) {
   if (!text) return ''
@@ -58,9 +58,7 @@ export default function ActivityFeed({
             {trendingSectionTitle}
           </p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-            {trendingPlaces.slice(0, 5).map((p) => {
-              const { url: timg } = photoForPlaceAtTime(p)
-              return (
+            {trendingPlaces.slice(0, 5).map((p) => (
                 <Link
                   key={p.id}
                   to={`/place/${p.id}`}
@@ -73,19 +71,13 @@ export default function ActivityFeed({
                       isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
                     }`}
                   >
-                    {timg ? (
-                      <img
-                        src={timg}
-                        alt=""
-                        className={`h-full w-full object-cover ${
-                          isTheophany ? 'brightness-[0.5] saturate-[0.2]' : 'brightness-105 saturate-70'
-                        }`}
-                      />
-                    ) : (
-                      <div
-                        className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`}
-                      />
-                    )}
+                    <PlaceImage
+                      place={p}
+                      isTheophany={isTheophany}
+                      imgClassName={`h-full w-full object-cover ${
+                        isTheophany ? 'brightness-[0.5] saturate-[0.2]' : 'brightness-105 saturate-70'
+                      }`}
+                    />
                   </div>
                   <span
                     className={`line-clamp-2 min-w-0 flex-1 self-center px-2 py-1.5 font-display text-[11px] leading-tight ${
@@ -95,8 +87,7 @@ export default function ActivityFeed({
                     {p.name}
                   </span>
                 </Link>
-              )
-            })}
+            ))}
           </div>
         </div>
       )}
@@ -123,7 +114,6 @@ export default function ActivityFeed({
           stream.map((item) => {
             if (item.kind === 'new_place') {
               const p = item.place
-              const { url: hero } = photoForPlaceAtTime(p)
               return (
                 <Link
                   key={item.key}
@@ -139,19 +129,13 @@ export default function ActivityFeed({
                       isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
                     }`}
                   >
-                    {hero ? (
-                      <img
-                        src={hero}
-                        alt=""
-                        className={`h-full w-full object-cover ${
-                          isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
-                        }`}
-                      />
-                    ) : (
-                      <div
-                        className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`}
-                      />
-                    )}
+                    <PlaceImage
+                      place={p}
+                      isTheophany={isTheophany}
+                      imgClassName={`h-full w-full object-cover ${
+                        isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
+                      }`}
+                    />
                   </div>
                   <div className="p-2.5">
                     <span className="font-sans text-[8px] uppercase tracking-widest text-emerald-400/90">New place</span>
@@ -168,7 +152,6 @@ export default function ActivityFeed({
             const pl = item.place
             if (!pl?.id) return null
             const label = item.kind === 'tip' ? 'Tip' : 'Review'
-            const { url: rimg } = photoForPlaceAtTime(pl)
             return (
               <Link
                 key={item.key}
@@ -184,19 +167,13 @@ export default function ActivityFeed({
                     isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
                   }`}
                 >
-                  {rimg ? (
-                    <img
-                      src={rimg}
-                      alt=""
-                      className={`h-full w-full object-cover ${
-                        isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
-                      }`}
-                    />
-                  ) : (
-                    <div
-                      className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`}
-                    />
-                  )}
+                  <PlaceImage
+                    place={pl}
+                    isTheophany={isTheophany}
+                    imgClassName={`h-full w-full object-cover ${
+                      isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
+                    }`}
+                  />
                 </div>
                 <div className="p-2.5">
                   <span

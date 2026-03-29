@@ -9,6 +9,7 @@ import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
 import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
+import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -301,7 +302,7 @@ export default function PlaceDetail() {
         </div>
       )}
 
-      {heroSrc && (!surpriseMode || revealed) && (
+      {gallery.length > 0 && (!surpriseMode || revealed) && (
         <div className="relative w-full">
           {usedFallback && (
             <p className={`px-4 pb-2 font-sans text-[9px] uppercase tracking-wider ${subClass}`}>
@@ -314,10 +315,10 @@ export default function PlaceDetail() {
             </p>
           )}
           <div className="relative h-56 w-full overflow-hidden sm:h-72">
-            <img
-              src={heroSrc}
-              alt=""
-              className={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+            <PlaceImage
+              place={place}
+              isTheophany={isTheophany}
+              imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
                 isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
               }`}
             />
@@ -332,7 +333,12 @@ export default function PlaceDetail() {
           {gallery.length > 1 && (
             <div className="flex gap-2 overflow-x-auto px-4 py-2">
               {gallery.slice(1).map((url) => (
-                <img key={url} src={url} alt="" className="h-20 w-28 shrink-0 rounded object-cover" />
+                <PlaceImageFromUrl
+                  key={url}
+                  url={url}
+                  isTheophany={isTheophany}
+                  imgClassName="h-20 w-28 shrink-0 rounded object-cover"
+                />
               ))}
             </div>
           )}

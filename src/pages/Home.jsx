@@ -11,6 +11,7 @@ import MockAdSlot from '../components/MockAdSlot'
 import InstallPwaPrompt from '../components/InstallPwaPrompt'
 import SourceBadge from '../components/SourceBadge'
 import { photoForPlaceAtTime } from '../lib/placePhotoFallback'
+import PlaceImage from '../components/PlaceImage'
 import {
   getIntention,
   setIntention,
@@ -682,7 +683,7 @@ export default function Home() {
 
 function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
   const type = placeTypeLabel(place)
-  const { url: img, label: timeLabel } = photoForPlaceAtTime(place)
+  const { label: timeLabel } = photoForPlaceAtTime(place)
   const [saved, setSaved] = useState(() => isSaved(place.id))
 
   useEffect(() => {
@@ -731,17 +732,13 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
             isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
           }`}
         >
-          {img ? (
-            <img
-              src={img}
-              alt=""
-              className={`h-full w-full object-cover transition-transform duration-[1.15s] ease-out will-change-transform group-hover:scale-[1.06] ${
-                isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
-              }`}
-            />
-          ) : (
-            <div className={`h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`} />
-          )}
+          <PlaceImage
+            place={place}
+            isTheophany={isTheophany}
+            imgClassName={`h-full w-full object-cover transition-transform duration-[1.15s] ease-out will-change-transform group-hover:scale-[1.06] ${
+              isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
+            }`}
+          />
           {!isTheophany && (
             <>
               <div className="bf-card-candle pointer-events-none absolute inset-0" aria-hidden />

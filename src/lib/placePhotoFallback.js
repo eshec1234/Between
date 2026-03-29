@@ -39,3 +39,26 @@ export function photoForPlaceAtTime(place) {
     label: photos.length > 1 ? TIME_LABELS[Math.min(idx, TIME_LABELS.length - 1)] : ''
   }
 }
+
+function dedupePush(out, u) {
+  if (u && typeof u === 'string' && !out.includes(u)) out.push(u)
+}
+
+/** Ordered URLs to try when an image fails to load (bad DB URL, 404, hotlink block). */
+export function placeImageFallbackChain(place) {
+  const { url: primary } = photoForPlaceAtTime(place)
+  const pool = photosForPlace(place)
+  const out = []
+  dedupePush(out, primary)
+  for (const u of pool) dedupePush(out, u)
+  for (const u of DEFAULT_PLACE_PHOTOS) dedupePush(out, u)
+  return out
+}
+
+/** Single gallery URL with defaults after it. */
+export function imageUrlFallbackChain(url) {
+  const out = []
+  dedupePush(out, url)
+  for (const u of DEFAULT_PLACE_PHOTOS) dedupePush(out, u)
+  return out
+}
