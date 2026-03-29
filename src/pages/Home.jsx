@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Map from '../components/Map'
@@ -18,7 +18,10 @@ import {
   getSavedIds,
   getWalkthroughDoneIds,
   toggleSaved,
-  isSaved
+  isSaved,
+  getNearbyTrackingEnabled,
+  setNearbyTrackingEnabled,
+  distanceKm
 } from '../lib/betweenLocal'
 import { placeMatchesIntention } from '../data/intentions'
 import EngagementHub from '../components/EngagementHub'
@@ -30,6 +33,10 @@ const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
 const NEARBY_RADIUS_M = 350000
 const PLACES_LIST_CAP = 24
+/** Refetch nearby list when you’ve moved at least this far (km) while tracking */
+const TRACK_MIN_MOVE_KM = 0.13
+/** Or this often if you’re stationary (keeps feed fresh on long stays) */
+const TRACK_MAX_STALE_MS = 120000
 
 function readInitialMode() {
   const m = sessionStorage.getItem('between_initial_mode')
@@ -87,17 +94,52 @@ export default function Home() {
   const [minIntensity, setMinIntensity] = useState(0)
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
+  const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
+  const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
 
   useEffect(() => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        const lat = pos.coords.latitude
+        const lng = pos.coords.longitude
+        lastEmitRef.current = { lat, lng, at: Date.now() }
+        setCenter({ lat, lng })
       },
       () => {},
-      { timeout: 12000, maximumAge: 120000 }
+      { timeout: 12000, maximumAge: 120000, enableHighAccuracy: false }
     )
   }, [])
+
+  useEffect(() => {
+    if (!navigator.geolocation || !trackNearby) return
+
+    function emitIfNeeded(lat, lng) {
+      const now = Date.now()
+      const last = lastEmitRef.current
+      if (last.lat == null || last.lng == null) {
+        lastEmitRef.current = { lat, lng, at: now }
+        setCenter({ lat, lng })
+        return
+      }
+      const moved = distanceKm(last.lat, last.lng, lat, lng)
+      const stale = now - last.at > TRACK_MAX_STALE_MS
+      if (moved >= TRACK_MIN_MOVE_KM || stale) {
+        lastEmitRef.current = { lat, lng, at: now }
+        setCenter({ lat, lng })
+      }
+    }
+
+    const opts = { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => emitIfNeeded(pos.coords.latitude, pos.coords.longitude),
+      () => {},
+      opts
+    )
+    return () => {
+      navigator.geolocation.clearWatch(watchId)
+    }
+  }, [trackNearby])
 
   useEffect(() => {
     let cancelled = false
@@ -234,6 +276,14 @@ export default function Home() {
     const pick = pool[Math.floor(Math.random() * pool.length)]
     navigate(`/place/${pick.id}?surprise=1`)
   }, [filteredPlaces, places, navigate])
+
+  const onToggleTrackNearby = useCallback(() => {
+    setTrackNearby((prev) => {
+      const next = !prev
+      setNearbyTrackingEnabled(next)
+      return next
+    })
+  }, [])
 
   const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
@@ -413,15 +463,45 @@ export default function Home() {
         </div>
 
         <div className="px-4 pt-6">
-          <p
-            className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
-              isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
-            }`}
-          >
-            Near me now
-          </p>
-          <p className={`mt-1 font-sans text-[9px] ${subMuted}`}>
-            Your location centers the map · ring: opened · gold glow: finished walkthrough · larger dot: saved
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p
+                className={`font-sans text-[10px] uppercase tracking-[0.35em] ${
+                  isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+                }`}
+              >
+                Near me now
+              </p>
+              <p className={`mt-1 max-w-[14rem] font-sans text-[9px] leading-relaxed ${subMuted}`}>
+                {typeof navigator !== 'undefined' && navigator.geolocation
+                  ? trackNearby
+                    ? 'Following you — map and list refresh as you move (~130m+ or every 2 min). Never stored on a server.'
+                    : 'One-time location for this session. Turn on follow to keep updating as you travel.'
+                  : 'Location not available in this browser.'}
+              </p>
+            </div>
+            {typeof navigator !== 'undefined' && navigator.geolocation && (
+              <button
+                type="button"
+                role="switch"
+                aria-checked={trackNearby}
+                onClick={onToggleTrackNearby}
+                className={`shrink-0 rounded-full border px-3 py-1.5 font-sans text-[9px] font-semibold uppercase tracking-wider transition-colors ${
+                  trackNearby
+                    ? isTheophany
+                      ? 'border-theophany-accent bg-theophany-accent/25 text-theophany-text'
+                      : 'border-sanctuary-accent bg-sanctuary-accent/20 text-sanctuary-text'
+                    : isTheophany
+                      ? 'border-theophany-muted/50 text-theophany-muted hover:bg-black/30'
+                      : 'border-sanctuary-muted/40 text-sanctuary-muted hover:bg-black/[0.04]'
+                }`}
+              >
+                {trackNearby ? '● Following' : '○ Follow me'}
+              </button>
+            )}
+          </div>
+          <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
+            Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <Map

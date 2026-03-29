@@ -6,6 +6,7 @@ const WALKTHROUGH = 'between_walkthrough_done'
 const STREAK = 'between_visit_streak'
 const DAILY_MARK = 'between_daily_mark'
 const INTENTION = 'between_intention'
+const NEARBY_TRACKING = 'between_nearby_tracking'
 
 function readJson(key, fallback) {
   try {
@@ -117,6 +118,26 @@ export function setIntention(value) {
   try {
     if (value) sessionStorage.setItem(INTENTION, value)
     else sessionStorage.removeItem(INTENTION)
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Continuous “near me” map + list updates while moving. Default on if onboarding location consent was yes. */
+export function getNearbyTrackingEnabled() {
+  try {
+    const t = localStorage.getItem(NEARBY_TRACKING)
+    if (t === '1') return true
+    if (t === '0') return false
+    return localStorage.getItem('between_location_consent') === 'yes'
+  } catch {
+    return false
+  }
+}
+
+export function setNearbyTrackingEnabled(on) {
+  try {
+    localStorage.setItem(NEARBY_TRACKING, on ? '1' : '0')
   } catch {
     /* ignore */
   }
