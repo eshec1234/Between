@@ -5,6 +5,9 @@ import { markVisited, markWalkthroughDone, isSaved, toggleSaved } from '../lib/b
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import SourceBadge from '../components/SourceBadge'
 import PlaceWalkthrough from '../components/PlaceWalkthrough'
+import AmbientOrbs from '../components/AmbientOrbs'
+import FilmGrain from '../components/FilmGrain'
+import Starfield from '../components/Starfield'
 import { photosForPlace } from '../lib/placePhotoFallback'
 
 const REFLECTION_TAGS = [
@@ -205,8 +208,15 @@ export default function PlaceDetail() {
 
   if (loading) {
     return (
-      <div className="flex min-h-0 flex-1 items-center justify-center bg-sanctuary-bg">
-        <p className="font-serif italic text-sanctuary-muted">Loading...</p>
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-sanctuary-bg to-sanctuary-secondary">
+        <FilmGrain opacity={0.05} />
+        <div className="relative z-10 flex flex-1 flex-col gap-4 p-6 pt-10">
+          <div className="bf-skeleton h-4 w-28 rounded-md bg-sanctuary-muted/25" />
+          <div className="bf-skeleton h-48 w-full rounded-xl bg-sanctuary-muted/20 sm:h-56" />
+          <div className="bf-skeleton h-8 w-3/4 max-w-md rounded bg-sanctuary-muted/25" />
+          <div className="bf-skeleton h-20 w-full rounded-lg bg-sanctuary-muted/15" />
+          <p className="pt-4 text-center font-serif text-sm italic text-sanctuary-muted">Opening the space…</p>
+        </div>
       </div>
     )
   }
@@ -224,7 +234,9 @@ export default function PlaceDetail() {
     )
   }
 
-  const bgClass = isTheophany ? 'bg-theophany-bg text-theophany-text' : 'bg-sanctuary-bg text-sanctuary-text'
+  const bgClass = isTheophany
+    ? 'bg-theophany-bg text-theophany-text'
+    : 'bg-gradient-to-b from-sanctuary-bg via-sanctuary-primary to-sanctuary-secondary text-sanctuary-text'
   const borderClass = isTheophany ? 'border-theophany-accent/45' : 'border-sanctuary-accent/45'
   const accentClass = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
   const bodyClass = isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'
@@ -234,7 +246,21 @@ export default function PlaceDetail() {
   const usedFallback = !place?.photos?.length
 
   return (
-    <div className={`min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
+    <div className={`relative min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
+      {isTheophany && (
+        <>
+          <Starfield />
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+        </>
+      )}
+      {!isTheophany && (
+        <>
+          <AmbientOrbs variant="sanctuary" />
+          <FilmGrain opacity={0.04} />
+        </>
+      )}
+
+      <div className="relative z-10">
       <div className="p-4 pt-6">
         <Link to="/" className={`font-sans text-xs font-medium uppercase tracking-wider ${accentClass} hover:underline`}>
           ← Back
@@ -248,8 +274,21 @@ export default function PlaceDetail() {
               Placeholder imagery — add photos in Supabase when you have them
             </p>
           )}
-          <div className="h-52 w-full sm:h-64">
-            <img src={gallery[0]} alt="" className="h-full w-full object-cover" />
+          <div className="relative h-56 w-full overflow-hidden sm:h-72">
+            <img
+              src={gallery[0]}
+              alt=""
+              className={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+              }`}
+            />
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${
+                isTheophany
+                  ? 'from-theophany-bg via-theophany-bg/40 to-transparent'
+                  : 'from-sanctuary-bg via-sanctuary-bg/35 to-transparent'
+              }`}
+            />
           </div>
           {gallery.length > 1 && (
             <div className="flex gap-2 overflow-x-auto px-4 py-2">
@@ -636,6 +675,7 @@ export default function PlaceDetail() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   )

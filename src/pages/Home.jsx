@@ -23,6 +23,8 @@ import {
 import { placeMatchesIntention } from '../data/intentions'
 import EngagementHub from '../components/EngagementHub'
 import FeedFilters from '../components/FeedFilters'
+import AmbientOrbs from '../components/AmbientOrbs'
+import FilmGrain from '../components/FilmGrain'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
@@ -228,13 +230,28 @@ export default function Home() {
         <div className="pointer-events-none absolute left-1/2 top-0 z-[1] h-[220px] w-[160%] max-w-none -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
       )}
 
+      {!isTheophany && (
+        <>
+          <AmbientOrbs variant="sanctuary" />
+          <FilmGrain opacity={0.038} />
+        </>
+      )}
+
       <div
         className={`sticky top-0 z-40 flex shrink-0 items-center justify-between p-4 pt-6 ${
-          isTheophany ? 'bg-theophany-bg/90 backdrop-blur-sm' : 'bg-sanctuary-bg/90 backdrop-blur-sm'
+          isTheophany
+            ? 'bg-theophany-bg/90 backdrop-blur-sm'
+            : 'border-b border-amber-900/[0.08] bg-sanctuary-bg/88 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md'
         }`}
       >
         <div className="flex items-center gap-3">
-          <h1 className="font-display text-xl tracking-[0.35em]">Between</h1>
+          <h1
+            className={`font-display text-xl tracking-[0.35em] ${
+              isTheophany ? 'text-theophany-text' : 'bg-gradient-to-r from-amber-900/90 via-sanctuary-accent to-amber-800/80 bg-clip-text text-transparent'
+            }`}
+          >
+            Between
+          </h1>
           <div className="hidden gap-2 sm:flex">
             <Link
               to="/about"
@@ -428,6 +445,7 @@ export default function Home() {
                   key={place.id}
                   place={place}
                   isTheophany={isTheophany}
+                  animIndex={i}
                   onSaveToggle={() => setLocalTick((t) => t + 1)}
                 />
               ]
@@ -444,7 +462,7 @@ export default function Home() {
 
       <Link
         to="/submit"
-        className={`absolute bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-lg transition-colors ${
+        className={`absolute bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-[0_10px_40px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-110 active:scale-95 ${
           isTheophany ? 'bg-theophany-accent text-theophany-bg' : 'bg-sanctuary-accent text-sanctuary-bg'
         }`}
         title="Submit a place"
@@ -455,7 +473,7 @@ export default function Home() {
   )
 }
 
-function PlaceCard({ place, isTheophany, onSaveToggle }) {
+function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
   const type = placeTypeLabel(place)
   const img = photosForPlace(place)[0]
   const [saved, setSaved] = useState(() => isSaved(place.id))
@@ -472,7 +490,10 @@ function PlaceCard({ place, isTheophany, onSaveToggle }) {
   }
 
   return (
-    <div className="relative mb-2.5">
+    <div
+      className="relative mb-2.5 bf-enter-card"
+      style={{ animationDelay: `${Math.min(animIndex, 18) * 42}ms` }}
+    >
       <button
         type="button"
         onClick={onSave}
@@ -492,10 +513,10 @@ function PlaceCard({ place, isTheophany, onSaveToggle }) {
       </button>
       <Link to={`/place/${place.id}`} className="block">
       <div
-        className={`overflow-hidden rounded-xl border shadow-sm transition-opacity hover:opacity-95 ${
+        className={`group overflow-hidden rounded-xl border shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
           isTheophany
-            ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)]'
-            : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)]'
+            ? 'border-[#0e2828] bg-[rgba(4,10,14,0.95)] hover:border-theophany-accent/30 hover:shadow-[0_28px_64px_-20px_rgba(0,0,0,0.75)]'
+            : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
         }`}
       >
         <div
@@ -507,7 +528,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle }) {
             <img
               src={img}
               alt=""
-              className={`h-full w-full object-cover ${
+              className={`h-full w-full object-cover transition-transform duration-[1.15s] ease-out will-change-transform group-hover:scale-[1.06] ${
                 isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
               }`}
             />

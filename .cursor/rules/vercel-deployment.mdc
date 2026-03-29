@@ -1,0 +1,17 @@
+---
+description: Deploy to Vercel by pushing to GitHub; never leave fixes only local
+alwaysApply: true
+---
+
+# Vercel deployment (this project)
+
+Production is hosted on **Vercel** and deploys from **GitHub** when **`main`** updates.
+
+After **any meaningful code or config change** (features, fixes, CSS, env example, SQL runner files, etc.):
+
+1. **Commit** with a clear message.
+2. **`git push origin main`** so Vercel runs a new build.
+
+Do **not** assume the user will deploy manually. If you finish a task and the repo has unpushed commits or uncommitted work that should go live, **commit and push** in the same session (unless the user explicitly asked not to touch git).
+
+If push fails (auth, network), say what failed and what they need to do—do not claim deployment happened.
