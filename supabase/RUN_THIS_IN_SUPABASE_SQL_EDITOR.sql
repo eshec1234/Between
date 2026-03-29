@@ -257,4 +257,8 @@ DROP POLICY IF EXISTS "Anyone may record resonance once per place" ON place_reso
 CREATE POLICY "Anyone may record resonance once per place"
   ON place_resonance FOR INSERT WITH CHECK (true);
 
+-- --- 010: diverse sanctuary traditions (Judaism, Islam, Hindu, Buddhist, Sikh, Baha'i) -----------
+-- Run the full script: supabase/migrations/010_seed_sanctuary_traditions_diverse.sql
+-- (paste into SQL Editor). Skips rows that already match name + city. Christianity is already in 007.
+
 -- Done. In Supabase: Table Editor → you should see `places` with rows after running 007.
