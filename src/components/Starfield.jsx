@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-export default function Starfield() {
+export default function Starfield({ pinToViewport = false }) {
   const stars = useMemo(
     () =>
       Array.from({ length: 55 }, (_, i) => ({
@@ -15,7 +15,11 @@ export default function Starfield() {
 
   return (
     <svg
-      className="pointer-events-none absolute inset-0 z-0 opacity-[0.42]"
+      className={`pointer-events-none z-0 ${
+        pinToViewport
+          ? 'fixed inset-0 h-full min-h-[100dvh] w-full opacity-[0.5]'
+          : 'absolute inset-0 h-full w-full opacity-[0.42]'
+      }`}
       width="100%"
       height="100%"
       aria-hidden

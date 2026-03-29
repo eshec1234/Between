@@ -222,9 +222,9 @@ export default function Home() {
           : 'bg-gradient-to-br from-sanctuary-bg via-sanctuary-primary to-sanctuary-secondary text-sanctuary-text'
       }`}
     >
-      {isTheophany && <Starfield />}
+      {isTheophany && <Starfield pinToViewport />}
       {isTheophany && (
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
+        <div className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh] bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.72)_100%)]" />
       )}
       {!isTheophany && (
         <div className="pointer-events-none absolute left-1/2 top-0 z-[1] h-[220px] w-[160%] max-w-none -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,230,155,0.45)_0%,transparent_65%)]" />
@@ -238,10 +238,10 @@ export default function Home() {
       )}
 
       <div
-        className={`sticky top-0 z-40 flex shrink-0 items-center justify-between p-4 pt-6 ${
+        className={`z-40 flex shrink-0 items-center justify-between p-4 pt-6 ${
           isTheophany
-            ? 'bg-theophany-bg/90 backdrop-blur-sm'
-            : 'border-b border-amber-900/[0.08] bg-sanctuary-bg/88 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md'
+            ? 'fixed left-0 right-0 top-0 bg-theophany-bg/90 backdrop-blur-sm'
+            : 'sticky top-0 border-b border-amber-900/[0.08] bg-sanctuary-bg/88 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md'
         }`}
       >
         <div className="flex items-center gap-3">
@@ -297,7 +297,11 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-3">
+      <div
+        className={`relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${
+          isTheophany ? 'pt-24' : 'pt-3'
+        }`}
+      >
         <div className="px-4 text-center">
           <p
             className={`font-display text-[10px] uppercase tracking-[0.28em] ${
