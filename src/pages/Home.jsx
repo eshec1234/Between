@@ -24,7 +24,9 @@ import {
   distanceKm
 } from '../lib/betweenLocal'
 import { placeMatchesIntention } from '../data/intentions'
+import { placeMatchesSanctuaryTradition } from '../data/sanctuaryTraditions'
 import EngagementHub from '../components/EngagementHub'
+import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
 import FeedFilters from '../components/FeedFilters'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
@@ -95,6 +97,7 @@ export default function Home() {
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
+  const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
 
   useEffect(() => {
@@ -261,8 +264,22 @@ export default function Home() {
       const s = getSavedIds()
       list = list.filter((p) => s.has(p.id))
     }
+    if (!isTheophany && sanctuaryTradition) {
+      list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
+    }
     return list
-  }, [places, intent, filterTag, minIntensity, hideVisited, savedOnly, isTheophany, localTick, location.key])
+  }, [
+    places,
+    intent,
+    filterTag,
+    minIntensity,
+    hideVisited,
+    savedOnly,
+    isTheophany,
+    sanctuaryTradition,
+    localTick,
+    location.key
+  ])
 
   const visitedIds = useMemo(() => getVisitedIds(), [places, localTick, location.key])
   const savedIds = useMemo(() => getSavedIds(), [places, localTick, location.key])
@@ -283,6 +300,11 @@ export default function Home() {
       setNearbyTrackingEnabled(next)
       return next
     })
+  }, [])
+
+  const onSanctuaryTraditionChange = useCallback((id) => {
+    setSanctuaryTradition(id)
+    setSanctuaryTraditionId(id)
   }, [])
 
   const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
@@ -400,6 +422,17 @@ export default function Home() {
           </p>
         </div>
 
+        {!isTheophany && (
+          <div className="px-4 pt-4">
+            <SanctuaryTraditionBar
+              value={sanctuaryTradition}
+              onChange={onSanctuaryTraditionChange}
+              subClass={subMuted}
+              borderClass={bord}
+            />
+          </div>
+        )}
+
         <div className="pt-4">
           <InstallPwaPrompt isTheophany={isTheophany} />
           <ActivityFeed
@@ -414,7 +447,7 @@ export default function Home() {
 
         <div className="pt-5">
           <EngagementHub
-            places={places}
+            places={filteredPlaces}
             center={center}
             isTheophany={isTheophany}
             subClass={subMuted}

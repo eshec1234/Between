@@ -7,6 +7,7 @@ const STREAK = 'between_visit_streak'
 const DAILY_MARK = 'between_daily_mark'
 const INTENTION = 'between_intention'
 const NEARBY_TRACKING = 'between_nearby_tracking'
+const SANCTUARY_TRADITION = 'between_sanctuary_tradition'
 
 function readJson(key, fallback) {
   try {
@@ -138,6 +139,24 @@ export function getNearbyTrackingEnabled() {
 export function setNearbyTrackingEnabled(on) {
   try {
     localStorage.setItem(NEARBY_TRACKING, on ? '1' : '0')
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Sanctuary mode: filter id from `sanctuaryTraditions` (empty = all) */
+export function getSanctuaryTraditionId() {
+  try {
+    return localStorage.getItem(SANCTUARY_TRADITION) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setSanctuaryTraditionId(id) {
+  try {
+    if (id) localStorage.setItem(SANCTUARY_TRADITION, id)
+    else localStorage.removeItem(SANCTUARY_TRADITION)
   } catch {
     /* ignore */
   }
