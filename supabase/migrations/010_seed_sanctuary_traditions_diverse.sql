@@ -40,7 +40,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1504052434569-70add5ae4832?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['tasteful', 'historic']::TEXT[]
   ),
   (
@@ -60,7 +60,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1548625149-fc4a29d70959?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['respectful', 'historic']::TEXT[]
   ),
   (
@@ -80,7 +80,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1494783367193-149034c050e4?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['tasteful', 'respectful']::TEXT[]
   ),
   (
@@ -100,7 +100,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['quiet', 'tasteful']::TEXT[]
   ),
   (
@@ -120,7 +120,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1505843513577-22bb7d1d5f0e?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1438232992999-9957057aa3bf?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['respectful', 'tasteful']::TEXT[]
   ),
   (
@@ -140,7 +140,7 @@ SELECT * FROM (VALUES
       'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80',
       'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1400&q=80'
     ]::TEXT[],
-    NULL,
+    NULL::INTEGER,
     ARRAY['quiet', 'tasteful']::TEXT[]
   )
 ) AS v(

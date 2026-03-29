@@ -11,7 +11,7 @@ export async function fetchActivityFeed(supabase, mode) {
 
   const { data: recentPlaces, error: e1 } = await supabase
     .from('places')
-    .select('id, name, city, state, created_at, mode, source')
+    .select('id, name, city, state, created_at, mode, source, photos')
     .or(modeFilter)
     .order('created_at', { ascending: false })
     .limit(8)
@@ -50,7 +50,7 @@ export async function fetchActivityFeed(supabase, mode) {
 
   const { data: trendingPlaces } = await supabase
     .from('places')
-    .select('id, name, city, state, mode, source, flags, created_at')
+    .select('id, name, city, state, mode, source, flags, created_at, photos')
     .or(modeFilter)
     .order('created_at', { ascending: false })
     .limit(20)
