@@ -13,6 +13,14 @@ export default function Onboarding({ onComplete }) {
     return () => clearTimeout(t)
   }, [])
 
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prevOverflow
+    }
+  }, [])
+
   const handleAgree = () => {
     localStorage.setItem('between_location_consent', 'yes')
     if (navigator.geolocation) {
@@ -46,7 +54,7 @@ export default function Onboarding({ onComplete }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 min-h-dvh overflow-hidden bg-[#1a1610]">
+    <div className="fixed inset-0 z-50 min-h-dvh overflow-x-hidden overflow-y-auto bg-[#1a1610] overscroll-none">
       <ParticleBackground />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_78%_60%_at_50%_45%,transparent_18%,rgba(14,10,5,0.55)_100%)]" />
 
@@ -65,8 +73,8 @@ export default function Onboarding({ onComplete }) {
         </Link>
       </div>
 
-      <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center pl-[max(1.75rem,env(safe-area-inset-left,0px))] pr-[max(1.75rem,env(safe-area-inset-right,0px))] pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(4rem,calc(env(safe-area-inset-top,0px)+3rem))]">
-        <div className="mb-9 w-full text-center">
+      <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pl-[max(1.25rem,env(safe-area-inset-left,0px))] pr-[max(1.25rem,env(safe-area-inset-right,0px))] pt-[max(3.25rem,calc(env(safe-area-inset-top,0px)+2.25rem))]">
+        <div className="mb-6 w-full max-w-lg text-center">
           {showPrompt && (
             <div className="mb-4 animate-bfIn">
               <Rule />
@@ -89,16 +97,16 @@ export default function Onboarding({ onComplete }) {
         </div>
 
         {showPrompt && (
-          <div className="w-full max-w-[310px] animate-bfIn">
-            <p className="mb-5 text-center font-sans text-[9px] uppercase tracking-[0.26em] text-[rgba(208,192,145,0.85)] [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
+          <div className="w-full max-w-md animate-bfIn sm:max-w-lg">
+            <p className="mb-4 text-center font-sans text-[10px] uppercase tracking-[0.26em] text-[rgba(208,192,145,0.85)] [text-shadow:0_1px_14px_rgba(0,0,0,0.95)] sm:mb-5 sm:text-[11px]">
               Where would you like to begin?
             </p>
-            <div className="overflow-hidden rounded-lg border border-[rgba(175,150,95,.2)]">
-              <div className="flex items-stretch justify-center">
+            <div className="overflow-hidden rounded-xl border border-[rgba(175,150,95,.28)] shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+              <div className="flex min-h-[11rem] items-stretch justify-center sm:min-h-[12rem]">
                 <button
                   type="button"
                   onClick={() => enterMode('sanctuary')}
-                  className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 border-r border-[rgba(175,150,95,.22)] bg-transparent px-4 py-6 outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 border-r border-[rgba(175,150,95,.22)] bg-[rgba(20,16,8,0.35)] px-4 py-7 outline-none transition-colors hover:bg-[rgba(30,24,10,0.45)] disabled:cursor-not-allowed disabled:opacity-40 sm:px-6 sm:py-8"
                   disabled={!consented}
                 >
                   <svg width="18" height="26" viewBox="0 0 18 26" aria-hidden>
@@ -106,10 +114,10 @@ export default function Onboarding({ onComplete }) {
                     <line x1="1" y1="8" x2="17" y2="8" stroke="#c8a870" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                   <div className="text-center">
-                    <div className="font-display text-[13px] tracking-[0.22em] text-[#caa870] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)]">
+                    <div className="font-display text-[14px] tracking-[0.22em] text-[#caa870] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)] sm:text-[15px]">
                       Sanctuary
                     </div>
-                    <div className="mt-1.5 font-serif text-[9px] italic text-[#8a7048] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)]">
+                    <div className="mt-2 font-serif text-[10px] italic text-[#9a8048] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)] sm:text-[11px]">
                       A place to remain.
                     </div>
                   </div>
@@ -117,7 +125,7 @@ export default function Onboarding({ onComplete }) {
                 <button
                   type="button"
                   onClick={() => enterMode('theophany')}
-                  className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 bg-transparent px-4 py-6 outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3.5 bg-[rgba(12,18,18,0.32)] px-4 py-7 outline-none transition-colors hover:bg-[rgba(16,26,26,0.48)] disabled:cursor-not-allowed disabled:opacity-40 sm:px-6 sm:py-8"
                   disabled={!consented}
                 >
                   <svg width="30" height="20" viewBox="0 0 30 20" aria-hidden>
@@ -131,17 +139,17 @@ export default function Onboarding({ onComplete }) {
                     <circle cx="15" cy="10" r="1.7" fill="#5a9898" opacity="0.75" />
                   </svg>
                   <div className="text-center">
-                    <div className="font-display text-[13px] tracking-[0.22em] text-[#5a9898] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)]">
+                    <div className="font-display text-[14px] tracking-[0.22em] text-[#5a9898] [text-shadow:0_1px_18px_rgba(0,0,0,0.98)] sm:text-[15px]">
                       Theophany
                     </div>
-                    <div className="mt-1.5 font-serif text-[9px] italic text-[#346060] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)]">
+                    <div className="mt-2 font-serif text-[10px] italic text-[#408080] [text-shadow:0_1px_10px_rgba(0,0,0,0.95)] sm:text-[11px]">
                       A place to notice.
                     </div>
                   </div>
                 </button>
               </div>
             </div>
-            <p className="mt-5 text-center font-sans text-[8px] uppercase tracking-[0.22em] text-[rgba(175,155,105,.45)]">
+            <p className="mt-4 text-center font-sans text-[9px] uppercase tracking-[0.22em] text-[rgba(175,155,105,.55)] sm:mt-5 sm:text-[10px]">
               {consented ? 'tap to enter' : 'respond to the prompt above first'}
             </p>
           </div>
