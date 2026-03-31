@@ -10,7 +10,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "smoke": "npm run build && node scripts/smoke-routes.mjs",
+    "check:api": "node scripts/api-contract-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

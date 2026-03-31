@@ -17,6 +17,7 @@ export default function Map({
 }) {
   const mapContainer = useRef(null)
   const map = useRef(null)
+  const markersRef = useRef([])
 
   useEffect(() => {
     if (!hasMapboxEnv) return
@@ -55,12 +56,19 @@ export default function Map({
     map.current.setStyle(style)
   }, [mode])
 
-  // Add place markers
   useEffect(() => {
-    if (!map.current || !places.length) return
+    return () => {
+      markersRef.current.forEach((m) => m.remove())
+      markersRef.current = []
+    }
+  }, [])
 
-    // Remove existing markers
-    document.querySelectorAll('.between-marker').forEach(el => el.remove())
+  // Add place markers (scoped to this map instance — no global DOM queries)
+  useEffect(() => {
+    if (!map.current) return
+    markersRef.current.forEach((m) => m.remove())
+    markersRef.current = []
+    if (!places.length) return
 
     places.forEach((place) => {
       if (!place.coordinates) return
@@ -93,13 +101,14 @@ export default function Map({
       // Coordinates from PostGIS are stored as GeoJSON
       const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
 
-      new mapboxgl.Marker(el)
+      const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
         .setPopup(
           new mapboxgl.Popup({ offset: 16 })
             .setHTML(`<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`)
         )
         .addTo(map.current)
+      markersRef.current.push(marker)
     })
   }, [places, mode, visitedIds, savedIds, walkthroughDoneIds])
 

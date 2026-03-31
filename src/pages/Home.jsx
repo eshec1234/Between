@@ -33,6 +33,7 @@ import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
 import FeedFilters from '../components/FeedFilters'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
+import { PLACES_LIST_SELECT } from '../lib/placesSelect'
 
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
@@ -209,7 +210,7 @@ export default function Home() {
 
     const { data: more } = await supabase
       .from('places')
-      .select('*')
+      .select(PLACES_LIST_SELECT)
       .or(`mode.eq.${mode},mode.eq.both`)
       .order('created_at', { ascending: false })
       .limit(80)
@@ -345,13 +346,13 @@ export default function Home() {
       )}
 
       <div
-        className={`z-40 flex shrink-0 items-center justify-between p-4 pt-6 ${
+        className={`z-40 flex shrink-0 items-center justify-between gap-3 px-4 pb-4 pt-[max(1.5rem,env(safe-area-inset-top,0px))] ${
           isTheophany
             ? 'fixed left-0 right-0 top-0 bg-theophany-bg/90 backdrop-blur-sm'
             : 'sticky top-0 border-b border-amber-900/[0.08] bg-sanctuary-bg/88 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md'
         }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
           <h1
             className={`font-display text-xl tracking-[0.35em] ${
               isTheophany ? 'text-theophany-text' : 'bg-gradient-to-r from-amber-900/90 via-sanctuary-accent to-amber-800/80 bg-clip-text text-transparent'
@@ -359,10 +360,10 @@ export default function Home() {
           >
             Between
           </h1>
-          <div className="hidden gap-2 sm:flex">
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label="About and help">
             <Link
               to="/about"
-              className={`font-sans text-[9px] uppercase tracking-[0.18em] ${
+              className={`inline-flex min-h-[44px] items-center font-sans text-[9px] uppercase tracking-[0.18em] ${
                 isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
               }`}
             >
@@ -370,13 +371,13 @@ export default function Home() {
             </Link>
             <Link
               to="/faq"
-              className={`font-sans text-[9px] uppercase tracking-[0.18em] ${
+              className={`inline-flex min-h-[44px] items-center font-sans text-[9px] uppercase tracking-[0.18em] ${
                 isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
               }`}
             >
               FAQ
             </Link>
-          </div>
+          </nav>
         </div>
         <div className="flex gap-2">
           <button
@@ -523,7 +524,7 @@ export default function Home() {
                 role="switch"
                 aria-checked={trackNearby}
                 onClick={onToggleTrackNearby}
-                className={`shrink-0 rounded-full border px-3 py-1.5 font-sans text-[9px] font-semibold uppercase tracking-wider transition-colors ${
+                className={`shrink-0 rounded-full border px-3 py-2 font-sans text-[9px] font-semibold uppercase tracking-wider transition-colors min-h-[44px] ${
                   trackNearby
                     ? isTheophany
                       ? 'border-theophany-accent bg-theophany-accent/25 text-theophany-text'
@@ -670,10 +671,15 @@ export default function Home() {
 
       <Link
         to="/submit"
-        className={`absolute bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-2xl shadow-[0_10px_40px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-110 active:scale-95 ${
+        style={{
+          bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
+          right: 'max(1.5rem, env(safe-area-inset-right, 0px))'
+        }}
+        className={`absolute z-50 flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full text-2xl shadow-[0_10px_40px_rgba(0,0,0,0.35)] transition-transform duration-300 hover:scale-110 active:scale-95 ${
           isTheophany ? 'bg-theophany-accent text-theophany-bg' : 'bg-sanctuary-accent text-sanctuary-bg'
         }`}
         title="Submit a place"
+        aria-label="Submit a place"
       >
         +
       </Link>

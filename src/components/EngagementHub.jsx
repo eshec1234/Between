@@ -74,7 +74,7 @@ export default function EngagementHub({
           <button
             type="button"
             onClick={onMarkToday}
-            className={`rounded-full border px-4 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors ${
               streak.markedToday
                 ? isTheophany
                   ? 'border-theophany-accent/50 text-theophany-muted'
@@ -120,7 +120,7 @@ export default function EngagementHub({
               key={it.id}
               type="button"
               onClick={() => onIntent(it.id)}
-              className={`rounded-full border px-3 py-1 font-sans text-[10px] font-medium uppercase tracking-wider ${
+              className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${
                 intent === it.id
                   ? isTheophany
                     ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-text'

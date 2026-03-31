@@ -1,4 +1,4 @@
-/** Demo ad placement — revenue model placeholder (not a real network ad). */
+/** Sponsored-slot placeholder for a future revenue model — not a real ad network. */
 const DEMOS = [
   { title: 'Local roastery', line: 'Support spaces that host quiet hours · Demo ad' },
   { title: 'Regional trails fund', line: 'Your visit helps preserve liminal landscapes · Demo ad' },
@@ -20,7 +20,7 @@ export default function MockAdSlot({ index = 0, isTheophany }) {
           isTheophany ? 'bg-theophany-bg/80 text-theophany-muted' : 'bg-sanctuary-bg/90 text-sanctuary-muted'
         }`}
       >
-        Ad
+        Sponsor demo
       </div>
       <p className={`pr-10 font-display text-sm tracking-wide ${isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'}`}>
         {ad.title}

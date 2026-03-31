@@ -32,7 +32,13 @@ export async function fetchNarrationTts(text, options = {}) {
     signal: options.signal
   })
   if (!res.ok) {
-    const err = await res.text()
+    const err = (await res.text()) || res.statusText
+    if (res.status === 503 || res.status === 502) {
+      const tail = String(err).slice(0, 120)
+      throw new Error(
+        `Narration unavailable (edge function or OpenAI secret). Falling back to device voice. ${tail}`
+      )
+    }
     throw new Error(err || res.statusText)
   }
   return res.blob()
