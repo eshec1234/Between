@@ -231,7 +231,7 @@ export default function PlaceDetail() {
         <FilmGrain opacity={0.05} />
         <div className="relative z-10 flex flex-1 flex-col gap-4 p-6 pt-10">
           <div className="bf-skeleton h-4 w-28 rounded-md bg-sanctuary-muted/25" />
-          <div className="bf-skeleton h-48 w-full rounded-xl bg-sanctuary-muted/20 sm:h-56" />
+          <div className="bf-skeleton h-[clamp(160px,min(42dvh,48vmin),400px)] min-h-[160px] w-full rounded-xl bg-sanctuary-muted/20" />
           <div className="bf-skeleton h-8 w-3/4 max-w-md rounded bg-sanctuary-muted/25" />
           <div className="bf-skeleton h-20 w-full rounded-lg bg-sanctuary-muted/15" />
           <p className="pt-4 text-center font-serif text-sm italic text-sanctuary-muted">Opening the space…</p>
@@ -267,7 +267,7 @@ export default function PlaceDetail() {
   const heroSrc = gallery.length ? (gallery.length > 1 ? heroPick.url : gallery[0]) : null
 
   return (
-    <div className={`relative min-h-0 flex-1 overflow-y-auto ${bgClass}`}>
+    <div className={`relative min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))] ${bgClass}`}>
       {isTheophany && (
         <>
           <Starfield pinToViewport />
@@ -288,7 +288,7 @@ export default function PlaceDetail() {
       )}
 
       <div className="relative z-10">
-      <div className="p-4 pt-6">
+      <div className="p-4 pt-[max(1.5rem,calc(env(safe-area-inset-top,0px)+0.5rem))]">
         <Link to="/" className={`font-sans text-xs font-medium uppercase tracking-wider ${accentClass} hover:underline`}>
           ← Back
         </Link>
@@ -314,7 +314,7 @@ export default function PlaceDetail() {
               Photo mood · {heroPick.label} (local time)
             </p>
           )}
-          <div className="relative h-56 w-full overflow-hidden sm:h-72">
+          <div className="relative min-h-[160px] h-[clamp(160px,min(42dvh,48vmin),400px)] w-full overflow-hidden">
             <PlaceImage
               place={place}
               isTheophany={isTheophany}

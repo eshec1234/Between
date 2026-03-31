@@ -407,7 +407,9 @@ export default function Home() {
 
       <div
         className={`relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${
-          isTheophany ? 'pt-24' : 'pt-3'
+          isTheophany
+            ? 'pt-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5.5rem))]'
+            : 'pt-3'
         }`}
       >
         <div className="px-4 text-center">
@@ -549,7 +551,7 @@ export default function Home() {
               visitedIds={visitedIds}
               savedIds={savedIds}
               walkthroughDoneIds={walkthroughDoneIds}
-              heightClass="h-[min(52vh,420px)] min-h-[260px] md:min-h-[360px]"
+              heightClass="btw-map-canvas"
               zoom={10.5}
             />
           </div>
@@ -635,7 +637,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="space-y-4 p-4 pb-24">
+        <div className="space-y-4 p-4 pb-[max(6rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))]">
           {loading ? (
             <p className="pt-8 text-center font-serif italic opacity-60">Finding nearby spaces...</p>
           ) : filteredPlaces.length === 0 ? (
@@ -734,7 +736,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
         }`}
       >
         <div
-          className={`relative aspect-[4/3] w-full overflow-hidden sm:max-h-[320px] ${
+          className={`relative aspect-[4/3] w-full max-h-[min(72vmin,380px)] overflow-hidden sm:max-h-[320px] ${
             isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
           }`}
         >

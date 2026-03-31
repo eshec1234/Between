@@ -125,7 +125,7 @@ export default function ActivityFeed({
                   }`}
                 >
                   <div
-                    className={`relative aspect-[4/3] w-full overflow-hidden ${
+                    className={`relative aspect-[4/3] w-full max-h-[min(200px,55vmin)] overflow-hidden ${
                       isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
                     }`}
                   >
@@ -163,7 +163,7 @@ export default function ActivityFeed({
                 }`}
               >
                 <div
-                  className={`relative aspect-[4/3] w-full overflow-hidden ${
+                  className={`relative aspect-[4/3] w-full max-h-[min(200px,55vmin)] overflow-hidden ${
                     isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
                   }`}
                 >

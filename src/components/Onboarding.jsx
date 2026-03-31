@@ -41,11 +41,11 @@ export default function Onboarding({ onComplete }) {
   }
 
   return (
-    <div className="absolute inset-0 z-50 overflow-hidden bg-[#1a1610]">
+    <div className="fixed inset-0 z-50 min-h-dvh overflow-hidden bg-[#1a1610]">
       <ParticleBackground />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_78%_60%_at_50%_45%,transparent_18%,rgba(14,10,5,0.55)_100%)]" />
 
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between px-[22px] py-[18px]">
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between pl-[max(22px,env(safe-area-inset-left,0px))] pr-[max(22px,env(safe-area-inset-right,0px))] pt-[max(18px,env(safe-area-inset-top,0px))] pb-[18px]">
         <Link
           to="/about"
           className="pointer-events-auto font-sans text-[9px] uppercase tracking-[0.22em] text-[rgba(210,188,125,0.85)]"
@@ -60,7 +60,7 @@ export default function Onboarding({ onComplete }) {
         </Link>
       </div>
 
-      <div className="relative z-10 flex min-h-full flex-col items-center justify-center px-7">
+      <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center pl-[max(1.75rem,env(safe-area-inset-left,0px))] pr-[max(1.75rem,env(safe-area-inset-right,0px))] pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(4rem,calc(env(safe-area-inset-top,0px)+3rem))]">
         <div className="mb-9 w-full text-center">
           {showPrompt && (
             <div className="mb-4 animate-bfIn">

@@ -25,15 +25,29 @@
 }
 
 html, body, #root {
-  height: 100%;
   margin: 0;
   padding: 0;
+  /* Dynamic viewport: avoids clipped UI when mobile bars show/hide; min-height still grows with content */
+  min-height: 100dvh;
+  min-height: 100vh; /* fallback for browsers without dvh */
 }
 
 body {
   font-family: 'Didact Gothic', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Map: balance portrait height vs landscape width (vmin) so short viewports stay usable */
+.btw-map-canvas {
+  height: clamp(220px, min(46dvh, 52vmin), 420px);
+  min-height: 220px;
+}
+
+@media (min-width: 768px) {
+  .btw-map-canvas {
+    min-height: 360px;
+  }
 }
 
 /* Mapbox overrides */

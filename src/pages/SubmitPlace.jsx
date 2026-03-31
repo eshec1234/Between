@@ -99,7 +99,7 @@ export default function SubmitPlace() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto bg-sanctuary-bg text-sanctuary-text">
-      <div className="mx-auto max-w-lg p-6 pb-24">
+      <div className="mx-auto max-w-lg pb-[max(6rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))] pl-[max(1.5rem,env(safe-area-inset-left,0px))] pr-[max(1.5rem,env(safe-area-inset-right,0px))] pt-[max(1.5rem,env(safe-area-inset-top,0px))]">
         {/* Header */}
         <div className="mb-8">
           <Link to="/" className="font-sans text-xs uppercase tracking-wider text-sanctuary-accent">← Back</Link>

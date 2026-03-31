@@ -8,7 +8,7 @@ export default function FAQPage() {
 
   return (
     <AppFrame>
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[#080c0c] px-5 py-6">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-[#080c0c] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pl-[max(1.25rem,env(safe-area-inset-left,0px))] pr-[max(1.25rem,env(safe-area-inset-right,0px))] pt-[max(1.5rem,env(safe-area-inset-top,0px))]">
         <Link
           to="/"
           className="mb-7 inline-block font-sans text-[9px] uppercase tracking-[0.22em] text-[#7ababa]"
