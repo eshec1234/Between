@@ -31,6 +31,7 @@ import { placeMatchesSanctuaryTradition } from '../data/sanctuaryTraditions'
 import EngagementHub from '../components/EngagementHub'
 import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
 import FeedFilters from '../components/FeedFilters'
+import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
@@ -429,6 +430,39 @@ export default function Home() {
           </p>
         </div>
 
+        {isTheophany && (
+          <div className="mx-4 mt-4 space-y-3">
+            <section
+              className="rounded-md border border-violet-900/45 bg-[rgba(10,5,20,0.78)] px-3 py-3 shadow-[0_0_32px_rgba(100,60,160,0.1)] backdrop-blur-sm"
+              aria-label="Theophany disclaimer"
+            >
+              <h2 className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">Disclaimer</h2>
+              <TheophanyDisclaimer className="mt-0 border-0 pt-0 text-left leading-relaxed" />
+            </section>
+            <div className="rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
+              <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">
+                Today&apos;s omen
+              </div>
+              <p className="m-0 font-serif text-sm italic leading-relaxed text-violet-100/90">{omen}</p>
+            </div>
+            <div className="rounded border border-violet-950/45 bg-[rgba(8,4,18,0.55)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(167,139,250,0.08)] backdrop-blur-sm">
+              <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-violet-500/45">
+                Intensity scale
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                {INTENSITY_LEVELS_THEOPHANY.map((l) => (
+                  <div key={l.label} className="flex items-center gap-1">
+                    <div className="h-2 w-2 rounded-full" style={{ background: l.c }} />
+                    <span className="font-sans text-[8px]" style={{ color: l.c }}>
+                      {l.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {!isTheophany && (
           <div className="px-4 pt-4">
             <SanctuaryTraditionBar
@@ -587,33 +621,6 @@ export default function Home() {
                     {p.city}, {p.state}
                   </p>
                 </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {isTheophany && (
-          <div className="mx-4 mt-3 rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
-            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">
-              Today&apos;s omen
-            </div>
-            <p className="m-0 font-serif text-sm italic leading-relaxed text-violet-100/90">{omen}</p>
-          </div>
-        )}
-
-        {isTheophany && (
-          <div className="mx-4 mt-3 rounded border border-violet-950/45 bg-[rgba(8,4,18,0.55)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(167,139,250,0.08)] backdrop-blur-sm">
-            <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-violet-500/45">
-              Intensity scale
-            </div>
-            <div className="flex flex-wrap gap-2.5">
-              {INTENSITY_LEVELS_THEOPHANY.map((l) => (
-                <div key={l.label} className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full" style={{ background: l.c }} />
-                  <span className="font-sans text-[8px]" style={{ color: l.c }}>
-                    {l.label}
-                  </span>
-                </div>
               ))}
             </div>
           </div>
