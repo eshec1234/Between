@@ -1,11 +1,11 @@
 export default function LocationConsentModal({ onAgree, onDecline }) {
   return (
     <div
-      className="fixed inset-0 z-[500] flex min-h-[100dvh] items-center justify-center overflow-y-auto overscroll-contain bg-[rgba(5,4,2,0.94)] px-5 py-10 sm:px-8"
+      className="fixed inset-0 z-[500] flex min-h-dvh max-h-dvh flex-col items-center overflow-y-auto overscroll-contain bg-[rgba(5,4,2,0.94)] px-4 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(1.25rem,calc(env(safe-area-inset-top,0px)+1rem))] sm:px-6 sm:pb-6 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top,0px)+1.25rem))]"
       role="presentation"
     >
       <div
-        className="my-auto w-full max-w-md rounded-2xl border border-[rgba(200,168,112,0.45)] bg-[#141109] px-7 py-9 text-center shadow-[0_8px_1px_rgba(0,0,0,0.4),0_32px_96px_rgba(0,0,0,0.55)] sm:max-w-lg sm:px-10 sm:py-10 animate-bpop"
+        className="w-full max-h-[calc(100dvh-2rem)] max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-[rgba(200,168,112,0.45)] bg-[#141109] px-7 py-9 text-center shadow-[0_8px_1px_rgba(0,0,0,0.4),0_32px_96px_rgba(0,0,0,0.55)] sm:max-w-lg sm:px-10 sm:py-10 animate-bpop"
         role="dialog"
         aria-modal="true"
         aria-labelledby="consent-title"

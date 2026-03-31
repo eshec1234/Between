@@ -14,10 +14,15 @@ export default function Onboarding({ onComplete }) {
   }, [])
 
   useEffect(() => {
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const html = document.documentElement
+    const body = document.body
+    const prevHtml = html.style.overflow
+    const prevBody = body.style.overflow
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
     return () => {
-      document.body.style.overflow = prevOverflow
+      html.style.overflow = prevHtml
+      body.style.overflow = prevBody
     }
   }, [])
 
@@ -54,7 +59,7 @@ export default function Onboarding({ onComplete }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 min-h-dvh overflow-x-hidden overflow-y-auto bg-[#1a1610] overscroll-none">
+    <div className="fixed inset-0 z-50 h-dvh max-h-dvh overflow-hidden bg-[#1a1610] overscroll-none">
       <ParticleBackground />
       <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_78%_60%_at_50%_45%,transparent_18%,rgba(14,10,5,0.55)_100%)]" />
 
@@ -73,7 +78,7 @@ export default function Onboarding({ onComplete }) {
         </Link>
       </div>
 
-      <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pl-[max(1.25rem,env(safe-area-inset-left,0px))] pr-[max(1.25rem,env(safe-area-inset-right,0px))] pt-[max(3.25rem,calc(env(safe-area-inset-top,0px)+2.25rem))]">
+      <div className="relative z-10 flex h-full min-h-0 flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-contain pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pl-[max(1.25rem,env(safe-area-inset-left,0px))] pr-[max(1.25rem,env(safe-area-inset-right,0px))] pt-[max(3.25rem,calc(env(safe-area-inset-top,0px)+2.25rem))]">
         <div className="mb-6 w-full max-w-lg text-center">
           {showPrompt && (
             <div className="mb-4 animate-bfIn">
