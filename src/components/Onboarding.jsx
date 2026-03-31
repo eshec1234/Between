@@ -36,6 +36,11 @@ export default function Onboarding({ onComplete }) {
   const enterMode = (mode) => {
     if (!consented) return
     sessionStorage.setItem('between_initial_mode', mode)
+    try {
+      localStorage.setItem('between_home_mode', mode)
+    } catch {
+      /* ignore */
+    }
     localStorage.setItem('between_onboarding_seen', 'true')
     onComplete()
   }

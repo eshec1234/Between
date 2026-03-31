@@ -46,11 +46,25 @@ const MAX_FROM_RPC = 16
 const TRACK_MIN_MOVE_KM = 0.13
 /** Or this often if you’re stationary (keeps feed fresh on long stays) */
 const TRACK_MAX_STALE_MS = 120000
+const HOME_MODE_STORAGE_KEY = 'between_home_mode'
 
 function readInitialMode() {
-  const m = sessionStorage.getItem('between_initial_mode')
+  const fromOnboarding = sessionStorage.getItem('between_initial_mode')
   sessionStorage.removeItem('between_initial_mode')
-  if (m === 'sanctuary' || m === 'theophany') return m
+  if (fromOnboarding === 'sanctuary' || fromOnboarding === 'theophany') {
+    try {
+      localStorage.setItem(HOME_MODE_STORAGE_KEY, fromOnboarding)
+    } catch {
+      /* ignore */
+    }
+    return fromOnboarding
+  }
+  try {
+    const persisted = localStorage.getItem(HOME_MODE_STORAGE_KEY)
+    if (persisted === 'sanctuary' || persisted === 'theophany') return persisted
+  } catch {
+    /* ignore */
+  }
   return 'sanctuary'
 }
 
@@ -243,6 +257,15 @@ export default function Home() {
 
   const isTheophany = mode === 'theophany'
 
+  const setModePersisted = useCallback((next) => {
+    setMode(next)
+    try {
+      localStorage.setItem(HOME_MODE_STORAGE_KEY, next)
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
   const allTags = useMemo(() => {
     const s = new Set()
     for (const p of places) {
@@ -383,7 +406,7 @@ export default function Home() {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setMode('sanctuary')}
+            onClick={() => setModePersisted('sanctuary')}
             className={`px-4 py-2 font-sans text-xs uppercase tracking-wider transition-colors ${
               mode === 'sanctuary'
                 ? 'bg-sanctuary-accent text-sanctuary-bg'
@@ -394,7 +417,7 @@ export default function Home() {
           </button>
           <button
             type="button"
-            onClick={() => setMode('theophany')}
+            onClick={() => setModePersisted('theophany')}
             className={`px-4 py-2 font-sans text-xs uppercase tracking-wider transition-colors ${
               mode === 'theophany'
                 ? 'bg-theophany-accent text-theophany-bg'
@@ -409,11 +432,21 @@ export default function Home() {
       <div
         className={`relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${
           isTheophany
-            ? 'pt-[max(6.5rem,calc(env(safe-area-inset-top,0px)+5.5rem))]'
+            ? 'pt-[max(5.75rem,calc(env(safe-area-inset-top,0px)+4.85rem))]'
             : 'pt-3'
         }`}
       >
-        <div className="px-4 text-center">
+        {isTheophany && (
+          <section
+            className="mx-4 mt-2 rounded-md border border-violet-900/45 bg-[rgba(10,5,20,0.85)] px-3 py-3 shadow-[0_0_32px_rgba(100,60,160,0.12)] backdrop-blur-sm"
+            aria-label="Theophany disclaimer"
+          >
+            <h2 className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">Disclaimer</h2>
+            <TheophanyDisclaimer className="mt-0 border-0 pt-0 text-left leading-relaxed" />
+          </section>
+        )}
+
+        <div className={`px-4 text-center ${isTheophany ? 'mt-4' : ''}`}>
           <p
             className={`font-display text-[10px] uppercase tracking-[0.28em] ${
               isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
@@ -432,13 +465,6 @@ export default function Home() {
 
         {isTheophany && (
           <div className="mx-4 mt-4 space-y-3">
-            <section
-              className="rounded-md border border-violet-900/45 bg-[rgba(10,5,20,0.78)] px-3 py-3 shadow-[0_0_32px_rgba(100,60,160,0.1)] backdrop-blur-sm"
-              aria-label="Theophany disclaimer"
-            >
-              <h2 className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">Disclaimer</h2>
-              <TheophanyDisclaimer className="mt-0 border-0 pt-0 text-left leading-relaxed" />
-            </section>
             <div className="rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
               <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">
                 Today&apos;s omen
