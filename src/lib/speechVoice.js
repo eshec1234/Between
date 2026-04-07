@@ -4,6 +4,27 @@
  * voices. For a gentler sound, users should pick a premium voice in system accessibility settings.
  */
 
+/** Clear, warm English voices — no “whisper” engines (those read as creepy for Sanctuary). */
+const SANCTUARY_VOICE_NAMES = [
+  /samantha/i,
+  /karen/i,
+  /moira/i,
+  /fiona/i,
+  /serena/i,
+  /tessa/i,
+  /ava\b/i,
+  /susan/i,
+  /victoria/i,
+  /allison/i,
+  /google uk english female/i,
+  /microsoft.*zira/i,
+  /microsoft.*aria/i,
+  /microsoft.*jenny/i,
+  /microsoft.*female/i,
+  /female/i,
+  /zira/i
+]
+
 /** Names often perceived as softer on macOS / Edge / Chrome (order matters). */
 const SOFT_VOICE_NAMES = [
   /whisper/i,
@@ -47,6 +68,16 @@ function scoreVoice(v) {
   return s
 }
 
+function scoreSanctuaryVoice(v) {
+  let s = 0
+  for (const rx of SANCTUARY_VOICE_NAMES) {
+    if (rx.test(v.name)) s += 2
+  }
+  if (/whisper/i.test(v.name)) s -= 20
+  if (v.localService === true) s += 4
+  return s
+}
+
 /**
  * Pick the gentlest-sounding English voice available.
  */
@@ -68,6 +99,29 @@ export function pickAsmrVoice(voices) {
   return softer || best
 }
 
+/**
+ * Sanctuary walkthrough: prefer clear, warm voices — never OS “whisper” TTS.
+ */
+export function pickSanctuaryVoice(voices) {
+  if (!voices?.length) return null
+  const en = voices.filter((v) => v.lang && /^en/i.test(v.lang))
+  const pool = en.length ? en : voices
+  const noWhisperNamed = pool.filter((v) => !/whisper/i.test(v.name))
+  const base = noWhisperNamed.length ? noWhisperNamed : pool
+
+  for (const rx of SANCTUARY_VOICE_NAMES) {
+    const m = base.find((v) => rx.test(v.name))
+    if (m) return m
+  }
+
+  const sorted = [...base].sort((a, b) => scoreSanctuaryVoice(b) - scoreSanctuaryVoice(a))
+  const best = sorted[0]
+  if (!best) return null
+
+  const softer = sorted.find((v) => !HARSH_FALLBACK_NAMES.some((rx) => rx.test(v.name)))
+  return softer || best
+}
+
 /** Slow, low, slightly quiet — less “radio announcer”, more bedside. */
 export const ASMR_UTTERANCE = {
   rate: 0.62,
@@ -75,10 +129,10 @@ export const ASMR_UTTERANCE = {
   volume: 0.88
 }
 
-/** Sanctuary device fallback: slower, brighter, open — calming / sleep-story */
+/** Sanctuary device fallback: calm but natural — not slowed to “uncanny” */
 export const SANCTUARY_UTTERANCE = {
-  rate: 0.54,
-  pitch: 0.94,
+  rate: 0.62,
+  pitch: 1,
   volume: 0.92
 }
 

@@ -13,12 +13,12 @@ const corsHeaders: Record<string, string> = {
 
 const MAX_CHARS = 4096
 
-/** Sanctuary: clear, warm, entrancing — safe to drift off to; never whisper-creepy */
+/** Sanctuary: clear daylight narrator — calm museum guide, not ASMR */
 const INSTRUCTIONS_SANCTUARY =
-  'Speak in a warm, clear, gentle tone—like a guided meditation or sleep story. ' +
-  'Pace is slow and even with spacious pauses; sound reassuring, grounded, and luminous. ' +
-  'Smooth, breathable delivery—open and aesthetic, not close-mic, not stage whisper, not uncanny. ' +
-  'Avoid vocal fry, hush-whisper, or anything haunted or unsettling. Sound safe and entrancing.'
+  'Speak in a warm, clear, natural tone—like a calm museum audio guide or a friendly teacher. ' +
+  'Normal conversational volume and articulation; steady pace with light pauses, not dragged or hypnotic. ' +
+  'Bright, open sound—no breathy close-mic, no stage whisper, no hush, no vocal fry, nothing haunted or doll-like. ' +
+  'Sound reassuring, human, and easy to listen to in daylight.'
 
 /** Theophany: intimate, liminal ASMR — can stay unsettling */
 const INSTRUCTIONS_THEOPHANY =
@@ -32,7 +32,7 @@ function resolveVoice(mode: string | undefined): string {
   if (mode === 'theophany') {
     return Deno.env.get('OPENAI_TTS_VOICE_THEOPHANY') || 'marin'
   }
-  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'shimmer'
+  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'coral'
 }
 
 function resolveInstructions(mode: string | undefined): string {

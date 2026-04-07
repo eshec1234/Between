@@ -1,6 +1,12 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { buildWalkthroughSteps } from '../lib/placeNarration'
-import { pickAsmrVoice, speakAsmrText, SANCTUARY_UTTERANCE, THEOPHANY_UTTERANCE } from '../lib/speechVoice'
+import {
+  pickAsmrVoice,
+  pickSanctuaryVoice,
+  speakAsmrText,
+  SANCTUARY_UTTERANCE,
+  THEOPHANY_UTTERANCE
+} from '../lib/speechVoice'
 import { safeCharacterAiUrl } from '../lib/safeCharacterAiUrl'
 import { isCloudNarrationConfigured, fetchNarrationTts } from '../lib/fetchNarrationTts'
 
@@ -107,7 +113,7 @@ export default function PlaceWalkthrough({
     setSpeaking(true)
     const ut = isTheophany ? THEOPHANY_UTTERANCE : SANCTUARY_UTTERANCE
     speakAsmrText(text, window.speechSynthesis, {
-      getVoice: (voices) => pickAsmrVoice(voices),
+      getVoice: (voices) => (isTheophany ? pickAsmrVoice(voices) : pickSanctuaryVoice(voices)),
       rate: ut.rate,
       pitch: ut.pitch,
       volume: ut.volume,
