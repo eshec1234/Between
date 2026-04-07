@@ -3,9 +3,15 @@
  * API key never touches the browser.
  */
 
+function envTruthy(val) {
+  if (val == null || val === '') return false
+  const s = String(val).trim().toLowerCase()
+  return s === 'true' || s === '1' || s === 'yes'
+}
+
 export function isCloudNarrationConfigured() {
   return (
-    import.meta.env.VITE_USE_CLOUD_NARRATION === 'true' &&
+    envTruthy(import.meta.env.VITE_USE_CLOUD_NARRATION) &&
     Boolean(import.meta.env.VITE_SUPABASE_URL) &&
     Boolean(import.meta.env.VITE_SUPABASE_ANON_KEY)
   )

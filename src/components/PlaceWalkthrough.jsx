@@ -25,6 +25,7 @@ export default function PlaceWalkthrough({
   const [i, setI] = useState(0)
   const [speaking, setSpeaking] = useState(false)
   const [loadingCloud, setLoadingCloud] = useState(false)
+  const [cloudFallbackHint, setCloudFallbackHint] = useState(null)
   const [voiceReady, setVoiceReady] = useState(false)
   const audioRef = useRef(null)
   const objectUrlRef = useRef(null)
@@ -108,6 +109,7 @@ export default function PlaceWalkthrough({
     }
     setSpeaking(false)
     setLoadingCloud(false)
+    setCloudFallbackHint(null)
   }, [])
 
   const speakDevice = useCallback((text) => {
@@ -136,6 +138,7 @@ export default function PlaceWalkthrough({
       const ac = new AbortController()
       fetchAbortRef.current = ac
       setLoadingCloud(true)
+      setCloudFallbackHint(null)
       try {
         const blob = await fetchNarrationTts(text, {
           signal: ac.signal,
@@ -153,6 +156,13 @@ export default function PlaceWalkthrough({
         setSpeaking(true)
       } catch (e) {
         if (e?.name === 'AbortError') return
+        const detail = typeof e?.message === 'string' ? e.message.slice(0, 160) : ''
+        console.warn('Cloud narration failed, using device TTS', e)
+        setCloudFallbackHint(
+          detail
+            ? `Cloud voice didn’t load (${detail}). Using your device speaker instead — check Network → tts-narration and Supabase function logs.`
+            : 'Cloud voice didn’t load. Using your device speaker instead — check Network → tts-narration and Supabase function logs.'
+        )
         if (window.speechSynthesis) speakDevice(text)
       } finally {
         setLoadingCloud(false)
@@ -194,11 +204,23 @@ export default function PlaceWalkthrough({
                 </>
               ) : (
                 <>
-                  Narration uses OpenAI’s neural text-to-speech tuned for a warm, clear, calming delivery—like a guided
-                  rest or sleep story (not whisper-creepy). It is AI-generated, not a human recording (OpenAI’s usage
-                  policy). If the request fails, the app falls back to your device voice.
+                  Narration uses OpenAI’s neural text-to-speech tuned for a calm, human-like read. It is AI-generated,
+                  not a human recording (OpenAI’s usage policy). If the request fails, the app falls back to your device
+                  voice.
                 </>
               )}
+            </p>
+          )}
+          {cloudNarration && cloudFallbackHint && (
+            <p
+              className={`mt-2 max-w-[min(100%,26rem)] rounded-md border px-2 py-1.5 font-sans text-[10px] leading-snug ${
+                isTheophany
+                  ? 'border-amber-400/40 bg-amber-950/35 text-amber-100/90'
+                  : 'border-amber-700/35 bg-amber-50/90 text-amber-950/90'
+              }`}
+              role="status"
+            >
+              {cloudFallbackHint}
             </p>
           )}
           {voiceReady && !cloudNarration && (
