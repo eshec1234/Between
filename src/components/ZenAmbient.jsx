@@ -8,7 +8,7 @@ import { playRunawayPhrase } from '../lib/runawayPiano'
  * Soft triad ambient bed (Web Audio). Starts after user gesture if unmuted.
  * Fixed control: mute / unmute with persistence. Optional demo piano phrase.
  */
-export default function ZenAmbient() {
+export default function ZenAmbient({ showRunawayButton = true }) {
   const { variant } = useAmbientMode()
   const [runawayPlaying, setRunawayPlaying] = useState(false)
   const [muted, setMuted] = useState(() => getAmbientMutedEffective())
@@ -93,23 +93,25 @@ export default function ZenAmbient() {
 
   return (
     <div className="pointer-events-none fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[80] flex flex-col gap-2">
-      <button
-        type="button"
-        onClick={playRunaway}
-        disabled={runawayPlaying}
-        aria-label={runawayLabel}
-        title={runawayLabel}
-        className={`${btnBase} hover:opacity-95 ${
-          isTheophany
-            ? 'border-violet-400/35 bg-black/35 text-violet-100/90 focus-visible:ring-violet-400/60'
-            : 'border-amber-900/25 bg-white/80 text-amber-900/75 focus-visible:ring-amber-700/50'
-        }`}
-      >
-        <span className="sr-only">{runawayLabel}</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-          <path d="M4 18h2v-8H4v8zM8 18h2V9H8v9zM12 18h2V6h-2v12zM16 18h2v-5h-2v5z" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+      {showRunawayButton && (
+        <button
+          type="button"
+          onClick={playRunaway}
+          disabled={runawayPlaying}
+          aria-label={runawayLabel}
+          title={runawayLabel}
+          className={`${btnBase} hover:opacity-95 ${
+            isTheophany
+              ? 'border-violet-400/35 bg-black/35 text-violet-100/90 focus-visible:ring-violet-400/60'
+              : 'border-amber-900/25 bg-white/80 text-amber-900/75 focus-visible:ring-amber-700/50'
+          }`}
+        >
+          <span className="sr-only">{runawayLabel}</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+            <path d="M4 18h2v-8H4v8zM8 18h2V9H8v9zM12 18h2V6h-2v12zM16 18h2v-5h-2v5z" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      )}
       <button
         type="button"
         onClick={toggle}

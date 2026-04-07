@@ -11,6 +11,7 @@ import Onboarding from './components/Onboarding'
 import AppFrame from './components/AppFrame'
 import { AmbientModeProvider } from './context/AmbientModeContext'
 import ZenAmbient from './components/ZenAmbient'
+import RunawayOnboardingLoop from './components/RunawayOnboardingLoop'
 
 function MainApp() {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(
@@ -55,7 +56,8 @@ function MainApp() {
             <Route path="/submit" element={<SubmitPlace />} />
           </Routes>
           {!hasSeenOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-          <ZenAmbient />
+          <RunawayOnboardingLoop active={!hasSeenOnboarding} />
+          <ZenAmbient showRunawayButton={hasSeenOnboarding} />
         </div>
       </AppFrame>
     </AmbientModeProvider>

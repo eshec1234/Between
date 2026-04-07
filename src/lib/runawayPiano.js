@@ -8,19 +8,36 @@ function midiToFreq(m) {
 }
 
 /** E5 E5 E5 | D#5 ×4 | C#5 ×3 | A4 A4 G#4 | E5 E5 */
-const RUNAWAY_PHRASE_MIDI = [
+export const RUNAWAY_PHRASE_MIDI = [
   76, 76, 76, 75, 75, 75, 75, 73, 73, 73, 69, 69, 68, 76, 76
 ]
 
-const NOTE_S = 0.31
+export const RUNAWAY_NOTE_S = 0.31
 const VELOCITY = 0.22
+const LEAD_IN = 0.04
+const TAIL_S = 0.45
+/** Space between end of one phrase and start of next (loop) */
+const LOOP_GAP_S = 0.38
+
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} destination
+ * @param {number} anchorTime
+ */
+function playPhraseAt(ctx, destination, anchorTime) {
+  let t = anchorTime + LEAD_IN
+  for (const midi of RUNAWAY_PHRASE_MIDI) {
+    playOneNote(ctx, destination, midi, t, RUNAWAY_NOTE_S)
+    t += RUNAWAY_NOTE_S
+  }
+}
 
 /**
  * @param {AudioContext} ctx
  * @param {AudioNode} destination
  * @param {number} startTime
  */
-function playOneNote(ctx, destination, midi, startTime, duration = NOTE_S) {
+function playOneNote(ctx, destination, midi, startTime, duration = RUNAWAY_NOTE_S) {
   const freq = midiToFreq(midi)
   const osc = ctx.createOscillator()
   osc.type = 'triangle'
@@ -43,6 +60,10 @@ function playOneNote(ctx, destination, midi, startTime, duration = NOTE_S) {
   osc.stop(t2 + 0.06)
 }
 
+function runawayLoopCycleMs() {
+  return (LEAD_IN + RUNAWAY_PHRASE_MIDI.length * RUNAWAY_NOTE_S + LOOP_GAP_S) * 1000
+}
+
 /**
  * Plays the phrase once. Call after a user gesture (AudioContext policy).
  * @returns {Promise<void>}
@@ -56,19 +77,12 @@ export function playRunawayPhrase() {
   bus.gain.value = 0.95
   bus.connect(ctx.destination)
 
-  const leadIn = 0.04
-  const tailS = 0.45
-  const durSec = leadIn + RUNAWAY_PHRASE_MIDI.length * NOTE_S + tailS
+  const durSec = LEAD_IN + RUNAWAY_PHRASE_MIDI.length * RUNAWAY_NOTE_S + TAIL_S
 
   return ctx
     .resume()
     .then(() => {
-      const t0 = ctx.currentTime + leadIn
-      let t = t0
-      for (const midi of RUNAWAY_PHRASE_MIDI) {
-        playOneNote(ctx, bus, midi, t, NOTE_S)
-        t += NOTE_S
-      }
+      playPhraseAt(ctx, bus, ctx.currentTime)
       return new Promise((resolve) => {
         setTimeout(() => {
           ctx.close().catch(() => {})
@@ -77,4 +91,41 @@ export function playRunawayPhrase() {
       })
     })
     .catch(() => {})
+}
+
+/**
+ * Loops the phrase until `stop()` is called. Reuses one AudioContext.
+ * Use capture-phase pointerdown during onboarding so audio starts before click handlers run.
+ * @returns {() => void} stop
+ */
+export function startRunawayLoop() {
+  const AC = window.AudioContext || window.webkitAudioContext
+  if (!AC) return () => {}
+
+  const ctx = new AC()
+  const bus = ctx.createGain()
+  bus.gain.value = 0.95
+  bus.connect(ctx.destination)
+
+  let cancelled = false
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let timeoutId = null
+  const cycleMs = runawayLoopCycleMs()
+
+  function tick() {
+    if (cancelled) return
+    playPhraseAt(ctx, bus, ctx.currentTime + 0.05)
+    timeoutId = setTimeout(tick, cycleMs)
+  }
+
+  void ctx.resume().then(() => {
+    if (!cancelled) tick()
+  })
+
+  return () => {
+    cancelled = true
+    if (timeoutId) clearTimeout(timeoutId)
+    timeoutId = null
+    ctx.close().catch(() => {})
+  }
 }
