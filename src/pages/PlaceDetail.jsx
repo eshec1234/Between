@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useAmbientMode } from '../context/AmbientModeContext'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
 import { markVisited, markWalkthroughDone, isSaved, toggleSaved } from '../lib/betweenLocal'
@@ -31,6 +32,7 @@ function formatTime(iso) {
 }
 
 export default function PlaceDetail() {
+  const { setAmbientVariant } = useAmbientMode()
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const surpriseMode = searchParams.get('surprise') === '1'
@@ -55,6 +57,11 @@ export default function PlaceDetail() {
 
   const isTheophany = place?.mode === 'theophany' || place?.mode === 'both'
   const isSanctuary = place?.mode === 'sanctuary' || place?.mode === 'both'
+
+  useEffect(() => {
+    if (!place) return
+    setAmbientVariant(isTheophany ? 'theophany' : 'sanctuary')
+  }, [place, isTheophany, setAmbientVariant])
 
   useEffect(() => {
     fetchPlace()

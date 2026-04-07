@@ -24,7 +24,9 @@ import {
   setNearbyTrackingEnabled,
   distanceKm,
   getSanctuaryTraditionId,
-  setSanctuaryTraditionId
+  setSanctuaryTraditionId,
+  HOME_MODE_STORAGE_KEY,
+  getHomeMode
 } from '../lib/betweenLocal'
 import { placeMatchesIntention } from '../data/intentions'
 import { placeMatchesSanctuaryTradition } from '../data/sanctuaryTraditions'
@@ -32,6 +34,7 @@ import EngagementHub from '../components/EngagementHub'
 import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
 import FeedFilters from '../components/FeedFilters'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
+import { useAmbientMode } from '../context/AmbientModeContext'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
@@ -46,8 +49,6 @@ const MAX_FROM_RPC = 16
 const TRACK_MIN_MOVE_KM = 0.13
 /** Or this often if you’re stationary (keeps feed fresh on long stays) */
 const TRACK_MAX_STALE_MS = 120000
-const HOME_MODE_STORAGE_KEY = 'between_home_mode'
-
 function readInitialMode() {
   const fromOnboarding = sessionStorage.getItem('between_initial_mode')
   sessionStorage.removeItem('between_initial_mode')
@@ -59,13 +60,7 @@ function readInitialMode() {
     }
     return fromOnboarding
   }
-  try {
-    const persisted = localStorage.getItem(HOME_MODE_STORAGE_KEY)
-    if (persisted === 'sanctuary' || persisted === 'theophany') return persisted
-  } catch {
-    /* ignore */
-  }
-  return 'sanctuary'
+  return getHomeMode()
 }
 
 function placeTypeLabel(place) {
@@ -98,6 +93,7 @@ function IntensityBar({ level, isTheophany }) {
 export default function Home() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { setAmbientVariant } = useAmbientMode()
   const [mode, setMode] = useState(readInitialMode)
   const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(true)
@@ -256,6 +252,10 @@ export default function Home() {
   }, [fetchPlaces])
 
   const isTheophany = mode === 'theophany'
+
+  useEffect(() => {
+    setAmbientVariant(mode)
+  }, [mode, setAmbientVariant])
 
   const setModePersisted = useCallback((next) => {
     setMode(next)

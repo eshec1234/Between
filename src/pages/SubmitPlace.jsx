@@ -1,12 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
+import { useAmbientMode } from '../context/AmbientModeContext'
+import { getHomeMode } from '../lib/betweenLocal'
 
 const STATES = ['PA', 'NJ', 'NY']
 const MODES = ['sanctuary', 'theophany', 'both']
 
 export default function SubmitPlace() {
+  const { setAmbientVariant } = useAmbientMode()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setAmbientVariant(getHomeMode())
+  }, [setAmbientVariant])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
