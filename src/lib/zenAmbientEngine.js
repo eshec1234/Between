@@ -1,12 +1,17 @@
 /**
- * Very soft pentatonic pad drones (Web Audio, no samples).
- * Consonant intervals only, gentle low-pass — calm “spa / meditation app” tone, not horror drones.
+ * Very soft triad pads (Web Audio, no samples).
+ * Previously: five low stacked sines (110–220 Hz) read as “airplane / turbofan” rumble + beating.
+ * Now: three higher triad tones, HPF on rumble band, wider open LPF — airy, not cabin noise.
  */
 
-/** C major pentatonic (C3–A3) — warm, open */
-const SANCTUARY_HZ = [130.81, 146.83, 164.81, 196.0, 220.0]
-/** A minor pentatonic (low A2–G3) — a little duskier, still consonant */
-const THEOPHANY_HZ = [110.0, 130.81, 146.83, 164.81, 196.0]
+/** C major triad (C4–G4) — clear, warm, no sub-bass stack */
+const SANCTUARY_HZ = [261.63, 329.63, 392.0]
+/** C minor triad — same register, slightly duskier */
+const THEOPHANY_HZ = [261.63, 311.13, 392.0]
+
+function detuneHz(f) {
+  return f * (1 + (Math.random() - 0.5) * 0.0012)
+}
 
 const FADE_IN_S = 3.8
 const FADE_SWITCH_S = 1.4
@@ -55,11 +60,11 @@ export function createZenAmbientEngine(ctx) {
     const inner = ctx.createGain()
     const hp = ctx.createBiquadFilter()
     hp.type = 'highpass'
-    hp.frequency.value = 95
-    hp.Q.value = 0.7
+    hp.frequency.value = 200
+    hp.Q.value = 0.5
     const lp = ctx.createBiquadFilter()
     lp.type = 'lowpass'
-    lp.frequency.value = v === 'theophany' ? 2000 : 2800
+    lp.frequency.value = v === 'theophany' ? 4000 : 4500
     lp.Q.value = 0.5
 
     inner.connect(hp)
@@ -67,13 +72,13 @@ export function createZenAmbientEngine(ctx) {
     lp.connect(outputGain)
 
     const t = ctx.currentTime
-    const perOsc = v === 'theophany' ? 0.026 : 0.03
-    const peak = v === 'theophany' ? 0.15 : 0.18
+    const perOsc = v === 'theophany' ? 0.032 : 0.036
+    const peak = v === 'theophany' ? 0.14 : 0.16
     const oscs = []
     for (const f of freqs) {
       const o = ctx.createOscillator()
       o.type = 'sine'
-      o.frequency.value = f
+      o.frequency.value = detuneHz(f)
       const g = ctx.createGain()
       g.gain.value = perOsc
       o.connect(g)
@@ -108,7 +113,7 @@ export function createZenAmbientEngine(ctx) {
   }
 
   function setMuted(muted) {
-    const target = muted ? 0 : 0.82
+    const target = muted ? 0 : 0.7
     const now = ctx.currentTime
     outputGain.gain.cancelScheduledValues(now)
     outputGain.gain.setValueAtTime(outputGain.gain.value, now)

@@ -4,7 +4,7 @@ import { createZenAmbientEngine } from '../lib/zenAmbientEngine'
 import { getAmbientMutedEffective, setAmbientMuted } from '../lib/betweenLocal'
 
 /**
- * Soft pentatonic ambient bed (Web Audio). Starts after user gesture if unmuted.
+ * Soft triad ambient bed (Web Audio). Starts after user gesture if unmuted.
  * Fixed control: mute / unmute with persistence.
  */
 export default function ZenAmbient() {
