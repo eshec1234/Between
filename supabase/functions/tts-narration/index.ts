@@ -30,12 +30,13 @@ const ALLOWED_VOICES = new Set([
   'cedar'
 ])
 
-/** Sanctuary: slow, warm, human — not upbeat assistant or GPS */
+/** Sanctuary: slow, warm, human — dry “voice booth” sound (model often adds fake space otherwise) */
 const INSTRUCTIONS_SANCTUARY =
-  'You are a calm guide reading aloud in a soft, unhurried voice—closer to a mindfulness teacher or gentle audiobook narrator than a podcast host or smart speaker. ' +
-  'Speak slowly enough to feel soothing; leave a little air after commas and at line breaks, as if the listener is resting with you. ' +
-  'Natural prosody: gentle emphasis on meaning, subtle rise and fall, never punchy or salesy. Warm, steady, grounded—like someone you trust beside you. ' +
-  'Avoid bright cheer, fast patter, robotic evenness, or over-enunciated “AI clarity.” No whisper; keep it clear and human.'
+  'You are a calm guide reading aloud in a soft, unhurried voice—like a gentle audiobook or mindfulness recording, not a podcast host or GPS. ' +
+  'Speak slowly; use brief silence after commas and phrases (timing only—do not sound distant or hollow). ' +
+  'Sound production: dry, intimate, close microphone in a small dead room or voice booth. No reverb, no echo, no cathedral or hall resonance, no “I am in a big empty room” coloration. Up-front and present, not booming or swimmy. ' +
+  'Natural prosody: gentle stress on meaning, subtle rise and fall, never punchy or salesy. Warm and steady. ' +
+  'Avoid bright cheer, fast patter, robotic evenness, or over-enunciated “AI clarity.” No whisper; stay clear and human.'
 
 /** Theophany: intimate, liminal ASMR — can stay unsettling */
 const INSTRUCTIONS_THEOPHANY =
