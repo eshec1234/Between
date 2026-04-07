@@ -2,13 +2,15 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAmbientMode } from '../context/AmbientModeContext'
 import { createZenAmbientEngine } from '../lib/zenAmbientEngine'
 import { getAmbientMutedEffective, setAmbientMuted } from '../lib/betweenLocal'
+import { playRunawayPhrase } from '../lib/runawayPiano'
 
 /**
  * Soft triad ambient bed (Web Audio). Starts after user gesture if unmuted.
- * Fixed control: mute / unmute with persistence.
+ * Fixed control: mute / unmute with persistence. Optional demo piano phrase.
  */
 export default function ZenAmbient() {
   const { variant } = useAmbientMode()
+  const [runawayPlaying, setRunawayPlaying] = useState(false)
   const [muted, setMuted] = useState(() => getAmbientMutedEffective())
   const engineRef = useRef(null)
   const ctxRef = useRef(null)
@@ -78,34 +80,63 @@ export default function ZenAmbient() {
 
   const label = muted ? 'Turn on soft ambient music' : 'Mute ambient music'
   const isTheophany = variant === 'theophany'
+  const btnBase =
+    'pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-45'
+
+  const playRunaway = useCallback(() => {
+    if (runawayPlaying) return
+    setRunawayPlaying(true)
+    void playRunawayPhrase().finally(() => setRunawayPlaying(false))
+  }, [runawayPlaying])
+
+  const runawayLabel = 'Play Runaway piano phrase (demo)'
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={label}
-      title={label}
-      className={`pointer-events-auto fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[80] flex h-10 w-10 items-center justify-center rounded-full border shadow-md backdrop-blur-sm transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-        isTheophany
-          ? 'border-violet-400/35 bg-black/35 text-violet-100/90 focus-visible:ring-violet-400/60'
-          : 'border-amber-900/25 bg-white/80 text-amber-900/75 focus-visible:ring-amber-700/50'
-      }`}
-    >
-      <span className="sr-only">{label}</span>
-      {muted ? (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-          <path d="M11 5L6 9H4a1 1 0 00-1 1v4a1 1 0 001 1h2l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M22 9l-6 6M16 9l6 6" strokeLinecap="round" />
+    <div className="pointer-events-none fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[80] flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={playRunaway}
+        disabled={runawayPlaying}
+        aria-label={runawayLabel}
+        title={runawayLabel}
+        className={`${btnBase} hover:opacity-95 ${
+          isTheophany
+            ? 'border-violet-400/35 bg-black/35 text-violet-100/90 focus-visible:ring-violet-400/60'
+            : 'border-amber-900/25 bg-white/80 text-amber-900/75 focus-visible:ring-amber-700/50'
+        }`}
+      >
+        <span className="sr-only">{runawayLabel}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+          <path d="M4 18h2v-8H4v8zM8 18h2V9H8v9zM12 18h2V6h-2v12zM16 18h2v-5h-2v5z" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-      ) : (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-          <path d="M11 5L6 9H4a1 1 0 00-1 1v4a1 1 0 001 1h2l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
-          <path
-            d="M15.54 8.46a5 5 0 010 7.07M17.66 6.34a8 8 0 010 11.32"
-            strokeLinecap="round"
-          />
-        </svg>
-      )}
-    </button>
+      </button>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={label}
+        title={label}
+        className={`${btnBase} hover:opacity-95 ${
+          isTheophany
+            ? 'border-violet-400/35 bg-black/35 text-violet-100/90 focus-visible:ring-violet-400/60'
+            : 'border-amber-900/25 bg-white/80 text-amber-900/75 focus-visible:ring-amber-700/50'
+        }`}
+      >
+        <span className="sr-only">{label}</span>
+        {muted ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <path d="M11 5L6 9H4a1 1 0 00-1 1v4a1 1 0 001 1h2l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M22 9l-6 6M16 9l6 6" strokeLinecap="round" />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <path d="M11 5L6 9H4a1 1 0 00-1 1v4a1 1 0 001 1h2l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M15.54 8.46a5 5 0 010 7.07M17.66 6.34a8 8 0 010 11.32"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+      </button>
+    </div>
   )
 }
