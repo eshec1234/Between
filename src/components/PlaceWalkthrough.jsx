@@ -4,6 +4,8 @@ import {
   pickAsmrVoice,
   pickSanctuaryVoice,
   speakAsmrText,
+  splitForGentlePauses,
+  splitForSanctuaryReading,
   SANCTUARY_UTTERANCE,
   THEOPHANY_UTTERANCE
 } from '../lib/speechVoice'
@@ -114,6 +116,7 @@ export default function PlaceWalkthrough({
     const ut = isTheophany ? THEOPHANY_UTTERANCE : SANCTUARY_UTTERANCE
     speakAsmrText(text, window.speechSynthesis, {
       getVoice: (voices) => (isTheophany ? pickAsmrVoice(voices) : pickSanctuaryVoice(voices)),
+      splitIntoChunks: isTheophany ? splitForGentlePauses : splitForSanctuaryReading,
       rate: ut.rate,
       pitch: ut.pitch,
       volume: ut.volume,

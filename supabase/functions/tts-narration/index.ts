@@ -13,12 +13,12 @@ const corsHeaders: Record<string, string> = {
 
 const MAX_CHARS = 4096
 
-/** Sanctuary: clear daylight narrator — calm museum guide, not ASMR */
+/** Sanctuary: human reader — avoid flat “assistant” prosody */
 const INSTRUCTIONS_SANCTUARY =
-  'Speak in a warm, clear, natural tone—like a calm museum audio guide or a friendly teacher. ' +
-  'Normal conversational volume and articulation; steady pace with light pauses, not dragged or hypnotic. ' +
-  'Bright, open sound—no breathy close-mic, no stage whisper, no hush, no vocal fry, nothing haunted or doll-like. ' +
-  'Sound reassuring, human, and easy to listen to in daylight.'
+  'You are a calm adult reading this aloud to someone in person—like a thoughtful podcast host or audiobook narrator, not a GPS or smart speaker. ' +
+  'Use natural human prosody: breathe at punctuation, vary pace slightly between phrases, emphasize meaning with gentle stress—not every word at equal weight. ' +
+  'Warm, relaxed cadence; conversational rhythm with light lift at clause boundaries. ' +
+  'Avoid monotone, robotic evenness, over-crisp “AI clarity,” or synthetic cheer. Sound like a real person sharing a quiet moment.'
 
 /** Theophany: intimate, liminal ASMR — can stay unsettling */
 const INSTRUCTIONS_THEOPHANY =
@@ -32,7 +32,20 @@ function resolveVoice(mode: string | undefined): string {
   if (mode === 'theophany') {
     return Deno.env.get('OPENAI_TTS_VOICE_THEOPHANY') || 'marin'
   }
-  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'coral'
+  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'nova'
+}
+
+function resolveSpeed(mode: string | undefined): number {
+  const def = mode === 'theophany' ? 0.9 : 0.92
+  const env =
+    mode === 'theophany'
+      ? Deno.env.get('OPENAI_TTS_SPEED_THEOPHANY')
+      : Deno.env.get('OPENAI_TTS_SPEED_SANCTUARY')
+  if (env) {
+    const n = Number(env)
+    if (!Number.isNaN(n) && n >= 0.25 && n <= 4) return n
+  }
+  return def
 }
 
 function resolveInstructions(mode: string | undefined): string {
@@ -83,6 +96,7 @@ serve(async (req) => {
 
   const voice = resolveVoice(mode)
   const instructions = resolveInstructions(mode)
+  const speed = resolveSpeed(mode)
 
   const upstream = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
@@ -95,6 +109,7 @@ serve(async (req) => {
       voice,
       input: trimmed,
       instructions,
+      speed,
       response_format: 'mp3'
     })
   })

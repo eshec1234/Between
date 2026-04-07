@@ -4,8 +4,11 @@
  * voices. For a gentler sound, users should pick a premium voice in system accessibility settings.
  */
 
-/** Clear, warm English voices — no “whisper” engines (those read as creepy for Sanctuary). */
+/** Clear, warm English voices — prefer neural/enhanced (more natural); no whisper engines. */
 const SANCTUARY_VOICE_NAMES = [
+  /neural/i,
+  /enriched/i,
+  /premium/i,
   /samantha/i,
   /karen/i,
   /moira/i,
@@ -129,11 +132,11 @@ export const ASMR_UTTERANCE = {
   volume: 0.88
 }
 
-/** Sanctuary device fallback: calm but natural — not slowed to “uncanny” */
+/** Sanctuary device fallback: ~natural speaking rate (too slow reads as robotic on many engines) */
 export const SANCTUARY_UTTERANCE = {
-  rate: 0.62,
+  rate: 0.9,
   pitch: 1,
-  volume: 0.92
+  volume: 0.95
 }
 
 /** Theophany device fallback: lower, quieter — liminal whisper-adjacent */
@@ -159,6 +162,29 @@ export function splitForGentlePauses(text) {
 }
 
 /**
+ * Sanctuary: more breaks at sentence/semicolon; long clauses split on commas for human pauses.
+ */
+export function splitForSanctuaryReading(text) {
+  const t = String(text).replace(/\s+/g, ' ').trim()
+  if (!t) return []
+  try {
+    const parts = t.split(/(?<=[.!?;])\s+/).filter(Boolean)
+    if (parts.length > 1) return parts
+  } catch {
+    /* older engines without lookbehind */
+  }
+  if (t.length > 120) {
+    try {
+      const commaParts = t.split(/(?<=[,])\s+/).filter(Boolean)
+      if (commaParts.length > 1) return commaParts
+    } catch {
+      /* ignore */
+    }
+  }
+  return [t]
+}
+
+/**
  * Queue one utterance per segment — calmer than a single long block.
  * @param {SpeechSynthesis} synth window.speechSynthesis
  */
@@ -169,10 +195,11 @@ export function speakAsmrText(text, synth, options = {}) {
     onError,
     rate = ASMR_UTTERANCE.rate,
     pitch = ASMR_UTTERANCE.pitch,
-    volume = ASMR_UTTERANCE.volume
+    volume = ASMR_UTTERANCE.volume,
+    splitIntoChunks = splitForGentlePauses
   } = options
 
-  const chunks = splitForGentlePauses(text)
+  const chunks = splitIntoChunks(text)
   if (!chunks.length) {
     onEnd?.()
     return
