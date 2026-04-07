@@ -13,6 +13,23 @@ const corsHeaders: Record<string, string> = {
 
 const MAX_CHARS = 4096
 
+/** OpenAI built-in voices only — client may suggest one; server env still wins first. */
+const ALLOWED_VOICES = new Set([
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'fable',
+  'nova',
+  'onyx',
+  'sage',
+  'shimmer',
+  'verse',
+  'marin',
+  'cedar'
+])
+
 /** Sanctuary: human reader — avoid flat “assistant” prosody */
 const INSTRUCTIONS_SANCTUARY =
   'You are a calm adult reading this aloud to someone in person—like a thoughtful podcast host or audiobook narrator, not a GPS or smart speaker. ' +
@@ -26,13 +43,32 @@ const INSTRUCTIONS_THEOPHANY =
   'Use a gentle near-whisper—close, slightly unsettling, liminal. ' +
   'Small pauses between phrases. Sound human, breath-adjacent, unhurried—never bright or cheerful.'
 
-function resolveVoice(mode: string | undefined): string {
+/**
+ * Priority (fixes old bug: OPENAI_TTS_VOICE used to override *everything*, so Sanctuary never got nova):
+ * 1) Per-mode secret (OPENAI_TTS_VOICE_SANCTUARY / THEOPHANY)
+ * 2) Client body.voice if whitelisted (VITE_TTS_VOICE_* from browser)
+ * 3) Global OPENAI_TTS_VOICE
+ * 4) Default (nova / marin)
+ */
+function pickVoice(mode: string | undefined, clientVoice: string | undefined): string {
   const global = Deno.env.get('OPENAI_TTS_VOICE')
-  if (global) return global
+  const fromClient = clientVoice && ALLOWED_VOICES.has(clientVoice) ? clientVoice : undefined
+
   if (mode === 'theophany') {
-    return Deno.env.get('OPENAI_TTS_VOICE_THEOPHANY') || 'marin'
+    return (
+      Deno.env.get('OPENAI_TTS_VOICE_THEOPHANY') ||
+      fromClient ||
+      global ||
+      'marin'
+    )
   }
-  return Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') || 'nova'
+
+  return (
+    Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') ||
+    fromClient ||
+    global ||
+    'nova'
+  )
 }
 
 function resolveSpeed(mode: string | undefined): number {
@@ -74,11 +110,16 @@ serve(async (req) => {
 
   let text = ''
   let mode: string | undefined
+  let clientVoice: string | undefined
   try {
     const body = await req.json()
     text = typeof body.text === 'string' ? body.text : ''
     const m = typeof body.mode === 'string' ? body.mode.trim().toLowerCase() : ''
     if (m === 'theophany' || m === 'sanctuary') mode = m
+    if (typeof body.voice === 'string') {
+      const v = body.voice.trim().toLowerCase()
+      if (ALLOWED_VOICES.has(v)) clientVoice = v
+    }
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
@@ -94,7 +135,7 @@ serve(async (req) => {
     })
   }
 
-  const voice = resolveVoice(mode)
+  const voice = pickVoice(mode, clientVoice)
   const instructions = resolveInstructions(mode)
   const speed = resolveSpeed(mode)
 

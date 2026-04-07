@@ -21,6 +21,9 @@ export async function fetchNarrationTts(text, options = {}) {
   const url = `${base}/functions/v1/tts-narration`
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY
   const mode = options.mode === 'theophany' ? 'theophany' : 'sanctuary'
+  const voiceSanctuary = String(import.meta.env.VITE_TTS_VOICE_SANCTUARY || 'nova').trim()
+  const voiceTheophany = String(import.meta.env.VITE_TTS_VOICE_THEOPHANY || 'marin').trim()
+  const voice = mode === 'theophany' ? voiceTheophany : voiceSanctuary
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -28,7 +31,7 @@ export async function fetchNarrationTts(text, options = {}) {
       Authorization: `Bearer ${key}`,
       apikey: key
     },
-    body: JSON.stringify({ text, mode }),
+    body: JSON.stringify({ text, mode, voice }),
     signal: options.signal
   })
   if (!res.ok) {
