@@ -17,6 +17,47 @@ export function isCloudNarrationConfigured() {
   )
 }
 
+/** Edge returns `{ error: string }` where string may be nested OpenAI JSON. */
+function extractUpstreamMessage(bodyText) {
+  const raw = String(bodyText || '').trim()
+  if (!raw) return ''
+  try {
+    const outer = JSON.parse(raw)
+    let blob = typeof outer.error === 'string' ? outer.error : raw
+    if (typeof outer.error === 'object' && outer.error?.message) {
+      return String(outer.error.message)
+    }
+    if (blob.startsWith('{')) {
+      const inner = JSON.parse(blob)
+      const m = inner?.error?.message ?? inner?.message
+      if (typeof m === 'string') return m
+    }
+    return blob
+  } catch {
+    return raw.slice(0, 280)
+  }
+}
+
+function narrationFailureHint(status, bodyText) {
+  if (status === 503) {
+    const msg = extractUpstreamMessage(bodyText)
+    if (/missing\s+OPENAI_API_KEY/i.test(msg) || /Server missing/i.test(msg)) {
+      return 'Cloud voice is off on the server (missing OpenAI API key in Supabase secrets). Using device voice.'
+    }
+    return msg ? `Narration unavailable: ${msg}` : 'Narration unavailable (server). Using device voice.'
+  }
+  if (status === 502) {
+    const msg = extractUpstreamMessage(bodyText)
+    const lower = msg.toLowerCase()
+    if (/quota|billing|insufficient[_\s]?funds|payment|credit/i.test(lower)) {
+      return 'OpenAI returned a billing or quota error (add credits or enable pay-as-you-go). Using device voice.'
+    }
+    if (msg) return `OpenAI / narration error: ${msg.slice(0, 160)} Using device voice.`
+    return 'Narration failed upstream. Using device voice.'
+  }
+  return ''
+}
+
 /**
  * @param {string} text
  * @param {{ signal?: AbortSignal, mode?: 'sanctuary' | 'theophany' }} [options]
@@ -43,10 +84,8 @@ export async function fetchNarrationTts(text, options = {}) {
   if (!res.ok) {
     const err = (await res.text()) || res.statusText
     if (res.status === 503 || res.status === 502) {
-      const tail = String(err).slice(0, 120)
-      throw new Error(
-        `Narration unavailable (edge function or OpenAI secret). Falling back to device voice. ${tail}`
-      )
+      const hint = narrationFailureHint(res.status, err)
+      throw new Error(hint || String(err).slice(0, 200))
     }
     throw new Error(err || res.statusText)
   }
