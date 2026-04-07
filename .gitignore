@@ -34,3 +34,6 @@ pnpm-debug.log*
 
 # Local test artifacts
 test-results/
+
+# Supabase CLI local cache (link / deploy)
+supabase/.temp/
