@@ -30,12 +30,12 @@ const ALLOWED_VOICES = new Set([
   'cedar'
 ])
 
-/** Sanctuary: human reader — avoid flat “assistant” prosody */
+/** Sanctuary: slow, warm, human — not upbeat assistant or GPS */
 const INSTRUCTIONS_SANCTUARY =
-  'You are a calm adult reading this aloud to someone in person—like a thoughtful podcast host or audiobook narrator, not a GPS or smart speaker. ' +
-  'Use natural human prosody: breathe at punctuation, vary pace slightly between phrases, emphasize meaning with gentle stress—not every word at equal weight. ' +
-  'Warm, relaxed cadence; conversational rhythm with light lift at clause boundaries. ' +
-  'Avoid monotone, robotic evenness, over-crisp “AI clarity,” or synthetic cheer. Sound like a real person sharing a quiet moment.'
+  'You are a calm guide reading aloud in a soft, unhurried voice—closer to a mindfulness teacher or gentle audiobook narrator than a podcast host or smart speaker. ' +
+  'Speak slowly enough to feel soothing; leave a little air after commas and at line breaks, as if the listener is resting with you. ' +
+  'Natural prosody: gentle emphasis on meaning, subtle rise and fall, never punchy or salesy. Warm, steady, grounded—like someone you trust beside you. ' +
+  'Avoid bright cheer, fast patter, robotic evenness, or over-enunciated “AI clarity.” No whisper; keep it clear and human.'
 
 /** Theophany: intimate, liminal ASMR — can stay unsettling */
 const INSTRUCTIONS_THEOPHANY =
@@ -44,11 +44,11 @@ const INSTRUCTIONS_THEOPHANY =
   'Small pauses between phrases. Sound human, breath-adjacent, unhurried—never bright or cheerful.'
 
 /**
- * Priority (fixes old bug: OPENAI_TTS_VOICE used to override *everything*, so Sanctuary never got nova):
+ * Priority (fixes old bug: OPENAI_TTS_VOICE used to override *everything*):
  * 1) Per-mode secret (OPENAI_TTS_VOICE_SANCTUARY / THEOPHANY)
  * 2) Client body.voice if whitelisted (VITE_TTS_VOICE_* from browser)
  * 3) Global OPENAI_TTS_VOICE
- * 4) Default (nova / marin)
+ * 4) Default (coral / marin)
  */
 function pickVoice(mode: string | undefined, clientVoice: string | undefined): string {
   const global = Deno.env.get('OPENAI_TTS_VOICE')
@@ -67,12 +67,12 @@ function pickVoice(mode: string | undefined, clientVoice: string | undefined): s
     Deno.env.get('OPENAI_TTS_VOICE_SANCTUARY') ||
     fromClient ||
     global ||
-    'nova'
+    'coral'
   )
 }
 
 function resolveSpeed(mode: string | undefined): number {
-  const def = mode === 'theophany' ? 0.9 : 0.92
+  const def = mode === 'theophany' ? 0.9 : 0.86
   const env =
     mode === 'theophany'
       ? Deno.env.get('OPENAI_TTS_SPEED_THEOPHANY')
