@@ -12,7 +12,8 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "smoke": "npm run build && node scripts/smoke-routes.mjs",
-    "check:api": "node scripts/api-contract-check.mjs"
+    "check:api": "node scripts/api-contract-check.mjs",
+    "build:places-sql": "node scripts/build-places-from-research.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -31,6 +32,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "xlsx": "^0.18.5"
   }
 }

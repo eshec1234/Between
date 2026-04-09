@@ -35,6 +35,10 @@ Run migration `009_curated_quotes_resonance.sql` (or the **009** block appended 
 
 If `CREATE EXTENSION postgis` fails: **Database** → **Extensions** → enable **postgis**, then run the file again.
 
+## Replace all curated places (research export)
+
+To load the merged **Place Research** dataset and **remove** previous seed places, run **`migrations/011_replace_places_from_research.sql`** in the SQL Editor (same project as Vercel). This deletes all rows in `places` and inserts the new set. Regenerate the file after editing spreadsheets: `node scripts/build-places-from-research.mjs` (requires network for geocoding PA4/PA5).
+
 ## Migrations folder
 
 Files `migrations/001_...` through `004_...` are the same logic in order; use them if you use Supabase CLI migrations. For a quick fix, the single file above is enough.

@@ -37,3 +37,6 @@ test-results/
 
 # Supabase CLI local cache (link / deploy)
 supabase/.temp/
+
+# Excel lockfiles
+**/~$*.xlsx
