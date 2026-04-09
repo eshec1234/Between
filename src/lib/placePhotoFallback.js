@@ -1,7 +1,9 @@
-/** When DB `photos` is empty, still show calm spiritual imagery (matches SQL 008 defaults). */
+/** When DB `photos` is empty, still show varied calm imagery (fallback chain). */
 export const DEFAULT_PLACE_PHOTOS = [
   'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80'
+  'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1548625149-fc4a29d70959?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1400&q=80'
 ]
 
 export function photosForPlace(place) {

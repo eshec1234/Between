@@ -11,11 +11,101 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const RESEARCH_DIR = path.join(__dirname, 'place-research-import', 'Place Research')
 const OUT_SQL = path.join(__dirname, '..', 'supabase', 'migrations', '011_replace_places_from_research.sql')
+const GEO_CACHE_PATH = path.join(__dirname, 'pa-geocode-cache.json')
 
-const DEFAULT_PHOTOS = [
+function loadGeoCache() {
+  try {
+    return JSON.parse(fs.readFileSync(GEO_CACHE_PATH, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
+function saveGeoCache(cache) {
+  fs.writeFileSync(GEO_CACHE_PATH, JSON.stringify(cache, null, 2), 'utf8')
+}
+
+/** Diverse stock images (Unsplash) — two per place chosen by hash so lists don’t all look identical. */
+const FALLBACK_PHOTO_POOL = [
   'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1504052434569-70add5ae4832?auto=format&fit=crop&w=1400&q=80'
+  'https://images.unsplash.com/photo-1504052434569-70add5ae4832?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1548625149-fc4a29d70959?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1511818966892-d7d671c67e2b?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1501785884341-85fb45bd7d93?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1518173946689-a252907891f2?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1493246507139-2e8e07d7e8e7?auto=format&fit=crop&w=1400&q=80'
 ]
+
+function hashPick(str, mod) {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0
+  return Math.abs(h) % mod
+}
+
+/**
+ * Turn Wikimedia Commons / Wikipedia file links into a URL that resolves to an image (Special:FilePath).
+ */
+function normalizePhotoUrl(raw) {
+  if (raw == null || raw === '') return null
+  let s = String(raw).trim()
+  if (!/^https?:\/\//i.test(s)) return null
+  s = s.split('#')[0]
+  if (/upload\.wikimedia\.org/i.test(s)) return s.split('?')[0]
+  // commons File: page → direct file path (redirects to upload.*)
+  const m1 = s.match(/commons\.wikimedia\.org\/wiki\/File:([^?#]+)/i)
+  if (m1) {
+    const fn = decodeURIComponent(m1[1].replace(/_/g, ' '))
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn.replace(/ /g, '_'))}`
+  }
+  // #/media/File:... or /wiki/File:
+  const m2 = s.match(/File:([^?#&]+)/i)
+  if (m2 && /wikimedia\.org|wikipedia\.org/i.test(s)) {
+    const fn = decodeURIComponent(m2[1].replace(/_/g, ' '))
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn.replace(/ /g, '_'))}`
+  }
+  if (/commons\.wikimedia\.org\/wiki\/Special:FilePath\//i.test(s)) return s.split('?')[0]
+  if (/images\.unsplash\.com|unsplash\.com\/photo/i.test(s)) return s
+  return s
+}
+
+function pickFallbackPair(name, city, state) {
+  const key = `${name}|${city}|${state}`
+  const n = FALLBACK_PHOTO_POOL.length
+  const a = hashPick(key, n)
+  let b = (a + 7 + hashPick(`${key}2`, Math.max(1, n - 1))) % n
+  if (b === a) b = (a + 1) % n
+  return [FALLBACK_PHOTO_POOL[a], FALLBACK_PHOTO_POOL[b]]
+}
+
+/** Build 1–2 photo URLs: prefer real link from sheet; pair with a second (fallback or pool). */
+function resolvePhotos(rawPhotoUrl, name, city, state) {
+  const primary = normalizePhotoUrl(rawPhotoUrl)
+  const [f1, f2] = pickFallbackPair(name, city, state)
+  if (primary) {
+    const second = primary === f1 ? f2 : f1
+    return [primary, second]
+  }
+  return [f1, f2]
+}
+
+function rowPhotoScore(row) {
+  const raw = row._photoRaw
+  if (raw && String(raw).trim()) return 2
+  return 0
+}
 
 function sqlStr(s) {
   if (s == null) return ''
@@ -167,7 +257,7 @@ function collectStandardSheet(wb, sheetName, sourceFile) {
       photoUrl = ''
     }
 
-    const photos = photoUrl ? [photoUrl] : [...DEFAULT_PHOTOS]
+    const photos = resolvePhotos(photoUrl, name, city, state)
 
     out.push({
       name,
@@ -187,7 +277,8 @@ function collectStandardSheet(wb, sheetName, sourceFile) {
       intensity: null,
       approach_tags: approachFromTags(tags),
       _key: `${name.toLowerCase()}|${city.toLowerCase()}|${state}`,
-      _source: sourceFile
+      _source: sourceFile,
+      _photoRaw: photoUrl
     })
   }
   return out
@@ -221,9 +312,12 @@ function dedupePlaces(rows) {
   for (const row of rows) {
     const k = row._key
     const prev = map.get(k)
-    if (!prev || String(row.description).length > String(prev.description).length) {
+    if (!prev) {
       map.set(k, row)
+      continue
     }
+    const score = (r) => rowPhotoScore(r) * 1_000_000 + String(r.description).length
+    if (score(row) > score(prev)) map.set(k, row)
   }
   return [...map.values()].sort((a, b) => a.state.localeCompare(b.state) || a.city.localeCompare(b.city) || a.name.localeCompare(b.name))
 }
@@ -282,10 +376,15 @@ async function main() {
   console.log('Standard rows (pre-dedupe):', all.length)
   console.log('PA4/PA5 pending geocode:', paPending.length)
 
+  const geoCache = loadGeoCache()
   for (const p of paPending) {
     const query = p.addressLine.includes('PA') ? p.addressLine : `${p.addressLine}, PA`
-    const g = await geocodeNominatim(query)
-    await sleep(1100)
+    let g = geoCache[query]
+    if (!g) {
+      g = await geocodeNominatim(query)
+      await sleep(1100)
+      if (g) geoCache[query] = g
+    }
     if (!g) {
       console.warn('Geocode failed:', p.name, query)
       continue
@@ -306,13 +405,15 @@ async function main() {
       access_protocols: 'Confirm hours and access before visiting.',
       source: 'verified',
       description: `${p.name} (${p.county} County, PA). Listed in regional research; atmosphere and access vary by site—check local guidance before going.`,
-      photos: [...DEFAULT_PHOTOS],
+      photos: resolvePhotos('', p.name, city, 'PA'),
       intensity: null,
       approach_tags: ['historic', 'tasteful'],
       _key: `${p.name.toLowerCase()}|${city.toLowerCase()}|PA`,
       _source: p._source
     })
   }
+
+  saveGeoCache(geoCache)
 
   const unique = dedupePlaces(all)
   console.log('Unique places:', unique.length)

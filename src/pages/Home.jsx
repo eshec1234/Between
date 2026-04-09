@@ -39,14 +39,38 @@ import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
 
-const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
+/** Tri-state centroid so PA / NJ / NY are all in play when location is unknown. */
+const DEFAULT_CENTER = { lat: 40.68, lng: -74.35 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
 const NEARBY_RADIUS_M = 350000
-const PLACES_LIST_CAP = 24
+const PLACES_LIST_CAP = 48
 /** Leave headroom so newest catalog rows (e.g. tradition seeds) can merge into the list */
-const MAX_FROM_RPC = 16
+const MAX_FROM_RPC = 24
 /** Refetch nearby list when you’ve moved at least this far (km) while tracking */
 const TRACK_MIN_MOVE_KM = 0.13
+
+/** Rotate NY → NJ → PA so the list is not “only nearby state” when the catalog spans the region. */
+function interleaveByState(rows, order = ['NY', 'NJ', 'PA']) {
+  const buckets = { NY: [], NJ: [], PA: [], other: [] }
+  for (const r of rows) {
+    const k = order.includes(r.state) ? r.state : 'other'
+    buckets[k].push(r)
+  }
+  const out = []
+  const total = rows.length
+  while (out.length < total) {
+    let moved = false
+    for (const st of [...order, 'other']) {
+      if (buckets[st].length) {
+        out.push(buckets[st].shift())
+        moved = true
+      }
+    }
+    if (!moved) break
+  }
+  return out
+}
+
 /** Or this often if you’re stationary (keeps feed fresh on long stays) */
 const TRACK_MAX_STALE_MS = 120000
 function readInitialMode() {
@@ -223,8 +247,8 @@ export default function Home() {
       .from('places')
       .select(PLACES_LIST_SELECT)
       .or(`mode.eq.${mode},mode.eq.both`)
-      .order('created_at', { ascending: false })
-      .limit(80)
+      .order('name', { ascending: true })
+      .limit(120)
 
     for (const p of more || []) {
       if (nearby.length >= PLACES_LIST_CAP) break
@@ -234,16 +258,39 @@ export default function Home() {
       }
     }
 
+    // Top up so thin states (often NY if map center is Philly) still appear in the list.
+    for (const st of ['NY', 'NJ', 'PA']) {
+      if (nearby.length >= PLACES_LIST_CAP) break
+      const have = nearby.filter((p) => p.state === st).length
+      if (have >= 8) continue
+      const { data: extra } = await supabase
+        .from('places')
+        .select(PLACES_LIST_SELECT)
+        .or(`mode.eq.${mode},mode.eq.both`)
+        .eq('state', st)
+        .order('name', { ascending: true })
+        .limit(24)
+      for (const p of extra || []) {
+        if (nearby.length >= PLACES_LIST_CAP) break
+        if (!seen.has(p.id)) {
+          seen.add(p.id)
+          nearby.push(p)
+        }
+      }
+    }
+
+    const mixed = interleaveByState(nearby)
+
     const rpcBaseCount = !rpcError && rpcData?.length ? Math.min(rpcData.length, MAX_FROM_RPC) : 0
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
-    } else if (nearby.length > rpcBaseCount) {
+    } else if (mixed.length > rpcBaseCount) {
       setFeedKind('mixed')
     } else {
       setFeedKind('nearby')
     }
 
-    setPlaces(nearby.slice(0, PLACES_LIST_CAP))
+    setPlaces(mixed.slice(0, PLACES_LIST_CAP))
     setLoading(false)
   }, [center.lat, center.lng, mode])
 
@@ -612,7 +659,7 @@ export default function Home() {
               savedIds={savedIds}
               walkthroughDoneIds={walkthroughDoneIds}
               heightClass="btw-map-canvas"
-              zoom={10.5}
+              zoom={7.4}
             />
           </div>
         </div>
