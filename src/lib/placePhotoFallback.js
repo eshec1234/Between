@@ -1,15 +1,10 @@
-/** When DB `photos` is empty, still show varied calm imagery (fallback chain). */
-export const DEFAULT_PLACE_PHOTOS = [
-  'https://images.unsplash.com/photo-1438032005730-c779502df39b?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1548625149-fc4a29d70959?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1400&q=80'
-]
+/** Generic fallbacks removed — wrong stock photos are worse than no photo. */
+export const DEFAULT_PLACE_PHOTOS = []
 
 export function photosForPlace(place) {
   const p = place?.photos
   if (Array.isArray(p) && p.length > 0 && p.some(Boolean)) return p.filter(Boolean)
-  return DEFAULT_PLACE_PHOTOS
+  return []
 }
 
 const TIME_LABELS = ['Dawn', 'Midday', 'Dusk', 'Night']
