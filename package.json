@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "smoke": "npm run build && node scripts/smoke-routes.mjs",
     "check:api": "node scripts/api-contract-check.mjs",
-    "build:places-sql": "node scripts/build-places-from-research.mjs"
+    "build:places-sql": "node scripts/build-places-from-research.mjs",
+    "fetch-place-photos": "node scripts/fetch-place-photos.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

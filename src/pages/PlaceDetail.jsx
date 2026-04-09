@@ -270,6 +270,7 @@ export default function PlaceDetail() {
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
   const gallery = photosForPlace(place)
   const usedFallback = !place?.photos?.length
+  const hasGooglePlacePhoto = gallery.some((u) => String(u).includes('googleusercontent.com'))
   const heroPick = photoForPlaceAtTime(place)
   const heroSrc = gallery.length ? (gallery.length > 1 ? heroPick.url : gallery[0]) : null
 
@@ -319,6 +320,11 @@ export default function PlaceDetail() {
           {gallery.length > 1 && heroPick.label && (
             <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
               Photo mood · {heroPick.label} (local time)
+            </p>
+          )}
+          {hasGooglePlacePhoto && (
+            <p className={`px-4 pb-1 font-sans text-[8px] leading-snug opacity-80 ${subClass}`}>
+              Photos from Google Places. Google Maps and Google Places data © Google.
             </p>
           )}
           <div className="relative min-h-[160px] h-[clamp(160px,min(42dvh,48vmin),400px)] w-full overflow-hidden">

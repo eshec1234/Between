@@ -35,6 +35,17 @@ Run migration `009_curated_quotes_resonance.sql` (or the **009** block appended 
 
 If `CREATE EXTENSION postgis` fails: **Database** → **Extensions** → enable **postgis**, then run the file again.
 
+## Per-place photos (Google-style hero images)
+
+We cannot scrape Google’s search UI. The supported approach is the **Google Places API (New)** (text search + Place Photo media), which uses the same photo pool Google Maps shows, subject to [Google’s attribution rules](https://developers.google.com/maps/documentation/places/web-service/policies).
+
+1. In Google Cloud: enable **Places API (New)** and billing; create an API key restricted to Places.
+2. Locally, set `GOOGLE_PLACES_API_KEY`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` in `.env`.
+3. Run `npm run fetch-place-photos` (add `--limit=10` to test). It writes `migrations/012_update_place_photos_from_apis.sql`.
+4. Run that SQL in the Supabase SQL Editor. The app shows a short Google attribution line on place pages when a photo URL is from Google’s CDN.
+
+Without a Google key, the script falls back to Wikidata / Wikipedia / Commons (less consistent with Google’s card).
+
 ## Replace all curated places (research export)
 
 To load the merged **Place Research** dataset and **remove** previous seed places, run **`migrations/011_replace_places_from_research.sql`** in the SQL Editor (same project as Vercel). This deletes all rows in `places` and inserts the new set. Regenerate the file after editing spreadsheets: `node scripts/build-places-from-research.mjs` (requires network for geocoding PA4/PA5).
