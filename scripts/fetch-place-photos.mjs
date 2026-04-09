@@ -1,15 +1,14 @@
 /**
- * Fetches a primary (and optional second) image per place — same sources Google uses for place photos:
- * - Google Places API (New): text search + Place Photo media (needs GOOGLE_PLACES_API_KEY + billing).
- * - Fallbacks (no Google key): Wikidata P18 → Wikipedia pageimage → Commons file search.
+ * Fetches hero image URLs per place at $0 (default): Wikidata (P18) → Wikipedia thumbnail → Commons search.
+ * Optional: set GOOGLE_PLACES_API_KEY for Google Places photos (paid/billing in Google Cloud) — omit it to stay free.
  *
- * Outputs SQL you can run in Supabase SQL Editor (anon cannot UPDATE places).
+ * Outputs SQL for Supabase SQL Editor (anon cannot UPDATE places).
  *
- * Usage:
- *   GOOGLE_PLACES_API_KEY=... VITE_SUPABASE_URL=... VITE_SUPABASE_ANON_KEY=... node scripts/fetch-place-photos.mjs
+ * Usage (free):
+ *   VITE_SUPABASE_URL=... VITE_SUPABASE_ANON_KEY=... node scripts/fetch-place-photos.mjs
  *   node scripts/fetch-place-photos.mjs --limit=5 --dry-run
  *
- * @see https://developers.google.com/maps/documentation/places/web-service/place-photos
+ * Optional paid: add GOOGLE_PLACES_API_KEY — tries Google first, then free sources if no match.
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -258,7 +257,7 @@ async function main() {
     process.exit(1)
   }
   if (!googleKey) {
-    console.warn('GOOGLE_PLACES_API_KEY not set — using Wikidata/Wikipedia/Commons only (less like Google).')
+    console.log('Free mode: Wikidata → Wikipedia → Commons (no Google key).')
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey)

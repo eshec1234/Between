@@ -35,16 +35,11 @@ Run migration `009_curated_quotes_resonance.sql` (or the **009** block appended 
 
 If `CREATE EXTENSION postgis` fails: **Database** → **Extensions** → enable **postgis**, then run the file again.
 
-## Per-place photos (Google-style hero images)
+## Per-place photos (free by default)
 
-We cannot scrape Google’s search UI. The supported approach is the **Google Places API (New)** (text search + Place Photo media), which uses the same photo pool Google Maps shows, subject to [Google’s attribution rules](https://developers.google.com/maps/documentation/places/web-service/policies).
+**No paid APIs required.** Run `npm run fetch-place-photos` with only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The script uses **Wikidata → Wikipedia → Wikimedia Commons** (public APIs; be polite—built-in delays). It writes `migrations/012_update_place_photos_from_apis.sql`; run that SQL in the SQL Editor to update `places.photos`.
 
-1. In Google Cloud: enable **Places API (New)** and billing; create an API key restricted to Places.
-2. Locally, set `GOOGLE_PLACES_API_KEY`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` in `.env`.
-3. Run `npm run fetch-place-photos` (add `--limit=10` to test). It writes `migrations/012_update_place_photos_from_apis.sql`.
-4. Run that SQL in the Supabase SQL Editor. The app shows a short Google attribution line on place pages when a photo URL is from Google’s CDN.
-
-Without a Google key, the script falls back to Wikidata / Wikipedia / Commons (less consistent with Google’s card).
+**Optional (paid):** Google **Places API (New)** uses the same photo pool as Google Maps; set `GOOGLE_PLACES_API_KEY` in `.env` if you enable billing in Google Cloud. [Attribution rules](https://developers.google.com/maps/documentation/places/web-service/policies) apply; the app shows a Google line on place pages when a photo URL is from Google’s CDN.
 
 ## Replace all curated places (research export)
 
