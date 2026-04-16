@@ -331,6 +331,7 @@ export default function PlaceDetail() {
             <PlaceImage
               place={place}
               isTheophany={isTheophany}
+              variant="hero"
               imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
                 isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
               }`}

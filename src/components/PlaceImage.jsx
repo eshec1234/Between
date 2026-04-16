@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from 'react'
 import { placeImageFallbackChain, imageUrlFallbackChain } from '../lib/placePhotoFallback'
+import PlaceholderImage from './PlaceholderImage'
 
-function GradientBlock({ isTheophany, className }) {
+function GradientBlock({ isTheophany, className, variant }) {
   return (
-    <div
-      className={
-        className ||
-        `h-full w-full ${isTheophany ? 'bg-gradient-to-b from-[#140a22] to-[#060210]' : 'bg-gradient-to-b from-[#e8dcc8] to-[#d4c4a8]'}`
-      }
+    <PlaceholderImage
+      isTheophany={isTheophany}
+      variant={variant || 'card'}
+      className={className || 'h-full w-full'}
     />
   )
 }
@@ -15,7 +15,7 @@ function GradientBlock({ isTheophany, className }) {
 /**
  * Tries place/time-selected URL, then other DB URLs, then app defaults — avoids broken-image icons when a URL 404s or is blocked.
  */
-export default function PlaceImage({ place, className, imgClassName, isTheophany, alt = '' }) {
+export default function PlaceImage({ place, className, imgClassName, isTheophany, variant, alt = '' }) {
   const chain = useMemo(() => placeImageFallbackChain(place), [place])
   const [attempt, setAttempt] = useState(0)
 
@@ -26,7 +26,7 @@ export default function PlaceImage({ place, className, imgClassName, isTheophany
   const src = attempt < chain.length ? chain[attempt] : null
 
   if (!chain.length || src == null) {
-    return <GradientBlock isTheophany={isTheophany} className={imgClassName || className} />
+    return <GradientBlock isTheophany={isTheophany} className={imgClassName || className} variant={variant} />
   }
 
   return (
@@ -42,7 +42,7 @@ export default function PlaceImage({ place, className, imgClassName, isTheophany
 }
 
 /** One URL (e.g. gallery thumb) with default fallbacks. */
-export function PlaceImageFromUrl({ url, isTheophany, className, imgClassName, alt = '' }) {
+export function PlaceImageFromUrl({ url, isTheophany, variant, className, imgClassName, alt = '' }) {
   const chain = useMemo(() => imageUrlFallbackChain(url), [url])
   const [attempt, setAttempt] = useState(0)
 
@@ -53,7 +53,7 @@ export function PlaceImageFromUrl({ url, isTheophany, className, imgClassName, a
   const src = attempt < chain.length ? chain[attempt] : null
 
   if (!chain.length || src == null) {
-    return <GradientBlock isTheophany={isTheophany} className={imgClassName || className} />
+    return <GradientBlock isTheophany={isTheophany} className={imgClassName || className} variant={variant} />
   }
 
   return (

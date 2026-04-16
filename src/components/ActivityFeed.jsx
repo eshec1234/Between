@@ -74,6 +74,7 @@ export default function ActivityFeed({
                     <PlaceImage
                       place={p}
                       isTheophany={isTheophany}
+                      variant="square"
                       imgClassName={`h-full w-full object-cover ${
                         isTheophany ? 'brightness-[0.5] saturate-[0.2]' : 'brightness-105 saturate-70'
                       }`}
