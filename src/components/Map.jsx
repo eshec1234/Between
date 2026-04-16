@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
@@ -18,6 +19,7 @@ export default function Map({
   const mapContainer = useRef(null)
   const map = useRef(null)
   const markersRef = useRef([])
+  const geolocateRef = useRef(null)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
 
@@ -89,19 +91,25 @@ export default function Map({
     })
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true
-      })
-    )
+
+    geolocateRef.current = new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true,
+    })
+    map.current.addControl(geolocateRef.current, 'top-right')
 
     // Resize after Suspense/lazy container settles to its final CSS dimensions,
-    // then paint initial markers.
+    // paint initial markers, then auto-trigger geolocation so the map centers
+    // on the user without them having to tap the locate button manually.
     map.current.on('load', () => {
       map.current?.resize()
       placeMarkers()
+      // Small delay lets the browser prompt for location permission naturally
+      // after the map paint settles rather than racing the initial render.
+      setTimeout(() => {
+        geolocateRef.current?.trigger()
+      }, 600)
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMapboxEnv])
@@ -147,6 +155,7 @@ export default function Map({
     return () => {
       markersRef.current.forEach((m) => m.remove())
       markersRef.current = []
+      geolocateRef.current = null
       if (map.current) {
         map.current.remove()
         map.current = null

@@ -39,8 +39,8 @@ import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
 
-/** Tri-state centroid so PA / NJ / NY are all in play when location is unknown. */
-const DEFAULT_CENTER = { lat: 40.68, lng: -74.35 }
+/** Philadelphia — primary market. Used until geolocation resolves. */
+const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
 const NEARBY_RADIUS_M = 350000
 const PLACES_LIST_CAP = 48
@@ -139,10 +139,69 @@ export default function Home() {
   const [savedOnly, setSavedOnly] = useState(false)
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
   const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
+  // True once we have a real GPS fix (or gave up waiting). Prevents the list from
+  // rendering with the default center before location resolves.
+  const [locationReady, setLocationReady] = useState(!navigator.geolocation)
+  // True only when the browser explicitly returned PERMISSION_DENIED (code 1).
+  // Other failures (timeout, unavailable) fall back to the default center silently.
+  const [locationDenied, setLocationDenied] = useState(false)
+  // True after 25 s of unresolved loading — offers the state picker as a fallback.
+  const [showPickerFallback, setShowPickerFallback] = useState(false)
+  const locationReadyRef = useRef(!navigator.geolocation)
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
+
+  // Stable: flips locationReady exactly once (ref guards against double-fire)
+  const markLocationReady = useCallback(() => {
+    if (!locationReadyRef.current) {
+      locationReadyRef.current = true
+      setLocationReady(true)
+    }
+  }, [])
+
+  // Center coords to use when the user picks a state manually
+  const STATE_CENTERS = {
+    PA: { lat: 39.9526, lng: -75.1652 }, // Philadelphia
+    NJ: { lat: 40.7357, lng: -74.1724 }, // Newark / central NJ
+    NY: { lat: 40.7128, lng: -74.0060 }, // New York City
+  }
+
+  const handlePickState = useCallback((st) => {
+    setCenter(STATE_CENTERS[st])
+    setLocationDenied(false)
+    setShowPickerFallback(false)
+    markLocationReady()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markLocationReady])
 
   useEffect(() => {
     if (!navigator.geolocation) return
+
+    // Fallback: if geolocation takes more than 2.5 s, proceed with default center
+    const fallbackTimer = setTimeout(markLocationReady, 2500)
+
+    // Fast first fix (coarse, may use cached position) so the list updates quickly
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        clearTimeout(fallbackTimer)
+        const lat = pos.coords.latitude
+        const lng = pos.coords.longitude
+        lastEmitRef.current = { lat, lng, at: Date.now() }
+        setCenter({ lat, lng })
+        markLocationReady()
+      },
+      (err) => {
+        clearTimeout(fallbackTimer)
+        if (err.code === 1) {
+          // PERMISSION_DENIED — show state picker instead of defaulting to Philly
+          setLocationDenied(true)
+        } else {
+          // Timeout or position unavailable — use default center silently
+          markLocationReady()
+        }
+      },
+      { timeout: 8000, maximumAge: 60000, enableHighAccuracy: false }
+    )
+    // High-accuracy follow-up so we get a precise fix once the device acquires GPS
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude
@@ -151,9 +210,11 @@ export default function Home() {
         setCenter({ lat, lng })
       },
       () => {},
-      { timeout: 12000, maximumAge: 120000, enableHighAccuracy: false }
+      { timeout: 20000, maximumAge: 0, enableHighAccuracy: true }
     )
-  }, [])
+
+    return () => clearTimeout(fallbackTimer)
+  }, [markLocationReady])
 
   useEffect(() => {
     if (!navigator.geolocation || !trackNearby) return
@@ -184,6 +245,14 @@ export default function Home() {
       navigator.geolocation.clearWatch(watchId)
     }
   }, [trackNearby])
+
+  // After 25 s of continuous loading, surface the state picker so the user
+  // isn't left staring at a spinner indefinitely.
+  useEffect(() => {
+    if (!loading) return
+    const timer = setTimeout(() => setShowPickerFallback(true), import.meta.env.DEV ? 5000 : 25000)
+    return () => clearTimeout(timer)
+  }, [loading])
 
   useEffect(() => {
     let cancelled = false
@@ -240,8 +309,11 @@ export default function Home() {
       mode_filter: mode
     })
 
-    const nearby = !rpcError && rpcData?.length ? [...rpcData].slice(0, MAX_FROM_RPC) : []
-    const seen = new Set(nearby.map((p) => p.id))
+    // RPC returns rows already sorted by distance — preserve that order.
+    // Do NOT pass these through interleaveByState or the closest place will no longer be first.
+    const rpcSlice = !rpcError && rpcData?.length ? [...rpcData].slice(0, MAX_FROM_RPC) : []
+    const seen = new Set(rpcSlice.map((p) => p.id))
+    const catalogExtras = []
 
     const { data: more } = await supabase
       .from('places')
@@ -251,17 +323,17 @@ export default function Home() {
       .limit(120)
 
     for (const p of more || []) {
-      if (nearby.length >= PLACES_LIST_CAP) break
+      if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
       if (!seen.has(p.id)) {
         seen.add(p.id)
-        nearby.push(p)
+        catalogExtras.push(p)
       }
     }
 
-    // Top up so thin states (often NY if map center is Philly) still appear in the list.
+    // Top up so thin states still appear in the catalog tail.
     for (const st of ['NY', 'NJ', 'PA']) {
-      if (nearby.length >= PLACES_LIST_CAP) break
-      const have = nearby.filter((p) => p.state === st).length
+      if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
+      const have = [...rpcSlice, ...catalogExtras].filter((p) => p.state === st).length
       if (have >= 8) continue
       const { data: extra } = await supabase
         .from('places')
@@ -271,32 +343,36 @@ export default function Home() {
         .order('name', { ascending: true })
         .limit(24)
       for (const p of extra || []) {
-        if (nearby.length >= PLACES_LIST_CAP) break
+        if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
         if (!seen.has(p.id)) {
           seen.add(p.id)
-          nearby.push(p)
+          catalogExtras.push(p)
         }
       }
     }
 
-    const mixed = interleaveByState(nearby)
+    // Distance-sorted RPC results lead; catalog extras follow interleaved by state
+    // so no single state dominates the tail. When RPC is unavailable, fall back to
+    // full state-interleave of the catalog.
+    const finalList = rpcSlice.length > 0
+      ? [...rpcSlice, ...interleaveByState(catalogExtras)]
+      : interleaveByState(catalogExtras)
 
-    const rpcBaseCount = !rpcError && rpcData?.length ? Math.min(rpcData.length, MAX_FROM_RPC) : 0
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
-    } else if (mixed.length > rpcBaseCount) {
+    } else if (catalogExtras.length > 0) {
       setFeedKind('mixed')
     } else {
       setFeedKind('nearby')
     }
 
-    setPlaces(mixed.slice(0, PLACES_LIST_CAP))
+    setPlaces(finalList.slice(0, PLACES_LIST_CAP))
     setLoading(false)
   }, [center.lat, center.lng, mode])
 
   useEffect(() => {
-    fetchPlaces()
-  }, [fetchPlaces])
+    if (locationReady) fetchPlaces()
+  }, [fetchPlaces, locationReady])
 
   const isTheophany = mode === 'theophany'
 
@@ -343,6 +419,18 @@ export default function Home() {
     if (!isTheophany && sanctuaryTradition) {
       list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
     }
+    // Attach distance from user's live location, then sort closest-first
+    list = list.map((p) => {
+      const coords = p.coordinates?.coordinates
+      if (!coords) return { ...p, _distKm: null }
+      return { ...p, _distKm: distanceKm(center.lat, center.lng, coords[1], coords[0]) }
+    })
+    list.sort((a, b) => {
+      if (a._distKm == null && b._distKm == null) return 0
+      if (a._distKm == null) return 1
+      if (b._distKm == null) return -1
+      return a._distKm - b._distKm
+    })
     return list
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -355,7 +443,9 @@ export default function Home() {
     isTheophany,
     sanctuaryTradition,
     localTick,
-    location.key
+    location.key,
+    center.lat,
+    center.lng,
   ])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -722,7 +812,35 @@ export default function Home() {
         </div>
 
         <div className="space-y-4 p-4 pb-[max(6rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))]">
-          {loading ? (
+          {(locationDenied && !locationReady) || showPickerFallback ? (
+            <div className="pt-8 text-center">
+              <p className={`font-sans text-[10px] uppercase tracking-[0.25em] ${subMuted}`}>
+                {locationDenied ? 'Location access not available' : 'Having trouble finding places near you'}
+              </p>
+              <p className={`mt-1 font-serif text-sm italic leading-relaxed ${subMuted}`}>
+                Where are you exploring?
+              </p>
+              <div className="mt-5 flex justify-center gap-3">
+                {['PA', 'NJ', 'NY'].map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => handlePickState(st)}
+                    className={`min-h-[44px] rounded-lg border-2 px-7 py-2.5 font-display text-base tracking-[0.25em] transition-colors ${
+                      isTheophany
+                        ? 'border-theophany-accent/60 text-theophany-accent hover:bg-theophany-accent/15'
+                        : 'border-sanctuary-accent/50 text-sanctuary-text hover:bg-sanctuary-accent/10'
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+              <p className={`mt-4 font-sans text-[9px] uppercase tracking-wider ${subMuted} opacity-60`}>
+                Shows places closest to that region
+              </p>
+            </div>
+          ) : loading ? (
             <p className="pt-8 text-center font-serif italic opacity-60">Finding nearby spaces...</p>
           ) : filteredPlaces.length === 0 ? (
             <div className="space-y-3 pt-12 text-center">
@@ -801,6 +919,13 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+function formatDist(km) {
+  if (km == null) return null
+  if (km < 1) return `${Math.round(km * 1000)} m away`
+  if (km < 10) return `${km.toFixed(1)} km away`
+  return `${Math.round(km)} km away`
 }
 
 function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
@@ -902,6 +1027,11 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
             }`}
           >
             {place.city}, {place.state}
+            {formatDist(place._distKm) && (
+              <span className={`ml-2 ${isTheophany ? 'text-theophany-accent/70' : 'text-sanctuary-accent/80'}`}>
+                · {formatDist(place._distKm)}
+              </span>
+            )}
           </p>
           {place.description && (
             <p

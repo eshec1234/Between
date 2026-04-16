@@ -170,18 +170,17 @@ export function setIntention(value) {
 /** Continuous “near me” map + list updates while moving. Default on if onboarding location consent was yes. */
 export function getNearbyTrackingEnabled() {
   try {
-    const t = localStorage.getItem(NEARBY_TRACKING)
-    if (t === '1') return true
-    if (t === '0') return false
-    return localStorage.getItem('between_location_consent') === 'yes'
+    // 'off' = user explicitly disabled; anything else defaults to on
+    return localStorage.getItem(NEARBY_TRACKING) !== 'off'
   } catch {
-    return false
+    return true
   }
 }
 
 export function setNearbyTrackingEnabled(on) {
   try {
-    localStorage.setItem(NEARBY_TRACKING, on ? '1' : '0')
+    if (on) localStorage.removeItem(NEARBY_TRACKING)
+    else localStorage.setItem(NEARBY_TRACKING, 'off')
   } catch {
     /* ignore */
   }
