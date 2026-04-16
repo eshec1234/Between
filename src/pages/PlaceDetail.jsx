@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useAmbientMode } from '../context/AmbientModeContext'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase, getOrCreateSession, hasSupabaseEnv } from '../lib/supabase'
-import { markVisited, markWalkthroughDone, isSaved, toggleSaved } from '../lib/betweenLocal'
+import { markVisited, markWalkthroughDone, isSaved, toggleSaved, getHomeMode } from '../lib/betweenLocal'
 import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 import SourceBadge from '../components/SourceBadge'
 import PlaceWalkthrough from '../components/PlaceWalkthrough'
@@ -55,7 +55,9 @@ export default function PlaceDetail() {
   const [saved, setSaved] = useState(false)
   const textareaRef = useRef(null)
 
-  const isTheophany = place?.mode === 'theophany' || place?.mode === 'both'
+  const isTheophany =
+    place?.mode === 'theophany' ||
+    (place?.mode === 'both' && getHomeMode() === 'theophany')
 
   useEffect(() => {
     if (!place) return
