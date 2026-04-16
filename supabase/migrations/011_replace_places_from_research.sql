@@ -211,7 +211,7 @@ VALUES
   ),
   (
     'Piscatawaytown Burial Ground',
-    '2136 Woodbridge Ave',
+    '2133 Woodbridge Ave',
     'Edison',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.3958, 40.5017), 4326)::geography,
@@ -296,7 +296,7 @@ VALUES
   ),
   (
     'Union Hotel',
-    '401 Union Ave',
+    '76 Main Street',
     'Flemington',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.8587, 40.5107), 4326)::geography,
@@ -602,7 +602,7 @@ VALUES
   ),
   (
     'Johnsonburg Camp & Retreat Center',
-    '29 Johnsonburg Camp Road',
+    '822 Route 519',
     'Johnsonburg',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.9176, 40.956), 4326)::geography,
@@ -653,7 +653,7 @@ VALUES
   ),
   (
     'Murray Grove Retreat & Conference Center',
-    '94 Montague Ave',
+    '431 Route 9',
     'Lanoka Harbor',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.3036, 39.7916), 4326)::geography,
@@ -722,7 +722,7 @@ VALUES
   (
     'Kip''s Castle Park',
     '22 Crestmont Rd',
-    'Montclair',
+    'Verona',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.2234, 40.8258), 4326)::geography,
     'both',
@@ -772,7 +772,7 @@ VALUES
   ),
   (
     'Jockey Hollow (Morristown National Historical Park)',
-    '580 Tempe Wick Rd',
+    '586 Tempe Wick Rd',
     'Morristown',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.5425, 40.7614), 4326)::geography,
@@ -1180,7 +1180,7 @@ VALUES
   ),
   (
     'Salem Friends Meeting House',
-    '79 West Broadway',
+    '200 E Broadway',
     'Salem',
     'NJ',
     ST_SetSRID(ST_MakePoint(-75.4674, 39.5787), 4326)::geography,
@@ -1248,7 +1248,7 @@ VALUES
   ),
   (
     'Surf City Hotel (Powhattan Wreck Site)',
-    '813 Long Beach Blvd',
+    '800 Long Beach Blvd',
     'Surf City',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.1658, 39.7285), 4326)::geography,
@@ -1419,7 +1419,7 @@ VALUES
   (
     'Gallows Hill Road (Westfield Hanging Tree Site)',
     'Corner of Gallows Hill Road and Brookside Place',
-    'Westfield',
+    'Cranford',
     'NJ',
     ST_SetSRID(ST_MakePoint(-74.3461, 40.6509), 4326)::geography,
     'theophany',
