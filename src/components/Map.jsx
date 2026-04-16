@@ -73,46 +73,56 @@ export default function Map({
     })
   }, [places, visitedIds, savedIds, walkthroughDoneIds])
 
-  // Initialize map once per mount
+  // Initialize map once per mount.
+  // rAF defers until after the browser has laid out the lazy-loaded container
+  // so Mapbox reads real CSS dimensions rather than 0×0.
   useEffect(() => {
     if (!hasMapboxEnv) return
     if (map.current) return
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: mode === 'theophany'
-        ? 'mapbox://styles/mapbox/dark-v11'
-        : 'mapbox://styles/mapbox/light-v11',
-      center: mapCenter,
-      zoom,
-      // Prevent the map from hijacking page scroll on desktop (mouse wheel) —
-      // users can still zoom with the nav control buttons.
-      scrollZoom: false,
+    let raf
+    raf = requestAnimationFrame(() => {
+      if (!mapContainer.current || map.current) return
+
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: mode === 'theophany'
+          ? 'mapbox://styles/mapbox/dark-v11'
+          : 'mapbox://styles/mapbox/light-v11',
+        center: mapCenter,
+        zoom,
+        scrollZoom: false,
+      })
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
+
+      geolocateRef.current = new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true,
+      })
+      map.current.addControl(geolocateRef.current, 'top-right')
+
+      map.current.on('load', () => {
+        map.current?.resize()
+        placeMarkers()
+        setTimeout(() => geolocateRef.current?.trigger(), 600)
+      })
     })
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
-
-    geolocateRef.current = new mapboxgl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: true,
-      showUserHeading: true,
-    })
-    map.current.addControl(geolocateRef.current, 'top-right')
-
-    // Resize after Suspense/lazy container settles to its final CSS dimensions,
-    // paint initial markers, then auto-trigger geolocation so the map centers
-    // on the user without them having to tap the locate button manually.
-    map.current.on('load', () => {
-      map.current?.resize()
-      placeMarkers()
-      // Small delay lets the browser prompt for location permission naturally
-      // after the map paint settles rather than racing the initial render.
-      setTimeout(() => {
-        geolocateRef.current?.trigger()
-      }, 600)
-    })
+    return () => cancelAnimationFrame(raf)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMapboxEnv])
+
+  // ResizeObserver: whenever the container changes size (e.g. after lazy CSS
+  // applies or orientation changes) tell Mapbox to re-measure the canvas.
+  useEffect(() => {
+    const container = mapContainer.current
+    if (!container) return
+    const ro = new ResizeObserver(() => map.current?.resize())
+    ro.observe(container)
+    return () => ro.disconnect()
+  }, [])
 
   // Re-center when user location updates
   useEffect(() => {
@@ -142,12 +152,6 @@ export default function Map({
     placeMarkers()
   }, [placeMarkers])
 
-  // Respond to viewport / orientation changes
-  useEffect(() => {
-    const onResize = () => map.current?.resize()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
 
   // Destroy the map on unmount so re-navigation always creates a fresh instance
   // (prevents "container already initialized" errors after lazy re-mount)
