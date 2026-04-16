@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
@@ -12,65 +12,22 @@ export default function Map({
   visitedIds = null,
   savedIds = null,
   walkthroughDoneIds = null,
-  /** e.g. h-72 md:min-h-[360px] for “near me” discovery */
+  /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
 }) {
   const mapContainer = useRef(null)
   const map = useRef(null)
   const markersRef = useRef([])
+  // Mirrors the latest mode so the style.load callback sees the current value
+  const pendingModeRef = useRef(mode)
 
-  useEffect(() => {
-    if (!hasMapboxEnv) return
-    if (map.current) return
-
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: mode === 'theophany'
-        ? 'mapbox://styles/mapbox/dark-v11'
-        : 'mapbox://styles/mapbox/light-v11',
-      center: mapCenter,
-      zoom
-    })
-
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true
-      })
-    )
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMapboxEnv])
-
-  useEffect(() => {
-    if (!map.current || !hasMapboxEnv) return
-    map.current.jumpTo({ center: mapCenter, zoom })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
-
-  // Update map style when mode changes
-  useEffect(() => {
-    if (!map.current) return
-    const style = mode === 'theophany'
-      ? 'mapbox://styles/mapbox/dark-v11'
-      : 'mapbox://styles/mapbox/light-v11'
-    map.current.setStyle(style)
-  }, [mode])
-
-  useEffect(() => {
-    return () => {
-      markersRef.current.forEach((m) => m.remove())
-      markersRef.current = []
-    }
-  }, [])
-
-  // Add place markers (scoped to this map instance — no global DOM queries)
-  useEffect(() => {
+  const placeMarkers = useCallback(() => {
     if (!map.current) return
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
     if (!places.length) return
+
+    const currentMode = pendingModeRef.current
 
     places.forEach((place) => {
       if (!place.coordinates) return
@@ -81,9 +38,9 @@ export default function Map({
 
       const el = document.createElement('div')
       el.className = 'between-marker'
-      const base = mode === 'theophany' ? '#a78bfa' : '#c8a870'
+      const base = currentMode === 'theophany' ? '#a78bfa' : '#c8a870'
       const ring = walked
-        ? mode === 'theophany'
+        ? currentMode === 'theophany'
           ? '0 0 0 3px rgba(192,167,255,0.92)'
           : '0 0 0 3px rgba(255,200,120,0.95)'
         : visited
@@ -95,7 +52,7 @@ export default function Map({
         height: ${size}px;
         border-radius: 50%;
         background: ${base};
-        border: 2px solid ${mode === 'theophany' ? '#1e0b32' : '#fffef8'};
+        border: 2px solid ${currentMode === 'theophany' ? '#1e0b32' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
       `
@@ -112,7 +69,90 @@ export default function Map({
         .addTo(map.current)
       markersRef.current.push(marker)
     })
-  }, [places, mode, visitedIds, savedIds, walkthroughDoneIds])
+  }, [places, visitedIds, savedIds, walkthroughDoneIds])
+
+  // Initialize map once per mount
+  useEffect(() => {
+    if (!hasMapboxEnv) return
+    if (map.current) return
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: mode === 'theophany'
+        ? 'mapbox://styles/mapbox/dark-v11'
+        : 'mapbox://styles/mapbox/light-v11',
+      center: mapCenter,
+      zoom,
+      // Prevent the map from hijacking page scroll on desktop (mouse wheel) —
+      // users can still zoom with the nav control buttons.
+      scrollZoom: false,
+    })
+
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
+    map.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true
+      })
+    )
+
+    // Resize after Suspense/lazy container settles to its final CSS dimensions,
+    // then paint initial markers.
+    map.current.on('load', () => {
+      map.current?.resize()
+      placeMarkers()
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMapboxEnv])
+
+  // Re-center when user location updates
+  useEffect(() => {
+    if (!map.current || !hasMapboxEnv) return
+    map.current.jumpTo({ center: mapCenter, zoom })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
+
+  // Update map style when mode changes; re-place markers after new style loads
+  useEffect(() => {
+    if (!map.current) return
+    pendingModeRef.current = mode
+    const style = mode === 'theophany'
+      ? 'mapbox://styles/mapbox/dark-v11'
+      : 'mapbox://styles/mapbox/light-v11'
+    // Re-place markers once the incoming style has finished loading so they
+    // pick up the correct mode colours.
+    map.current.once('style.load', placeMarkers)
+    map.current.setStyle(style)
+  }, [mode, placeMarkers])
+
+  // Re-place markers whenever places or visit/save status sets change
+  useEffect(() => {
+    if (!map.current) return
+    // Guard against racing the initial style.load handler
+    if (!map.current.isStyleLoaded()) return
+    placeMarkers()
+  }, [placeMarkers])
+
+  // Respond to viewport / orientation changes
+  useEffect(() => {
+    const onResize = () => map.current?.resize()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Destroy the map on unmount so re-navigation always creates a fresh instance
+  // (prevents "container already initialized" errors after lazy re-mount)
+  useEffect(() => {
+    return () => {
+      markersRef.current.forEach((m) => m.remove())
+      markersRef.current = []
+      if (map.current) {
+        map.current.remove()
+        map.current = null
+      }
+    }
+  }, [])
 
   return (
     hasMapboxEnv ? (
