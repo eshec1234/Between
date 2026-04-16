@@ -108,6 +108,10 @@ export default function Map({
         placeMarkers()
         setTimeout(() => geolocateRef.current?.trigger(), 600)
       })
+
+      map.current.on('error', (e) => {
+        console.error('[Mapbox]', e.error?.message ?? e)
+      })
     })
 
     return () => cancelAnimationFrame(raf)
