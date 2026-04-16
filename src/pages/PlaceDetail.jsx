@@ -269,10 +269,8 @@ export default function PlaceDetail() {
   const subClass = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
   const gallery = photosForPlace(place)
-  const usedFallback = !place?.photos?.length
   const hasGooglePlacePhoto = gallery.some((u) => String(u).includes('googleusercontent.com'))
   const heroPick = photoForPlaceAtTime(place)
-  const heroSrc = gallery.length ? (gallery.length > 1 ? heroPick.url : gallery[0]) : null
 
   return (
     <div className={`relative min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))] ${bgClass}`}>
@@ -310,13 +308,8 @@ export default function PlaceDetail() {
         </div>
       )}
 
-      {gallery.length > 0 && (!surpriseMode || revealed) && (
+      {(!surpriseMode || revealed) && (
         <div className="relative w-full">
-          {usedFallback && (
-            <p className={`px-4 pb-2 font-sans text-[9px] uppercase tracking-wider ${subClass}`}>
-              Placeholder imagery — add photos in Supabase when you have them
-            </p>
-          )}
           {gallery.length > 1 && heroPick.label && (
             <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
               Photo mood · {heroPick.label} (local time)

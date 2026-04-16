@@ -1,9 +1,27 @@
-/** Generic fallbacks removed — wrong stock photos are worse than no photo. */
+import { supabaseUrl } from './env'
+
+/**
+ * Only photos that live in this project's Supabase Storage bucket are
+ * considered "user-uploaded" and shown as real images. All seeded external
+ * URLs (Unsplash, Wikimedia, Flickr, Wikipedia, etc.) are intentionally
+ * ignored so that the SVG placeholder templates are the default display —
+ * a real photo only appears once a user has uploaded one through the app.
+ */
+function isUserPhoto(url) {
+  return Boolean(
+    url &&
+    typeof url === 'string' &&
+    supabaseUrl &&
+    url.startsWith(supabaseUrl)
+  )
+}
+
+/** Generic fallbacks — intentionally empty; SVG templates are the default. */
 export const DEFAULT_PLACE_PHOTOS = []
 
 export function photosForPlace(place) {
   const p = place?.photos
-  if (Array.isArray(p) && p.length > 0 && p.some(Boolean)) return p.filter(Boolean)
+  if (Array.isArray(p) && p.length > 0) return p.filter(isUserPhoto)
   return []
 }
 
@@ -24,7 +42,7 @@ function timeBucketIndex(hour, len) {
 }
 
 /**
- * Pick a photo by local time of day (same place can read differently at dawn vs dusk when multiple photos exist).
+ * Pick a user-uploaded photo by local time of day.
  */
 export function photoForPlaceAtTime(place) {
   const photos = photosForPlace(place)
@@ -41,21 +59,19 @@ function dedupePush(out, u) {
   if (u && typeof u === 'string' && !out.includes(u)) out.push(u)
 }
 
-/** Ordered URLs to try when an image fails to load (bad DB URL, 404, hotlink block). */
+/** Ordered URLs to try — only user-uploaded Supabase photos; empty → SVG renders. */
 export function placeImageFallbackChain(place) {
   const { url: primary } = photoForPlaceAtTime(place)
   const pool = photosForPlace(place)
   const out = []
   dedupePush(out, primary)
   for (const u of pool) dedupePush(out, u)
-  for (const u of DEFAULT_PLACE_PHOTOS) dedupePush(out, u)
   return out
 }
 
-/** Single gallery URL with defaults after it. */
+/** Single gallery URL — only passes through if it is a user-uploaded Supabase photo. */
 export function imageUrlFallbackChain(url) {
   const out = []
-  dedupePush(out, url)
-  for (const u of DEFAULT_PLACE_PHOTOS) dedupePush(out, u)
+  if (isUserPhoto(url)) dedupePush(out, url)
   return out
 }
