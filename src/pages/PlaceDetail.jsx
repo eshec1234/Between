@@ -56,7 +56,6 @@ export default function PlaceDetail() {
   const textareaRef = useRef(null)
 
   const isTheophany = place?.mode === 'theophany' || place?.mode === 'both'
-  const isSanctuary = place?.mode === 'sanctuary' || place?.mode === 'both'
 
   useEffect(() => {
     if (!place) return
@@ -66,6 +65,7 @@ export default function PlaceDetail() {
   useEffect(() => {
     fetchPlace()
     fetchExperienceReports()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {
@@ -80,6 +80,7 @@ export default function PlaceDetail() {
       walkthroughRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 450)
     return () => window.clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [place?.id, surpriseMode, walkthroughParam])
 
   useEffect(() => {
@@ -194,7 +195,14 @@ export default function PlaceDetail() {
       error = err2
     }
 
-    if (!error) {
+    if (error) {
+      const msg =
+        error.code === '42501'
+          ? "We couldn't save that right now — try again in a moment."
+          : 'Something went wrong. Please try again.'
+      setPostFlash(msg)
+      setTimeout(() => setPostFlash(''), 5000)
+    } else {
       setPostFlash(contentKind === 'tip' ? 'Tip posted.' : 'Experience report posted.')
       setTimeout(() => setPostFlash(''), 4000)
       setReportContent('')

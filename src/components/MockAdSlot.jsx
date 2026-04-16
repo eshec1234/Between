@@ -1,11 +1,17 @@
-/** Sponsored-slot placeholder for a future revenue model — not a real ad network. */
+/** Sponsored-slot placeholder for a future revenue model — not a real ad network.
+ *  Only renders when VITE_SHOW_AD_DEMOS=true is set in the environment.
+ */
 const DEMOS = [
   { title: 'Local roastery', line: 'Support spaces that host quiet hours · Demo ad' },
   { title: 'Regional trails fund', line: 'Your visit helps preserve liminal landscapes · Demo ad' },
   { title: 'Student research', line: 'Help expand the verified atlas · Demo ad' }
 ]
 
+const SHOW = import.meta.env.VITE_SHOW_AD_DEMOS === 'true'
+
 export default function MockAdSlot({ index = 0, isTheophany }) {
+  if (!SHOW) return null
+
   const ad = DEMOS[index % DEMOS.length]
   return (
     <div

@@ -14,6 +14,7 @@ export function AmbientModeProvider({ children }) {
   return <AmbientModeContext.Provider value={value}>{children}</AmbientModeContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAmbientMode() {
   const ctx = useContext(AmbientModeContext)
   if (!ctx) {

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import { useAmbientMode } from '../context/AmbientModeContext'
 import { getHomeMode } from '../lib/betweenLocal'
+import TheophanyDisclaimer from '../components/TheophanyDisclaimer'
 
 const STATES = ['PA', 'NJ', 'NY']
 const MODES = ['sanctuary', 'theophany', 'both']
@@ -88,11 +89,11 @@ export default function SubmitPlace() {
 
     if (insertError) {
       if (insertError.code === '42501') {
-        setError('Submission blocked by database permissions (RLS). Update Supabase policy to allow anon inserts into places.')
+        setError("We couldn't save that right now — try again in a moment.")
       } else if (insertError.code === 'PGRST205' || insertError.message?.includes("Could not find the table 'public.places'")) {
-        setError("Database table 'places' is missing in this Supabase project. Run the SQL migrations to create tables, then retry.")
+        setError("Submissions aren't available yet — the space is still being set up. Please check back soon.")
       } else {
-        setError(`Submission failed: ${insertError.message}`)
+        setError('Something went wrong. Please try again, or come back later.')
       }
       setSubmitting(false)
       return
@@ -156,6 +157,10 @@ export default function SubmitPlace() {
               ))}
             </div>
           </div>
+
+          {(form.mode === 'theophany' || form.mode === 'both') && (
+            <TheophanyDisclaimer />
+          )}
 
           {/* Address */}
           <div>

@@ -1,9 +1,13 @@
 import { useMemo } from 'react'
 
 export default function Starfield({ pinToViewport = false }) {
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   const stars = useMemo(
     () =>
-      Array.from({ length: 55 }, (_, i) => ({
+      Array.from({ length: 55 }, (_) => ({
         cx: `${(Math.random() * 100).toFixed(1)}%`,
         cy: `${(Math.random() * 100).toFixed(1)}%`,
         r: (0.4 + Math.random() * 1.2).toFixed(1),
@@ -32,10 +36,14 @@ export default function Starfield({ pinToViewport = false }) {
           cy={s.cy}
           r={s.r}
           fill="#c4b5fd"
-          style={{
-            animation: `btwink ${s.dur}s ease-in-out infinite`,
-            animationDelay: `${s.delay}s`
-          }}
+          style={
+            prefersReducedMotion
+              ? undefined
+              : {
+                  animation: `btwink ${s.dur}s ease-in-out infinite`,
+                  animationDelay: `${s.delay}s`
+                }
+          }
         />
       ))}
     </svg>

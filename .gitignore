@@ -12,9 +12,10 @@ dist-ssr/
 .env.local
 .env.*.local
 
-# Editor
+# Editor / IDE
 .vscode/
 .idea/
+.cursor/
 *.suo
 *.ntvs*
 *.njsproj

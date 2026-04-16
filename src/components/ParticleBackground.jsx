@@ -8,6 +8,9 @@ export default function ParticleBackground() {
   const sizeRef = useRef({ w: 0, h: 0 })
 
   useEffect(() => {
+    const prefersReducedMotion =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     const wrap = wrapRef.current
     const cvs = canvasRef.current
     if (!wrap || !cvs) return
@@ -43,6 +46,30 @@ export default function ParticleBackground() {
       applySize(w, h)
     })
     ro.observe(wrap)
+
+    if (prefersReducedMotion) {
+      // Draw a single static frame — no animation loop
+      const drawStatic = () => {
+        const { w, h } = sizeRef.current
+        if (w < 2 || h < 2) return
+        const cx = w / 2
+        const cy = h * 0.44
+        const m = Math.min(w, h)
+        ;[0.26, 0.36, 0.47, 0.58].forEach((fr, i) => {
+          ctx.beginPath()
+          ctx.arc(cx, cy, m * fr, 0, Math.PI * 2)
+          ctx.strokeStyle = `rgba(200,175,110,${0.03 + i * 0.01})`
+          ctx.lineWidth = 0.7
+          ctx.stroke()
+        })
+      }
+      // Wait for ResizeObserver to fire, then draw once
+      const tid = setTimeout(drawStatic, 50)
+      return () => {
+        clearTimeout(tid)
+        ro.disconnect()
+      }
+    }
 
     const draw = () => {
       const { w, h } = sizeRef.current

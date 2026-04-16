@@ -40,11 +40,13 @@ export default function Map({
         showUserHeading: true
       })
     )
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMapboxEnv])
 
   useEffect(() => {
     if (!map.current || !hasMapboxEnv) return
     map.current.jumpTo({ center: mapCenter, zoom })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
 
   // Update map style when mode changes

@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase, hasSupabaseEnv } from '../lib/supabase'
-import Map from '../components/Map'
 import Starfield from '../components/Starfield'
+const Map = lazy(() => import('../components/Map'))
 import { getDailyOmen } from '../data/omens'
 import { INTENSITY_LEVELS, INTENSITY_LEVELS_THEOPHANY } from '../data/intensityLegend'
-import { fetchActivityFeed } from '../lib/feed'
+import { fetchActivityFeed, fetchDarkHorsePlaces } from '../lib/feed'
 import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
 import InstallPwaPrompt from '../components/InstallPwaPrompt'
@@ -344,6 +344,7 @@ export default function Home() {
       list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
     }
     return list
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     places,
     intent,
@@ -357,8 +358,11 @@ export default function Home() {
     location.key
   ])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const visitedIds = useMemo(() => getVisitedIds(), [places, localTick, location.key])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const savedIds = useMemo(() => getSavedIds(), [places, localTick, location.key])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const walkthroughDoneIds = useMemo(() => getWalkthroughDoneIds(), [places, localTick, location.key])
 
   const mapCenter = [center.lng, center.lat]
@@ -651,16 +655,18 @@ export default function Home() {
             Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-            <Map
-              mode={mode}
-              places={filteredPlaces}
-              mapCenter={mapCenter}
-              visitedIds={visitedIds}
-              savedIds={savedIds}
-              walkthroughDoneIds={walkthroughDoneIds}
-              heightClass="btw-map-canvas"
-              zoom={7.4}
-            />
+            <Suspense fallback={<div className="btw-map-canvas flex items-center justify-center bg-sanctuary-bg/60"><p className="font-serif text-xs italic text-sanctuary-muted opacity-60">Loading map…</p></div>}>
+              <Map
+                mode={mode}
+                places={filteredPlaces}
+                mapCenter={mapCenter}
+                visitedIds={visitedIds}
+                savedIds={savedIds}
+                walkthroughDoneIds={walkthroughDoneIds}
+                heightClass="btw-map-canvas"
+                zoom={7.4}
+              />
+            </Suspense>
           </div>
         </div>
 
@@ -700,11 +706,9 @@ export default function Home() {
         )}
 
         <p className="px-4 pt-3 font-sans text-[10px] uppercase tracking-wider opacity-50">
-          {feedKind === 'nearby' && `Within ~${NEARBY_RADIUS_M / 1000} km of map center · mode filter`}
-          {feedKind === 'mixed' &&
-            `Nearest within ~${NEARBY_RADIUS_M / 1000} km, then more from the catalog to fill the list`}
-          {feedKind === 'fallback' &&
-            'Catalog order (no nearby match or spatial RPC unavailable — ensure seed SQL ran in Supabase)'}
+          {feedKind === 'nearby' && 'Showing places in PA · NJ · NY'}
+          {feedKind === 'mixed' && 'Showing nearby places + more from PA · NJ · NY'}
+          {feedKind === 'fallback' && 'Showing places in PA · NJ · NY'}
         </p>
 
         <div className="px-4 pt-2">
@@ -765,6 +769,36 @@ export default function Home() {
       >
         +
       </Link>
+
+      <footer
+        className={`relative z-10 flex items-center justify-center gap-6 border-t px-4 py-3 ${
+          isTheophany
+            ? 'border-theophany-accent/20 bg-theophany-bg/80'
+            : 'border-sanctuary-accent/15 bg-sanctuary-bg/80'
+        }`}
+        style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))' }}
+      >
+        <Link
+          to="/about"
+          className={`min-h-[44px] inline-flex items-center font-sans text-[10px] uppercase tracking-[0.18em] ${subMuted}`}
+        >
+          About
+        </Link>
+        <span className={`text-[10px] ${subMuted} opacity-40`} aria-hidden>·</span>
+        <Link
+          to="/faq"
+          className={`min-h-[44px] inline-flex items-center font-sans text-[10px] uppercase tracking-[0.18em] ${subMuted}`}
+        >
+          FAQ
+        </Link>
+        <span className={`text-[10px] ${subMuted} opacity-40`} aria-hidden>·</span>
+        <Link
+          to="/submit"
+          className={`min-h-[44px] inline-flex items-center font-sans text-[10px] uppercase tracking-[0.18em] ${subMuted}`}
+        >
+          Submit a place
+        </Link>
+      </footer>
     </div>
   )
 }
