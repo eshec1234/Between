@@ -248,7 +248,7 @@ function HeroTemplate({ c }) {
         })
       ) : (
         /* Light rays */
-        [−15, −8, 0, 8, 15].map((angle, i) => {
+        [-15, -8, 0, 8, 15].map((angle, i) => {
           const rad = (angle * Math.PI) / 180
           return (
             <line
