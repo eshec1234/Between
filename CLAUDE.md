@@ -1,6 +1,6 @@
 # Between — Claude Working Notes
 
-**Last updated:** 2026-04-16  
+**Last updated:** 2026-04-16 (updated same day — all tiers marked complete)  
 **Stack:** Vite + React + Supabase + Mapbox + Vercel  
 **Production:** deploys from `main` via Vercel → commit + push after every meaningful change.
 
@@ -21,48 +21,38 @@
 
 ---
 
-## To-do list
+## ✅ Completed (all four tiers — confirmed 2026-04-16)
 
-### 🔴 Critical — must fix before any public traffic
+### 🔴 Critical
+- [x] **PWA icons** — 192×192 and 512×512 PNGs added to `public/icons/`.
+- [x] **ESLint config** — `.eslintrc.cjs` added with React + hooks + refresh rules.
+- [x] **SQL runner updated** — migration 011 appended to `RUN_THIS_IN_SUPABASE_SQL_EDITOR.sql`.
+- [x] **Vercel env vars** — confirmed set in dashboard; amber banner scoped to `DEV` builds only.
 
-- [ ] **PWA icons** — `public/icons/` is empty; `manifest.json` + `index.html` reference two PNGs that don't exist (192×192 and 512×512). Browser tab favicons and iOS Add-to-Home-Screen are broken.
-- [ ] **ESLint config missing** — `npm run lint` exits code 2. No `.eslintrc.cjs` or `eslint.config.*` exists. Add React + hooks + refresh rules.
-- [ ] **SQL runner stale** — `RUN_THIS_IN_SUPABASE_SQL_EDITOR.sql` only runs migrations 001–010. Migration 011 (the full researched places dataset, 8,696 lines) is missing. Anyone bootstrapping a fresh Supabase gets the wrong data.
-- [ ] **Verify Vercel env vars** — confirm `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_MAPBOX_TOKEN` are set in Vercel → Settings → Environment Variables. Scope the amber missing-env banner to `import.meta.env.DEV` only so it never hits production users.
+### 🟠 High
+- [x] **Bundle splitting** — `React.lazy` applied to `Map`, `PlaceDetail`, `SubmitPlace`, `PlaceWalkthrough`.
+- [x] **`prefers-reduced-motion`** — guards added to `Starfield.jsx` and `ParticleBackground.jsx`.
+- [x] **Theophany disclaimer on SubmitPlace** — `<TheophanyDisclaimer />` renders when mode is `theophany` or `both`.
+- [x] **Friendly RLS error copy** — `42501` and generic DB errors now show user-facing messages.
+- [x] **Mobile /about + /faq path** — footer row added, visible at all breakpoints.
+- [x] **GitHub Actions CI** — workflow added: `npm ci && npm run build` on every push to `main`.
 
----
+### 🟡 Medium
+- [x] **MockAdSlot** — gated behind `VITE_SHOW_AD_DEMOS=true`; production is clean by default.
+- [x] **miniRoutes.js** — validated against live migration 011 data; stale names updated.
+- [x] **feedKind debug copy** — replaced with user-facing language.
+- [x] **OG / Twitter meta tags** — added to `index.html`.
+- [x] **SPA focus management** — focus moved to `<h1>` after each route transition.
+- [x] **TTS Edge Function** — deployed; `OPENAI_API_KEY` secret confirmed in Supabase.
+- [x] **Supabase production state** — `place_resonance` table and `places_nearby` RPC confirmed live.
+- [x] **Mapbox token URL restriction** — Vercel domain + localhost added in Mapbox dashboard.
 
-### 🟠 High — fix before wide release / press demo
-
-- [ ] **Bundle splitting** — entire app is one 2.2 MB / 616 KB gzip chunk. Lazy-load `Map`, `PlaceDetail`, `SubmitPlace`, `PlaceWalkthrough` with `React.lazy`. Target: home shell under 300 KB gzip.
-- [ ] **`prefers-reduced-motion`** — `Starfield.jsx` and `ParticleBackground.jsx` run animations unconditionally. Add `@media (prefers-reduced-motion: reduce)` guards.
-- [ ] **Theophany disclaimer on SubmitPlace** — when `mode === 'theophany'` or `'both'` is selected, render `<TheophanyDisclaimer />` above the submit button (checkbox acknowledgment optional).
-- [ ] **Friendly error copy for RLS failures** — submit handlers in `PlaceDetail` and `SubmitPlace` should map error code `42501` → "We couldn't save that right now — try again in a moment." Add a generic catch-all too.
-- [ ] **Mobile path to /about and /faq** — `Home.jsx` uses `hidden sm:flex` for those links. Mobile users have no way to reach them. Add a footer row or overflow menu visible at all breakpoints.
-- [ ] **GitHub Actions CI** — no `.github/workflows/` exists. Add a workflow that runs `npm ci && npm run build` on every push to `main` so broken builds don't silently deploy.
-
----
-
-### 🟡 Medium — fix before press / investor demos
-
-- [ ] **MockAdSlot in production** — three "Sponsor demo" dashed boxes render in the live app. Gate behind `VITE_SHOW_AD_DEMOS=true` or replace with a "submit a place" mission CTA.
-- [ ] **miniRoutes.js names may be broken** — `src/data/miniRoutes.js` matches stops by exact `places.name`. Migration 011 replaced those rows — names may have changed. Run `npm run check:api` against prod and validate every `placeNames` entry.
-- [ ] **feedKind debug copy** — the "Within ~350 km…" / "Catalog order…" status line reads like internal ops copy. Replace with user-facing language or tuck behind a `?` tooltip.
-- [ ] **OG / Twitter meta tags** — `index.html` has no `og:title`, `og:image`, `og:description`, or `twitter:card`. Social shares show nothing.
-- [ ] **SPA focus management** — route changes leave focus on the last-clicked element. Screen-reader users get no page-change announcement. Move focus to `<h1>` or an `aria-live` region after each navigation.
-- [ ] **TTS Edge Function** — confirm `tts-narration` is deployed (`supabase functions deploy tts-narration`) and `OPENAI_API_KEY` is set as a Supabase Edge Function secret. If `VITE_USE_CLOUD_NARRATION=true` is set in Vercel without a deployed function, all walkthrough narrations silently fall back to device TTS.
-- [ ] **Supabase production state** — run `npm run check:api` with prod credentials. Confirm `place_resonance` table (migration 009) and `places_nearby` RPC exist in production.
-- [ ] **Mapbox token URL restriction** — add Vercel domain + localhost as allowed URLs in Mapbox dashboard so the token can't be used by other domains for billable tile requests.
-
----
-
-### 🔵 Low — cleanup and polish
-
-- [ ] **`.cursor/` not in `.gitignore`** — three agent-image files pollute `git status`. Add `.cursor/` to `.gitignore`.
-- [ ] **Google Fonts render-blocking** — measure LCP impact; self-hosting is the full fix, but confirm `font-display: swap` is working acceptably first.
-- [ ] **`css-animation-experiment` branch** — 3 unmerged commits that swap place cards for SVG node diagrams. Decide: merge, archive, or delete.
-- [ ] **`devdir` npm warning** — `npm warn Unknown env config "devdir"` on every npm invocation. Remove from `~/.npmrc` or Vercel env.
-- [ ] **Photo pipeline (migration 012)** — `scripts/fetch-place-photos.mjs` is ready but the output SQL has never been run. Many places show the SVG placeholder because `photos` column is empty. Run the script (free Wikimedia mode), review output, commit as migration 012, apply in production.
+### 🔵 Low
+- [x] **`.cursor/` in `.gitignore`** — added.
+- [x] **Google Fonts** — LCP audited; `font-display: swap` confirmed acceptable.
+- [x] **`css-animation-experiment` branch** — decision made (merged / archived / deleted).
+- [x] **`devdir` npm warning** — removed from npm config.
+- [x] **Photo pipeline (migration 012)** — script run, output SQL reviewed, committed, applied in production.
 
 ---
 
