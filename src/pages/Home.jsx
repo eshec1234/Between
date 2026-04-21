@@ -149,6 +149,8 @@ export default function Home() {
   const [showPickerFallback, setShowPickerFallback] = useState(false)
   const locationReadyRef = useRef(!navigator.geolocation)
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
+  const feedScrollRef = useRef(null)
+  const surpriseSectionRef = useRef(null)
 
   // Stable: flips locationReady exactly once (ref guards against double-fire)
   const markLocationReady = useCallback(() => {
@@ -380,6 +382,17 @@ export default function Home() {
     setAmbientVariant(mode)
   }, [mode, setAmbientVariant])
 
+  useEffect(() => {
+    const scroller = feedScrollRef.current
+    const surpriseSection = surpriseSectionRef.current
+    if (!scroller || !surpriseSection) return
+    // Keep the map section from jumping above "Surprise me" after mode swaps.
+    const surpriseTop = Math.max(surpriseSection.offsetTop - 16, 0)
+    if (scroller.scrollTop > surpriseTop) {
+      scroller.scrollTo({ top: surpriseTop, behavior: 'auto' })
+    }
+  }, [mode])
+
   const setModePersisted = useCallback((next) => {
     setMode(next)
     try {
@@ -571,6 +584,7 @@ export default function Home() {
       </div>
 
       <div
+        ref={feedScrollRef}
         className={`relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${
           isTheophany
             ? 'pt-[max(5.75rem,calc(env(safe-area-inset-top,0px)+4.85rem))]'
@@ -685,7 +699,7 @@ export default function Home() {
           accentClass={accent}
         />
 
-        <div className="px-4 pt-5">
+        <div ref={surpriseSectionRef} className="px-4 pt-5">
           <button
             type="button"
             onClick={onSurpriseMe}
