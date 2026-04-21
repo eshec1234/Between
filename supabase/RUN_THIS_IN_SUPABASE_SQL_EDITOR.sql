@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS places (
   traditions TEXT,
   cultural_sensitivities TEXT,
   access_protocols TEXT,
-  source TEXT NOT NULL CHECK (source IN ('verified', 'community')),
+  source TEXT NOT NULL CHECK (source IN ('verified', 'community', 'low_confidence_import')),
   description TEXT NOT NULL,
   photos TEXT[] DEFAULT '{}',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -425,5 +425,14 @@ WHERE name IN (
   'Baha''i Center of Philadelphia'
 )
 ORDER BY name;
+
+-- --- 012: source confidence extension ---------------------------------------
+
+ALTER TABLE places
+  DROP CONSTRAINT IF EXISTS places_source_check;
+
+ALTER TABLE places
+  ADD CONSTRAINT places_source_check
+  CHECK (source IN ('verified', 'community', 'low_confidence_import'));
 
 -- Done. In Supabase: Table Editor -> places -> confirm rows. App feed merges recent rows after RPC (see Home fetchPlaces).

@@ -40,6 +40,7 @@ import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
 import { openDirections } from '../lib/directions'
 import { placeLngLat } from '../lib/placeCoordinates'
+import { visibleFilterTags } from '../lib/placeTaxonomy'
 
 /** Philadelphia — primary market. Used until geolocation resolves. */
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
@@ -50,6 +51,7 @@ const PLACES_LIST_CAP = 48
 const MAX_FROM_RPC = 24
 /** Refetch nearby list when you’ve moved at least this far (km) while tracking */
 const TRACK_MIN_MOVE_KM = 0.13
+const SURPRISE_CANDIDATE_LIMIT = 600
 
 /** Rotate NY → NJ → PA so the list is not “only nearby state” when the catalog spans the region. */
 function interleaveByState(rows, order = ['NY', 'NJ', 'PA']) {
@@ -90,7 +92,8 @@ function readInitialMode() {
 }
 
 function placeTypeLabel(place) {
-  if (place.category_tags?.length) return place.category_tags[0]
+  const tags = visibleFilterTags(place.place_taxonomy_tags || place.category_tags || [])
+  if (tags.length) return tags[0]
   if (place.mode === 'both') return 'Both'
   return 'Place'
 }
@@ -133,6 +136,7 @@ export default function Home() {
   })
   const [feedLoading, setFeedLoading] = useState(true)
   const [darkHorsePlaces, setDarkHorsePlaces] = useState([])
+  const [surprisePool, setSurprisePool] = useState([])
   const [intent, setIntent] = useState(() => getIntention())
   const [localTick, setLocalTick] = useState(0)
   const [filterTag, setFilterTag] = useState('')
@@ -301,6 +305,28 @@ export default function Home() {
     }
   }, [mode, feedLoading, feed.trendingPlaces])
 
+  useEffect(() => {
+    let cancelled = false
+    async function loadSurprisePool() {
+      if (!hasSupabaseEnv || !supabase) {
+        setSurprisePool([])
+        return
+      }
+      const { data } = await supabase
+        .from('places')
+        .select(PLACES_LIST_SELECT)
+        .or(`mode.eq.${mode},mode.eq.both`)
+        .limit(SURPRISE_CANDIDATE_LIMIT)
+      if (cancelled) return
+      const vetted = (data || []).filter((p) => p?.source !== 'low_confidence_import')
+      setSurprisePool(vetted)
+    }
+    loadSurprisePool()
+    return () => {
+      cancelled = true
+    }
+  }, [mode])
+
   const fetchPlaces = useCallback(async () => {
     const fetchSeq = ++fetchSeqRef.current
     setLoading(true)
@@ -406,7 +432,7 @@ export default function Home() {
   const allTags = useMemo(() => {
     const s = new Set()
     for (const p of places) {
-      for (const t of p.category_tags || []) s.add(t)
+      for (const t of visibleFilterTags(p.place_taxonomy_tags || p.category_tags || [])) s.add(t)
     }
     return [...s].sort()
   }, [places])
@@ -417,7 +443,9 @@ export default function Home() {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
     if (filterTag) {
-      list = list.filter((p) => (p.category_tags || []).includes(filterTag))
+      list = list.filter((p) =>
+        visibleFilterTags(p.place_taxonomy_tags || p.category_tags || []).includes(filterTag)
+      )
     }
     if (isTheophany && minIntensity > 0) {
       list = list.filter((p) => p.intensity != null && p.intensity >= minIntensity)
@@ -433,11 +461,25 @@ export default function Home() {
     if (!isTheophany && sanctuaryTradition) {
       list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
     }
-    // Attach distance from user's live location, then sort closest-first
+    // Attach distance from user's live location, then sort closest-first.
+    // Tag chips/filter use curated taxonomy tags; place.category_tags stays raw from DB.
     list = list.map((p) => {
+      const normalizedTags = visibleFilterTags(p.place_taxonomy_tags || p.category_tags || [])
       const coords = p.coordinates?.coordinates
-      if (!coords) return { ...p, _distKm: null }
-      return { ...p, _distKm: distanceKm(center.lat, center.lng, coords[1], coords[0]) }
+      if (!coords) {
+        return {
+          ...p,
+          category_tags: normalizedTags,
+          place_taxonomy_tags: normalizedTags,
+          _distKm: null
+        }
+      }
+      return {
+        ...p,
+        category_tags: normalizedTags,
+        place_taxonomy_tags: normalizedTags,
+        _distKm: distanceKm(center.lat, center.lng, coords[1], coords[0])
+      }
     })
     list.sort((a, b) => {
       if (a._distKm == null && b._distKm == null) return 0
@@ -477,11 +519,11 @@ export default function Home() {
   const mapCenter = [center.lng, center.lat]
 
   const onSurpriseMe = useCallback(() => {
-    const pool = filteredPlaces.length ? filteredPlaces : places
+    const pool = surprisePool.length ? surprisePool : places
     if (!pool.length) return
     const pick = pool[Math.floor(Math.random() * pool.length)]
-    navigate(`/place/${pick.id}?surprise=1`)
-  }, [filteredPlaces, places, navigate])
+    navigate(`/place/${pick.id}?surprise=1&global=1`)
+  }, [surprisePool, places, navigate])
 
   const onToggleTrackNearby = useCallback(() => {
     setTrackNearby((prev) => {
@@ -535,7 +577,7 @@ export default function Home() {
   }, [filteredPlaces])
 
   const onDirectionsToPlace = useCallback((place) => {
-    const coords = place?.coordinates?.coordinates
+    const coords = placeLngLat(place)
     if (!coords?.length) return
     openDirections({
       placeName: place.name,
@@ -781,7 +823,7 @@ export default function Home() {
             Surprise me
           </button>
           <p className={`mt-2 text-center font-sans text-[9px] leading-relaxed ${subMuted}`}>
-            A random place — walkthrough first, no name until you choose to reveal.
+            A truly random place from the full catalog (ignores your location). Walkthrough first, then reveal destination details.
           </p>
         </div>
 
@@ -1150,7 +1192,7 @@ function PlaceCard({
             {type}
           </div>
           <div className="absolute bottom-2.5 left-2.5">
-            <SourceBadge source={place.source} compact />
+            <SourceBadge source={place.source} sourceConfidence={place.source_confidence} compact />
           </div>
           {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} isTheophany />}
         </div>

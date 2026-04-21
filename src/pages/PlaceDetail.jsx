@@ -11,6 +11,8 @@ import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
 import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
 import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
+import { openDirections } from '../lib/directions'
+import { placeLngLat } from '../lib/placeCoordinates'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -36,6 +38,7 @@ export default function PlaceDetail() {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const surpriseMode = searchParams.get('surprise') === '1'
+  const globalRandom = searchParams.get('global') === '1'
   const [revealed, setRevealed] = useState(true)
   const walkthroughRef = useRef(null)
   const [place, setPlace] = useState(null)
@@ -315,6 +318,11 @@ export default function PlaceDetail() {
           <p className={`font-serif text-sm italic leading-relaxed ${subClass}`}>
             A place opens for you — walkthrough first; the name stays hidden until you reveal it.
           </p>
+          {globalRandom && (
+            <p className={`mt-1 font-sans text-[10px] leading-relaxed ${subClass}`}>
+              This pick is from the full catalog and ignores your current location.
+            </p>
+          )}
         </div>
       )}
 
@@ -372,7 +380,7 @@ export default function PlaceDetail() {
                 >
                   {place.mode}
                 </span>
-                <SourceBadge source={place.source} />
+                <SourceBadge source={place.source} sourceConfidence={place.source_confidence} />
               </div>
               <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
                 <h1 className="font-serif text-2xl font-medium tracking-tight text-current">{place.name}</h1>
@@ -394,6 +402,11 @@ export default function PlaceDetail() {
               <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
                 {place.address} · {place.city}, {place.state}
               </p>
+              {surpriseMode && revealed && (
+                <p className={`mt-1 font-sans text-[10px] ${subClass}`}>
+                  Destination revealed — use directions below to navigate there.
+                </p>
+              )}
             </div>
 
             {place.curated_quote && (
@@ -458,11 +471,37 @@ export default function PlaceDetail() {
             >
               Reveal this place
             </button>
+            <p className={`mt-2 text-center font-sans text-[10px] ${subClass}`}>
+              Reveal shows full destination details and address so you can travel there.
+            </p>
           </div>
         )}
 
         {(!surpriseMode || revealed) && (
           <>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                  onClick={() => {
+                    const coords = placeLngLat(place)
+                  if (!coords?.length) return
+                  openDirections({
+                    placeName: place.name,
+                    destLng: coords[0],
+                    destLat: coords[1]
+                  })
+                }}
+                disabled={!placeLngLat(place)}
+                className={`rounded-md border-2 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  isTheophany
+                    ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
+                    : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
+                }`}
+              >
+                Directions to this place
+              </button>
+            </div>
+
             {place.description && place.description.length > 520 && (
               <details className={`rounded-lg border px-3 py-2 ${borderClass}`}>
                 <summary className={`cursor-pointer font-sans text-[11px] uppercase tracking-wider ${subClass}`}>
