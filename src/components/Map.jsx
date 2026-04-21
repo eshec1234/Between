@@ -21,6 +21,7 @@ const Map = forwardRef(function Map({
   walkthroughDoneIds = null,
   selectedPlaceId = null,
   onMarkerSelect = null,
+  onMarkerDirections = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
 }, ref) {
@@ -91,17 +92,40 @@ const Map = forwardRef(function Map({
       // Coordinates from PostGIS are stored as GeoJSON
       const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
 
+      const popupRoot = document.createElement('div')
+      popupRoot.className = 'between-map-popup'
+      const title = document.createElement('strong')
+      title.textContent = place.name
+      const subtitle = document.createElement('em')
+      subtitle.textContent = `${place.city}, ${place.state}`
+      popupRoot.appendChild(title)
+      popupRoot.appendChild(document.createElement('br'))
+      popupRoot.appendChild(subtitle)
+
+      if (onMarkerDirections) {
+        const actions = document.createElement('div')
+        actions.style.marginTop = '8px'
+        const dirBtn = document.createElement('button')
+        dirBtn.type = 'button'
+        dirBtn.textContent = 'Directions'
+        dirBtn.className = 'between-map-popup-directions'
+        dirBtn.addEventListener('click', (evt) => {
+          evt.preventDefault()
+          evt.stopPropagation()
+          onMarkerDirections(place.id)
+        })
+        actions.appendChild(dirBtn)
+        popupRoot.appendChild(actions)
+      }
+
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 16 })
-            .setHTML(`<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`)
-        )
+        .setPopup(new mapboxgl.Popup({ offset: 16 }).setDOMContent(popupRoot))
         .addTo(map.current)
       markersRef.current.push(marker)
       markersByIdRef.current.set(place.id, marker)
     })
-  }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
+  }, [onMarkerDirections, onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
   const destroyMap = useCallback(() => {
     if (geolocateTimerRef.current) {

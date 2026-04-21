@@ -38,6 +38,7 @@ import { useAmbientMode } from '../context/AmbientModeContext'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
+import { openDirections } from '../lib/directions'
 
 /** Philadelphia — primary market. Used until geolocation resolves. */
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
@@ -518,6 +519,18 @@ export default function Home() {
     }
   }, [])
 
+  const onDirectionsToPlace = useCallback((place) => {
+    const coords = place?.coordinates?.coordinates
+    if (!coords?.length) return
+    openDirections({
+      placeName: place.name,
+      destLng: coords[0],
+      destLat: coords[1],
+      originLng: center.lng,
+      originLat: center.lat
+    })
+  }, [center.lng, center.lat])
+
   useEffect(() => {
     if (selectedPlaceId == null) return
     if (!filteredPlaces.some((p) => p.id === selectedPlaceId)) {
@@ -804,6 +817,11 @@ export default function Home() {
                 walkthroughDoneIds={walkthroughDoneIds}
                 selectedPlaceId={selectedPlaceId}
                 onMarkerSelect={onMarkerSelect}
+                onMarkerDirections={(placeId) => {
+                  const place = filteredPlaces.find((p) => p.id === placeId)
+                  if (!place) return
+                  onDirectionsToPlace(place)
+                }}
                 heightClass="btw-map-canvas"
                 zoom={7.4}
               />
@@ -914,6 +932,7 @@ export default function Home() {
                   isSelected={selectedPlaceId === place.id}
                   setCardRef={(node) => setCardRef(place.id, node)}
                   onFocusMap={() => onFocusPlaceOnMap(place.id)}
+                  onDirections={() => onDirectionsToPlace(place)}
                 />
               ]
               if ((i + 1) % 4 === 0) {
@@ -989,7 +1008,8 @@ function PlaceCard({
   animIndex = 0,
   isSelected = false,
   setCardRef = null,
-  onFocusMap = null
+  onFocusMap = null,
+  onDirections = null
 }) {
   const type = placeTypeLabel(place)
   const { label: timeLabel } = photoForPlaceAtTime(place)
@@ -1082,21 +1102,38 @@ function PlaceCard({
 
         <div className="px-4 py-3.5">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onFocusMap?.()
-              }}
-              className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
-                isTheophany
-                  ? 'border-theophany-accent/45 text-theophany-accent hover:bg-theophany-accent/15'
-                  : 'border-sanctuary-accent/45 text-sanctuary-accent hover:bg-sanctuary-accent/15'
-              }`}
-            >
-              Locate on map
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onFocusMap?.()
+                }}
+                className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+                  isTheophany
+                    ? 'border-theophany-accent/45 text-theophany-accent hover:bg-theophany-accent/15'
+                    : 'border-sanctuary-accent/45 text-sanctuary-accent hover:bg-sanctuary-accent/15'
+                }`}
+              >
+                Locate on map
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onDirections?.()
+                }}
+                className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+                  isTheophany
+                    ? 'border-theophany-muted/45 text-theophany-muted hover:bg-theophany-accent/10'
+                    : 'border-sanctuary-muted/45 text-sanctuary-muted hover:bg-sanctuary-accent/10'
+                }`}
+              >
+                Directions
+              </button>
+            </div>
             {isSelected && (
               <span className={`font-sans text-[9px] uppercase tracking-[0.18em] ${isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'}`}>
                 Selected
