@@ -190,7 +190,7 @@ const Map = forwardRef(function Map({
     nextMap.on('error', (e) => {
       console.error('[Mapbox]', e.error?.message ?? e)
     })
-  }, [destroyMap, hasMapboxEnv, mapCenter, placeMarkers, zoom])
+  }, [destroyMap, mapCenter, placeMarkers, zoom])
 
   const ensureContainerIntegrity = useCallback((reason) => {
     const container = mapContainer.current
@@ -253,7 +253,7 @@ const Map = forwardRef(function Map({
     })
 
     return () => cancelAnimationFrame(raf)
-  }, [buildMap, hasMapboxEnv])
+  }, [buildMap])
 
   // ResizeObserver: whenever the container changes size (e.g. after lazy CSS
   // applies or orientation changes) tell Mapbox to re-measure the canvas.
