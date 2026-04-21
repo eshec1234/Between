@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
@@ -11,7 +11,7 @@ function styleForMode(mode) {
   return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
 }
 
-export default function Map({
+const Map = forwardRef(function Map({
   mode,
   places,
   mapCenter = [-75.1652, 39.9526],
@@ -19,12 +19,15 @@ export default function Map({
   visitedIds = null,
   savedIds = null,
   walkthroughDoneIds = null,
+  selectedPlaceId = null,
+  onMarkerSelect = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
-}) {
+}, ref) {
   const mapContainer = useRef(null)
   const map = useRef(null)
   const markersRef = useRef([])
+  const markersByIdRef = useRef(new globalThis.Map())
   const geolocateRef = useRef(null)
   const geolocateTimerRef = useRef(null)
   const hasTriggeredGeolocateRef = useRef(false)
@@ -35,6 +38,7 @@ export default function Map({
     if (!map.current) return
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
+    markersByIdRef.current.clear()
     if (!places.length) return
 
     const currentMode = pendingModeRef.current
@@ -45,18 +49,23 @@ export default function Map({
       const visited = visitedIds?.has?.(place.id)
       const saved = savedIds?.has?.(place.id)
       const walked = walkthroughDoneIds?.has?.(place.id)
+      const selected = selectedPlaceId != null && place.id === selectedPlaceId
 
       const el = document.createElement('div')
       el.className = 'between-marker'
       const base = currentMode === 'theophany' ? '#a78bfa' : '#c8a870'
-      const ring = walked
+      const ring = selected
+        ? currentMode === 'theophany'
+          ? '0 0 0 4px rgba(192,167,255,0.42)'
+          : '0 0 0 4px rgba(235,195,120,0.5)'
+        : walked
         ? currentMode === 'theophany'
           ? '0 0 0 3px rgba(192,167,255,0.92)'
           : '0 0 0 3px rgba(255,200,120,0.95)'
         : visited
           ? '0 0 0 2px rgba(255,255,255,0.85)'
           : 'none'
-      const size = saved ? 14 : 12
+      const size = selected ? 18 : saved ? 14 : 12
       el.style.cssText = `
         width: ${size}px;
         height: ${size}px;
@@ -65,7 +74,19 @@ export default function Map({
         border: 2px solid ${currentMode === 'theophany' ? '#1e0b32' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
+        transition: transform 150ms ease-out;
       `
+      el.setAttribute('role', 'button')
+      el.setAttribute('aria-label', `${place.name} location marker`)
+      el.tabIndex = 0
+      const onSelect = () => onMarkerSelect?.(place.id)
+      el.addEventListener('click', onSelect)
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect()
+        }
+      })
 
       // Coordinates from PostGIS are stored as GeoJSON
       const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
@@ -78,8 +99,9 @@ export default function Map({
         )
         .addTo(map.current)
       markersRef.current.push(marker)
+      markersByIdRef.current.set(place.id, marker)
     })
-  }, [places, visitedIds, savedIds, walkthroughDoneIds])
+  }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
   const destroyMap = useCallback(() => {
     if (geolocateTimerRef.current) {
@@ -88,6 +110,7 @@ export default function Map({
     }
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
+    markersByIdRef.current.clear()
     geolocateRef.current = null
     if (map.current) {
       map.current.remove()
@@ -157,6 +180,25 @@ export default function Map({
     console.warn('[Mapbox] Recovering map container integrity', { reason })
     buildMap(nextCenter, nextZoom)
   }, [buildMap, mapCenter, zoom])
+
+  useImperativeHandle(ref, () => ({
+    focusPlace(placeId) {
+      if (!map.current) return false
+      const place = places.find((p) => p.id === placeId && p.coordinates?.coordinates?.length >= 2)
+      if (!place) return false
+      const coords = place.coordinates.coordinates
+      let nextZoom = 11.5
+      try {
+        const currentZoom = map.current.getZoom?.()
+        if (Number.isFinite(currentZoom)) nextZoom = Math.max(currentZoom, 11.5)
+      } catch {
+        /* ignore */
+      }
+      map.current.flyTo({ center: coords, zoom: nextZoom, duration: 650, essential: true })
+      markersByIdRef.current.get(placeId)?.togglePopup?.()
+      return true
+    }
+  }), [places])
 
   // Initialize map once per mount.
   // rAF defers until after the browser has laid out the lazy-loaded container
@@ -245,4 +287,6 @@ export default function Map({
       </div>
     )
   )
-}
+})
+
+export default Map
