@@ -9,7 +9,7 @@ import PlaceWalkthrough from '../components/PlaceWalkthrough'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
-import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
+import { photosForPlace, photoForPlaceAtTime, placeImageFallbackChain } from '../lib/placePhotoFallback'
 import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
 
 const REFLECTION_TAGS = [
@@ -36,7 +36,9 @@ export default function PlaceDetail() {
   const { id } = useParams()
   const [searchParams] = useSearchParams()
   const surpriseMode = searchParams.get('surprise') === '1'
-  const [revealed, setRevealed] = useState(true)
+  // Surprise mode no longer hides the address — users need to know WHERE to go.
+  // We still scroll to the walkthrough section so the experience comes first.
+  const [revealed] = useState(true)
   const walkthroughRef = useRef(null)
   const [place, setPlace] = useState(null)
   const [experienceReports, setExperienceReports] = useState([])
@@ -47,6 +49,9 @@ export default function PlaceDetail() {
   const [selectedTag, setSelectedTag] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [postFlash, setPostFlash] = useState('')
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const photoInputRef = useRef(null)
   const [flagDone, setFlagDone] = useState(false)
   const [flagBusy, setFlagBusy] = useState(false)
   const [resonanceCount, setResonanceCount] = useState(0)
@@ -69,10 +74,6 @@ export default function PlaceDetail() {
     fetchExperienceReports()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
-
-  useEffect(() => {
-    setRevealed(!surpriseMode)
-  }, [id, surpriseMode])
 
   const walkthroughParam = searchParams.get('walkthrough')
   useEffect(() => {
@@ -176,6 +177,20 @@ export default function PlaceDetail() {
     setSubmitting(true)
     const sessionId = getOrCreateSession()
 
+    // Upload photo to Supabase Storage if one was selected
+    let uploadedPhotoUrl = null
+    if (photoFile) {
+      const ext = photoFile.name.split('.').pop()
+      const path = `${id}/${sessionId}-${Date.now()}.${ext}`
+      const { data: uploadData, error: uploadErr } = await supabase.storage
+        .from('place-photos')
+        .upload(path, photoFile, { upsert: false, contentType: photoFile.type })
+      if (!uploadErr && uploadData?.path) {
+        const { data: urlData } = supabase.storage.from('place-photos').getPublicUrl(uploadData.path)
+        uploadedPhotoUrl = urlData?.publicUrl ?? null
+      }
+    }
+
     const base = {
       place_id: id,
       session_id: sessionId,
@@ -187,7 +202,8 @@ export default function PlaceDetail() {
       ...base,
       content_kind: contentKind,
       stillness_rating:
-        contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') ? stillness : null
+        contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') ? stillness : null,
+      photo_url: uploadedPhotoUrl,
     }
 
     let { error } = await supabase.from('experience_reports').insert(extended)
@@ -210,6 +226,8 @@ export default function PlaceDetail() {
       setReportContent('')
       setSelectedTag('')
       setContentKind('review')
+      setPhotoFile(null)
+      setPhotoPreview(null)
       fetchExperienceReports()
     }
     setSubmitting(false)
@@ -243,15 +261,26 @@ export default function PlaceDetail() {
   }
 
   if (loading) {
+    // Use the user's current home mode so the skeleton matches the destination
+    // theme — prevents a sanctuary gold flash when opening a theophany place.
+    const loadingIsTheophany = getHomeMode() === 'theophany'
     return (
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-sanctuary-bg to-sanctuary-secondary">
+      <div
+        className={`relative flex min-h-0 flex-1 flex-col overflow-hidden ${
+          loadingIsTheophany
+            ? 'bg-gradient-to-b from-theophany-bg to-theophany-secondary'
+            : 'bg-gradient-to-b from-sanctuary-bg to-sanctuary-secondary'
+        }`}
+      >
         <FilmGrain opacity={0.05} />
         <div className="relative z-10 flex flex-1 flex-col gap-4 p-6 pt-10">
-          <div className="bf-skeleton h-4 w-28 rounded-md bg-sanctuary-muted/25" />
-          <div className="bf-skeleton h-[clamp(160px,min(42dvh,48vmin),400px)] min-h-[160px] w-full rounded-xl bg-sanctuary-muted/20" />
-          <div className="bf-skeleton h-8 w-3/4 max-w-md rounded bg-sanctuary-muted/25" />
-          <div className="bf-skeleton h-20 w-full rounded-lg bg-sanctuary-muted/15" />
-          <p className="pt-4 text-center font-serif text-sm italic text-sanctuary-muted">Opening the space…</p>
+          <div className={`bf-skeleton h-4 w-28 rounded-md ${loadingIsTheophany ? 'bg-theophany-muted/25' : 'bg-sanctuary-muted/25'}`} />
+          <div className={`bf-skeleton h-[clamp(160px,min(42dvh,48vmin),400px)] min-h-[160px] w-full rounded-xl ${loadingIsTheophany ? 'bg-theophany-muted/20' : 'bg-sanctuary-muted/20'}`} />
+          <div className={`bf-skeleton h-8 w-3/4 max-w-md rounded ${loadingIsTheophany ? 'bg-theophany-muted/25' : 'bg-sanctuary-muted/25'}`} />
+          <div className={`bf-skeleton h-20 w-full rounded-lg ${loadingIsTheophany ? 'bg-theophany-muted/15' : 'bg-sanctuary-muted/15'}`} />
+          <p className={`pt-4 text-center font-serif text-sm italic ${loadingIsTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>
+            Opening the space…
+          </p>
         </div>
       </div>
     )
@@ -278,9 +307,15 @@ export default function PlaceDetail() {
   const bodyClass = isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'
   const subClass = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
+  // Collect visitor-uploaded photos from experience reports (overrides AI placeholder)
+  const visitorPhotoUrls = useMemo(
+    () => experienceReports.map((r) => r.photo_url).filter(Boolean),
+    [experienceReports]
+  )
   const gallery = photosForPlace(place)
   const hasGooglePlacePhoto = gallery.some((u) => String(u).includes('googleusercontent.com'))
   const heroPick = photoForPlaceAtTime(place)
+  const heroChain = placeImageFallbackChain(place, visitorPhotoUrls)
 
   return (
     <div className={`relative min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))] ${bgClass}`}>
@@ -310,19 +345,24 @@ export default function PlaceDetail() {
         </Link>
       </div>
 
-      {surpriseMode && !revealed && (
+      {surpriseMode && (
         <div className="px-6 pb-2">
           <p className={`font-serif text-sm italic leading-relaxed ${subClass}`}>
-            A place opens for you — walkthrough first; the name stays hidden until you reveal it.
+            A random place chose you — go, and let the walkthrough guide you when you arrive.
           </p>
         </div>
       )}
 
       {(!surpriseMode || revealed) && (
         <div className="relative w-full">
-          {gallery.length > 1 && heroPick.label && (
+          {visitorPhotoUrls.length > 0 && (
             <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
-              Photo mood · {heroPick.label} (local time)
+              {visitorPhotoUrls.length === 1 ? 'Visitor photo' : `${visitorPhotoUrls.length} visitor photos`}
+            </p>
+          )}
+          {!visitorPhotoUrls.length && gallery.length > 1 && heroPick.label && (
+            <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
+              AI placeholder · {heroPick.label} (local time) — be the first to add a real photo below
             </p>
           )}
           {hasGooglePlacePhoto && (
@@ -331,14 +371,25 @@ export default function PlaceDetail() {
             </p>
           )}
           <div className="relative min-h-[160px] h-[clamp(160px,min(42dvh,48vmin),400px)] w-full overflow-hidden">
-            <PlaceImage
-              place={place}
-              isTheophany={isTheophany}
-              variant="hero"
-              imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
-              }`}
-            />
+            {heroChain.length > 0 ? (
+              <PlaceImageFromUrl
+                url={heroChain[0]}
+                isTheophany={isTheophany}
+                variant="hero"
+                imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                }`}
+              />
+            ) : (
+              <PlaceImage
+                place={place}
+                isTheophany={isTheophany}
+                variant="hero"
+                imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                }`}
+              />
+            )}
             <div
               className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${
                 isTheophany
@@ -347,9 +398,10 @@ export default function PlaceDetail() {
               }`}
             />
           </div>
-          {gallery.length > 1 && (
+          {/* Gallery strip: visitor photos first, then AI placeholders */}
+          {(visitorPhotoUrls.length > 1 || (!visitorPhotoUrls.length && gallery.length > 1)) && (
             <div className="flex gap-2 overflow-x-auto px-4 py-2">
-              {gallery.slice(1).map((url) => (
+              {(visitorPhotoUrls.length > 1 ? visitorPhotoUrls.slice(1) : gallery.slice(1)).map((url) => (
                 <PlaceImageFromUrl
                   key={url}
                   url={url}
@@ -444,22 +496,6 @@ export default function PlaceDetail() {
             onReachedLastStep={() => markWalkthroughDone(place.id)}
           />
         </div>
-
-        {surpriseMode && !revealed && (
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => setRevealed(true)}
-              className={`w-full rounded-xl border-2 px-4 py-3 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors ${
-                isTheophany
-                  ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
-                  : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
-              }`}
-            >
-              Reveal this place
-            </button>
-          </div>
-        )}
 
         {(!surpriseMode || revealed) && (
           <>
@@ -640,6 +676,53 @@ export default function PlaceDetail() {
             <p className={`text-right font-sans text-[10px] ${subClass}`}>
               {reportContent.length}/{maxLen}
             </p>
+
+            {/* Photo upload — optional; replaces AI placeholder for this place */}
+            <div>
+              <p className={`mb-1.5 font-sans text-[10px] uppercase tracking-wider ${subClass}`}>
+                Add a photo from your visit (optional)
+              </p>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setPhotoFile(file)
+                  setPhotoPreview(URL.createObjectURL(file))
+                }}
+              />
+              {photoPreview ? (
+                <div className="relative w-full overflow-hidden rounded-md">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="h-36 w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { setPhotoFile(null); setPhotoPreview(null) }}
+                    className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-sans text-[10px] text-white"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  className={`flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-4 font-sans text-[10px] uppercase tracking-wider transition-colors ${
+                    isTheophany
+                      ? 'border-theophany-accent/35 text-theophany-muted hover:border-theophany-accent/60'
+                      : 'border-sanctuary-accent/35 text-sanctuary-muted hover:border-sanctuary-accent/60'
+                  }`}
+                >
+                  Upload photo from this location
+                </button>
+              )}
+            </div>
 
             {contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') && (
               <div>

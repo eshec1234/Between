@@ -16,7 +16,6 @@ export const SANCTUARY_TRADITIONS = [
       'cathedral',
       'basilica',
       'church',
-      'chapel',
       'liturgical',
       'gospel',
       'baptist',

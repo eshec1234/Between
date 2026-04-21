@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MINI_ROUTES, resolveRoutePlaces } from '../data/miniRoutes'
 import { getWeeklyPrompt } from '../data/weeklyPrompts'
-import { INTENTIONS } from '../data/intentions'
+import { INTENTIONS, placeMatchesIntention } from '../data/intentions'
 import {
   markDailyVisit,
   getStreakInfo,
@@ -113,24 +113,37 @@ export default function EngagementHub({
 
       <div>
         <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Intention</p>
-        <p className={`mt-1 font-sans text-[10px] ${subClass}`}>Soft-filter the list (tap again to clear)</p>
+        <p className={`mt-1 font-sans text-[10px] ${subClass}`}>
+          Filters by place type — tap again to clear.{' '}
+          {intent && (
+            <span className={accentClass}>
+              {places.filter((p) => placeMatchesIntention(p, intent)).length} matching
+            </span>
+          )}
+        </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {INTENTIONS.map((it) => (
-            <button
-              key={it.id}
-              type="button"
-              onClick={() => onIntent(it.id)}
-              className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${
-                intent === it.id
-                  ? isTheophany
-                    ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-text'
-                    : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-text'
-                  : `${borderClass} ${subClass} hover:opacity-90`
-              }`}
-            >
-              {it.label}
-            </button>
-          ))}
+          {INTENTIONS.map((it) => {
+            const count = places.filter((p) => placeMatchesIntention(p, it.id)).length
+            return (
+              <button
+                key={it.id}
+                type="button"
+                onClick={() => onIntent(it.id)}
+                className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${
+                  intent === it.id
+                    ? isTheophany
+                      ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-text'
+                      : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-text'
+                    : `${borderClass} ${subClass} hover:opacity-90`
+                }`}
+              >
+                {it.label}
+                {count > 0 && (
+                  <span className={`ml-1.5 text-[8px] opacity-60`}>{count}</span>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 

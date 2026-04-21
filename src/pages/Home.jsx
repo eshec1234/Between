@@ -389,12 +389,29 @@ export default function Home() {
     }
   }, [])
 
+  // Canonical tag vocabulary shown in the filter dropdown.
+  // Raw DB tags can include geographic names, multi-word research notes, etc.
+  // We only surface tags that fall into meaningful browsable categories.
+  const CANONICAL_TAG_SET = new Set([
+    'haunted', 'folklore', 'liminal', 'anomalous', 'ruins', 'abandoned',
+    'cemetery', 'memorial', 'battlefield', 'historic',
+    'cathedral', 'church', 'mosque', 'synagogue', 'temple', 'monastery',
+    'quaker', 'buddhist', 'jewish', 'christian', 'islamic', 'hindu', 'sikh',
+    'lighthouse', 'tower', 'forest', 'garden', 'grotto', 'shrine',
+    'meditation', 'pilgrimage', 'sacred grove', 'landmark',
+    'colonial history', 'ghost lore', 'road', 'library', 'university',
+  ])
+
   const allTags = useMemo(() => {
     const s = new Set()
     for (const p of places) {
-      for (const t of p.category_tags || []) s.add(t)
+      for (const t of p.category_tags || []) {
+        const norm = t.toLowerCase().trim()
+        if (CANONICAL_TAG_SET.has(norm)) s.add(norm)
+      }
     }
     return [...s].sort()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [places])
 
   const filteredPlaces = useMemo(() => {
@@ -458,11 +475,15 @@ export default function Home() {
   const mapCenter = [center.lng, center.lat]
 
   const onSurpriseMe = useCallback(() => {
-    const pool = filteredPlaces.length ? filteredPlaces : places
+    // Pool the full unfiltered list so Surprise Me is truly random —
+    // ignores active tag/tradition/intention filters and picks from both modes.
+    const pool = places.length ? places : filteredPlaces
     if (!pool.length) return
     const pick = pool[Math.floor(Math.random() * pool.length)]
+    // surprise=1 still scrolls to walkthrough first, but PlaceDetail now
+    // shows the address/name immediately (no reveal gate).
     navigate(`/place/${pick.id}?surprise=1`)
-  }, [filteredPlaces, places, navigate])
+  }, [places, filteredPlaces, navigate])
 
   const onToggleTrackNearby = useCallback(() => {
     setTrackNearby((prev) => {

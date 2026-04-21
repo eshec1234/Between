@@ -59,8 +59,18 @@ export default function Map({
         cursor: pointer;
       `
 
-      // Coordinates from PostGIS are stored as GeoJSON
-      const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
+      // Coordinates from PostGIS are returned as GeoJSON by Supabase PostgREST.
+      // Fall back to the default center if parsing fails.
+      const raw = place.coordinates
+      let coords
+      if (raw && typeof raw === 'object' && Array.isArray(raw.coordinates)) {
+        coords = raw.coordinates
+      } else if (raw && typeof raw === 'string') {
+        // Older PostgREST may return WKB hex — skip rather than plot at 0,0
+        return
+      } else {
+        return
+      }
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
@@ -72,6 +82,14 @@ export default function Map({
       markersRef.current.push(marker)
     })
   }, [places, visitedIds, savedIds, walkthroughDoneIds])
+
+  // Always keep a ref to the latest placeMarkers so style.load callbacks
+  // never capture a stale closure — this is the key fix for the race condition
+  // where changing mode fired setStyle on every places update.
+  const placeMarkersRef = useRef(placeMarkers)
+  useEffect(() => {
+    placeMarkersRef.current = placeMarkers
+  }, [placeMarkers])
 
   // Initialize map once per mount.
   // rAF defers until after the browser has laid out the lazy-loaded container
@@ -86,7 +104,7 @@ export default function Map({
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: mode === 'theophany'
+        style: pendingModeRef.current === 'theophany'
           ? 'mapbox://styles/mapbox/dark-v11'
           : 'mapbox://styles/mapbox/light-v11',
         center: mapCenter,
@@ -105,7 +123,7 @@ export default function Map({
 
       map.current.on('load', () => {
         map.current?.resize()
-        placeMarkers()
+        placeMarkersRef.current()
         setTimeout(() => geolocateRef.current?.trigger(), 600)
       })
 
@@ -135,27 +153,29 @@ export default function Map({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
 
-  // Update map style when mode changes; re-place markers after new style loads
+  // Update map style ONLY when mode changes — NOT when places change.
+  // Previously, placeMarkers was in the dep array, which caused setStyle() to
+  // fire on every data refresh (clearing all markers). Now we use placeMarkersRef
+  // so the once('style.load') handler always calls the latest marker snapshot
+  // without creating a new effect dependency.
   useEffect(() => {
     if (!map.current) return
     pendingModeRef.current = mode
     const style = mode === 'theophany'
       ? 'mapbox://styles/mapbox/dark-v11'
       : 'mapbox://styles/mapbox/light-v11'
-    // Re-place markers once the incoming style has finished loading so they
-    // pick up the correct mode colours.
-    map.current.once('style.load', placeMarkers)
+    map.current.once('style.load', () => placeMarkersRef.current())
     map.current.setStyle(style)
-  }, [mode, placeMarkers])
+  }, [mode])
 
-  // Re-place markers whenever places or visit/save status sets change
+  // Re-place markers whenever places or visit/save status sets change.
+  // The style-change effect above is intentionally separate so updating places
+  // never triggers a full map style reload.
   useEffect(() => {
     if (!map.current) return
-    // Guard against racing the initial style.load handler
     if (!map.current.isStyleLoaded()) return
     placeMarkers()
   }, [placeMarkers])
-
 
   // Destroy the map on unmount so re-navigation always creates a fresh instance
   // (prevents "container already initialized" errors after lazy re-mount)
@@ -176,6 +196,7 @@ export default function Map({
       <div
         ref={mapContainer}
         className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
+        style={mode === 'theophany' ? { filter: 'brightness(1.35) contrast(0.88)' } : undefined}
       />
     ) : (
       <div className={`w-full ${heightClass} flex items-center justify-center bg-black/5 text-center px-4`}>
