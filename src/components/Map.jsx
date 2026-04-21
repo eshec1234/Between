@@ -1,11 +1,17 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
+const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
+const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
 
-export default function Map({
+function styleForMode(mode) {
+  return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
+}
+
+const Map = forwardRef(function Map({
   mode,
   places,
   mapCenter = [-75.1652, 39.9526],
@@ -13,13 +19,18 @@ export default function Map({
   visitedIds = null,
   savedIds = null,
   walkthroughDoneIds = null,
+  selectedPlaceId = null,
+  onMarkerSelect = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
-}) {
+}, ref) {
   const mapContainer = useRef(null)
   const map = useRef(null)
   const markersRef = useRef([])
+  const markersByIdRef = useRef(new globalThis.Map())
   const geolocateRef = useRef(null)
+  const geolocateTimerRef = useRef(null)
+  const hasTriggeredGeolocateRef = useRef(false)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
 
@@ -27,39 +38,34 @@ export default function Map({
     if (!map.current) return
     markersRef.current.forEach((m) => m.remove())
     markersRef.current = []
+    markersByIdRef.current.clear()
     if (!places.length) return
 
     const currentMode = pendingModeRef.current
-    let placed = 0
 
     places.forEach((place) => {
       if (!place.coordinates) return
 
-      // Coordinates from PostGIS are returned as GeoJSON by Supabase PostgREST.
-      const raw = place.coordinates
-      let coords
-      if (raw && typeof raw === 'object' && Array.isArray(raw.coordinates)) {
-        coords = raw.coordinates // [lng, lat]
-      } else {
-        return // skip WKB hex or unexpected format
-      }
-      if (coords[0] < -180 || coords[0] > 180 || coords[1] < -90 || coords[1] > 90) return
-
       const visited = visitedIds?.has?.(place.id)
       const saved = savedIds?.has?.(place.id)
       const walked = walkthroughDoneIds?.has?.(place.id)
+      const selected = selectedPlaceId != null && place.id === selectedPlaceId
 
       const el = document.createElement('div')
       el.className = 'between-marker'
       const base = currentMode === 'theophany' ? '#a78bfa' : '#c8a870'
-      const ring = walked
+      const ring = selected
+        ? currentMode === 'theophany'
+          ? '0 0 0 4px rgba(192,167,255,0.42)'
+          : '0 0 0 4px rgba(235,195,120,0.5)'
+        : walked
         ? currentMode === 'theophany'
           ? '0 0 0 3px rgba(192,167,255,0.92)'
           : '0 0 0 3px rgba(255,200,120,0.95)'
         : visited
           ? '0 0 0 2px rgba(255,255,255,0.85)'
           : 'none'
-      const size = saved ? 14 : 12
+      const size = selected ? 18 : saved ? 14 : 12
       el.style.cssText = `
         width: ${size}px;
         height: ${size}px;
@@ -68,7 +74,23 @@ export default function Map({
         border: 2px solid ${currentMode === 'theophany' ? '#1e0b32' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
+        transition: transform 150ms ease-out;
       `
+      el.setAttribute('role', 'button')
+      el.setAttribute('aria-label', `${place.name} location marker`)
+      el.tabIndex = 0
+      const onSelect = () => onMarkerSelect?.(place.id)
+      el.addEventListener('click', onSelect)
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect()
+        }
+      })
+
+      // Coordinates from PostGIS are stored as GeoJSON
+      const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
+
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
         .setPopup(
@@ -77,21 +99,106 @@ export default function Map({
         )
         .addTo(map.current)
       markersRef.current.push(marker)
-      placed++
+      markersByIdRef.current.set(place.id, marker)
     })
+  }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
-    console.log(`[Between Map] ${placed} markers placed from ${places.length} places`)
-  }, [places, visitedIds, savedIds, walkthroughDoneIds])
+  const destroyMap = useCallback(() => {
+    if (geolocateTimerRef.current) {
+      clearTimeout(geolocateTimerRef.current)
+      geolocateTimerRef.current = null
+    }
+    markersRef.current.forEach((m) => m.remove())
+    markersRef.current = []
+    markersByIdRef.current.clear()
+    geolocateRef.current = null
+    if (map.current) {
+      map.current.remove()
+      map.current = null
+    }
+  }, [])
 
-  // Keep a ref to the latest placeMarkers so style.load callbacks never
-  // capture a stale closure. This is what lets the mode-change effect depend
-  // only on [mode] instead of [mode, placeMarkers] — previously having
-  // placeMarkers in that dep array caused setStyle() to fire on every places
-  // update, wiping all markers each time data loaded.
-  const placeMarkersRef = useRef(placeMarkers)
-  useEffect(() => {
-    placeMarkersRef.current = placeMarkers
-  }, [placeMarkers])
+  const buildMap = useCallback((nextCenter = mapCenter, nextZoom = zoom) => {
+    if (!mapContainer.current || !hasMapboxEnv) return
+    destroyMap()
+
+    const nextMap = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: styleForMode(pendingModeRef.current),
+      center: nextCenter,
+      zoom: nextZoom,
+      scrollZoom: false,
+      cooperativeGestures: true,
+    })
+    map.current = nextMap
+
+    nextMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
+    geolocateRef.current = new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: false,
+      showUserHeading: false,
+      fitBoundsOptions: { maxZoom: 12 },
+    })
+    nextMap.addControl(geolocateRef.current, 'top-right')
+
+    nextMap.on('load', () => {
+      nextMap.resize()
+      placeMarkers()
+      if (!hasTriggeredGeolocateRef.current) {
+        hasTriggeredGeolocateRef.current = true
+        geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
+      }
+    })
+    nextMap.on('error', (e) => {
+      console.error('[Mapbox]', e.error?.message ?? e)
+    })
+  }, [destroyMap, mapCenter, placeMarkers, zoom])
+
+  const ensureContainerIntegrity = useCallback((reason) => {
+    const container = mapContainer.current
+    if (!container || container.classList.contains('mapboxgl-map')) return
+
+    let nextCenter = mapCenter
+    let nextZoom = zoom
+    if (map.current) {
+      try {
+        const currentCenter = map.current.getCenter?.()
+        if (currentCenter && Number.isFinite(currentCenter.lng) && Number.isFinite(currentCenter.lat)) {
+          nextCenter = [currentCenter.lng, currentCenter.lat]
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const currentZoom = map.current.getZoom?.()
+        if (Number.isFinite(currentZoom)) nextZoom = currentZoom
+      } catch {
+        /* ignore */
+      }
+    }
+
+    console.warn('[Mapbox] Recovering map container integrity', { reason })
+    buildMap(nextCenter, nextZoom)
+  }, [buildMap, mapCenter, zoom])
+
+  useImperativeHandle(ref, () => ({
+    focusPlace(placeId) {
+      if (!map.current) return false
+      const place = places.find((p) => p.id === placeId && p.coordinates?.coordinates?.length >= 2)
+      if (!place) return false
+      const coords = place.coordinates.coordinates
+      let nextZoom = 11.5
+      try {
+        const currentZoom = map.current.getZoom?.()
+        if (Number.isFinite(currentZoom)) nextZoom = Math.max(currentZoom, 11.5)
+      } catch {
+        /* ignore */
+      }
+      map.current.flyTo({ center: coords, zoom: nextZoom, duration: 650, essential: true })
+      markersByIdRef.current.get(placeId)?.togglePopup?.()
+      return true
+    }
+  }), [places])
 
   // Initialize map once per mount.
   // rAF defers until after the browser has laid out the lazy-loaded container
@@ -103,40 +210,11 @@ export default function Map({
     let raf
     raf = requestAnimationFrame(() => {
       if (!mapContainer.current || map.current) return
-
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: pendingModeRef.current === 'theophany'
-          ? 'mapbox://styles/mapbox/dark-v11'
-          : 'mapbox://styles/mapbox/light-v11',
-        center: mapCenter,
-        zoom,
-        scrollZoom: false,
-      })
-
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
-
-      geolocateRef.current = new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true,
-      })
-      map.current.addControl(geolocateRef.current, 'top-right')
-
-      map.current.on('load', () => {
-        map.current?.resize()
-        placeMarkersRef.current()
-        setTimeout(() => geolocateRef.current?.trigger(), 600)
-      })
-
-      map.current.on('error', (e) => {
-        console.error('[Mapbox]', e.error?.message ?? e)
-      })
+      buildMap()
     })
 
     return () => cancelAnimationFrame(raf)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMapboxEnv])
+  }, [buildMap])
 
   // ResizeObserver: whenever the container changes size (e.g. after lazy CSS
   // applies or orientation changes) tell Mapbox to re-measure the canvas.
@@ -155,51 +233,56 @@ export default function Map({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
 
-  // Update map style ONLY when mode changes — not when places change.
-  // Uses placeMarkersRef so the once('style.load') handler always has the
-  // latest marker set without placeMarkers being a dependency.
+  // Update map style when mode changes; re-place markers after new style loads
   useEffect(() => {
     if (!map.current) return
     pendingModeRef.current = mode
-    const style = mode === 'theophany'
-      ? 'mapbox://styles/mapbox/dark-v11'
-      : 'mapbox://styles/mapbox/light-v11'
-    map.current.once('style.load', () => placeMarkersRef.current())
+    ensureContainerIntegrity('mode-change-pre-style')
+    if (!map.current) return
+    const style = styleForMode(mode)
+    // Re-place markers once the incoming style has finished loading so they
+    // pick up the correct mode colours.
+    map.current.once('style.load', () => {
+      ensureContainerIntegrity('style-load')
+      placeMarkers()
+      requestAnimationFrame(() => map.current?.resize())
+    })
     map.current.setStyle(style)
-  }, [mode])
+    requestAnimationFrame(() => {
+      ensureContainerIntegrity('mode-change-post-style')
+      map.current?.resize()
+    })
+  }, [ensureContainerIntegrity, mode, placeMarkers])
 
   // Re-place markers whenever places or visit/save status sets change.
-  // If style is loaded: place immediately.
+  // If style is already loaded: place immediately.
   // If not (style transition in progress): wait for it, then place.
   useEffect(() => {
     if (!map.current) return
     if (map.current.isStyleLoaded()) {
       placeMarkers()
     } else {
-      map.current.once('style.load', () => placeMarkersRef.current())
+      map.current.once('style.load', () => placeMarkers())
     }
   }, [placeMarkers])
+
 
   // Destroy the map on unmount so re-navigation always creates a fresh instance
   // (prevents "container already initialized" errors after lazy re-mount)
   useEffect(() => {
     return () => {
-      markersRef.current.forEach((m) => m.remove())
-      markersRef.current = []
-      geolocateRef.current = null
-      if (map.current) {
-        map.current.remove()
-        map.current = null
-      }
+      destroyMap()
     }
-  }, [])
+  }, [destroyMap])
 
   return (
     hasMapboxEnv ? (
-      <div
-        ref={mapContainer}
-        className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
-      />
+      <div className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}>
+        <div
+          ref={mapContainer}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
     ) : (
       <div className={`w-full ${heightClass} flex items-center justify-center bg-black/5 text-center px-4`}>
         <p className="font-sans text-xs uppercase tracking-wider opacity-60">
@@ -208,4 +291,6 @@ export default function Map({
       </div>
     )
   )
-}
+})
+
+export default Map

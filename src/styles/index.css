@@ -55,13 +55,8 @@ body {
   font-family: 'Didact Gothic', system-ui, sans-serif;
 }
 
-/* Allow vertical finger-swipe to scroll the page past the map on mobile.
-   Horizontal drag still pans the map. scrollZoom: false (set in Map.jsx)
-   handles the desktop mouse-wheel case. */
-.btw-map-canvas .mapboxgl-canvas-container,
-.btw-map-canvas canvas {
-  touch-action: pan-y !important;
-}
+/* Keep native Mapbox touch-action handling so pinch/pan/zoom stay anchored to
+   the map and do not force page-scroll during map gestures on iOS. */
 
 /* Sanctuary mode map filter */
 .map-sanctuary .mapboxgl-canvas {

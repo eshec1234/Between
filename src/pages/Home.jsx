@@ -137,6 +137,7 @@ export default function Home() {
   const [minIntensity, setMinIntensity] = useState(0)
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
+  const [selectedPlaceId, setSelectedPlaceId] = useState(null)
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
   const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
   // True once we have a real GPS fix (or gave up waiting). Prevents the list from
@@ -149,6 +150,10 @@ export default function Home() {
   const [showPickerFallback, setShowPickerFallback] = useState(false)
   const locationReadyRef = useRef(!navigator.geolocation)
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
+  const fetchSeqRef = useRef(0)
+  const mapRef = useRef(null)
+  const mapSectionRef = useRef(null)
+  const cardRefs = useRef(new globalThis.Map())
 
   // Stable: flips locationReady exactly once (ref guards against double-fire)
   const markLocationReady = useCallback(() => {
@@ -294,8 +299,10 @@ export default function Home() {
   }, [mode, feedLoading, feed.trendingPlaces])
 
   const fetchPlaces = useCallback(async () => {
+    const fetchSeq = ++fetchSeqRef.current
     setLoading(true)
     if (!hasSupabaseEnv || !supabase) {
+      if (fetchSeq !== fetchSeqRef.current) return
       setPlaces([])
       setFeedKind('fallback')
       setLoading(false)
@@ -308,6 +315,7 @@ export default function Home() {
       radius_m: NEARBY_RADIUS_M,
       mode_filter: mode
     })
+    if (fetchSeq !== fetchSeqRef.current) return
 
     // RPC returns rows already sorted by distance — preserve that order.
     // Do NOT pass these through interleaveByState or the closest place will no longer be first.
@@ -321,6 +329,7 @@ export default function Home() {
       .or(`mode.eq.${mode},mode.eq.both`)
       .order('name', { ascending: true })
       .limit(120)
+    if (fetchSeq !== fetchSeqRef.current) return
 
     for (const p of more || []) {
       if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
@@ -342,6 +351,7 @@ export default function Home() {
         .eq('state', st)
         .order('name', { ascending: true })
         .limit(24)
+      if (fetchSeq !== fetchSeqRef.current) return
       for (const p of extra || []) {
         if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
         if (!seen.has(p.id)) {
@@ -358,6 +368,7 @@ export default function Home() {
       ? [...rpcSlice, ...interleaveByState(catalogExtras)]
       : interleaveByState(catalogExtras)
 
+    if (fetchSeq !== fetchSeqRef.current) return
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
     } else if (catalogExtras.length > 0) {
@@ -476,6 +487,43 @@ export default function Home() {
     setSanctuaryTradition(id)
     setSanctuaryTraditionId(id)
   }, [])
+
+  const setCardRef = useCallback((placeId, node) => {
+    if (node) {
+      cardRefs.current.set(placeId, node)
+    } else {
+      cardRefs.current.delete(placeId)
+    }
+  }, [])
+
+  const scrollCardIntoView = useCallback((placeId) => {
+    const node = cardRefs.current.get(placeId)
+    if (!node) return
+    node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
+
+  const onMarkerSelect = useCallback((placeId) => {
+    setSelectedPlaceId(placeId)
+    scrollCardIntoView(placeId)
+  }, [scrollCardIntoView])
+
+  const onFocusPlaceOnMap = useCallback((placeId) => {
+    setSelectedPlaceId(placeId)
+    mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const focused = mapRef.current?.focusPlace?.(placeId)
+    if (!focused) {
+      requestAnimationFrame(() => {
+        mapRef.current?.focusPlace?.(placeId)
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedPlaceId == null) return
+    if (!filteredPlaces.some((p) => p.id === selectedPlaceId)) {
+      setSelectedPlaceId(null)
+    }
+  }, [filteredPlaces, selectedPlaceId])
 
   const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
@@ -703,7 +751,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="px-4 pt-6">
+        <div ref={mapSectionRef} className="px-4 pt-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p
@@ -742,22 +790,20 @@ export default function Home() {
             )}
           </div>
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
-            Map: dot = place · tap for address + directions · ring = opened · glow = walkthrough done
+            Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
-          {!loading && (
-            <p className={`mt-0.5 font-sans text-[9px] ${subMuted} opacity-55`}>
-              {filteredPlaces.filter((p) => p.coordinates).length} places on map
-            </p>
-          )}
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <Suspense fallback={<div className="btw-map-canvas flex items-center justify-center bg-sanctuary-bg/60"><p className="font-serif text-xs italic text-sanctuary-muted opacity-60">Loading map…</p></div>}>
               <Map
+                ref={mapRef}
                 mode={mode}
                 places={filteredPlaces}
                 mapCenter={mapCenter}
                 visitedIds={visitedIds}
                 savedIds={savedIds}
                 walkthroughDoneIds={walkthroughDoneIds}
+                selectedPlaceId={selectedPlaceId}
+                onMarkerSelect={onMarkerSelect}
                 heightClass="btw-map-canvas"
                 zoom={7.4}
               />
@@ -865,6 +911,9 @@ export default function Home() {
                   isTheophany={isTheophany}
                   animIndex={i}
                   onSaveToggle={() => setLocalTick((t) => t + 1)}
+                  isSelected={selectedPlaceId === place.id}
+                  setCardRef={(node) => setCardRef(place.id, node)}
+                  onFocusMap={() => onFocusPlaceOnMap(place.id)}
                 />
               ]
               if ((i + 1) % 4 === 0) {
@@ -933,7 +982,15 @@ function formatDist(km) {
   return `${Math.round(km)} km away`
 }
 
-function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
+function PlaceCard({
+  place,
+  isTheophany,
+  onSaveToggle,
+  animIndex = 0,
+  isSelected = false,
+  setCardRef = null,
+  onFocusMap = null
+}) {
   const type = placeTypeLabel(place)
   const { label: timeLabel } = photoForPlaceAtTime(place)
   const [saved, setSaved] = useState(() => isSaved(place.id))
@@ -951,6 +1008,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
 
   return (
     <div
+      ref={(node) => setCardRef?.(node)}
       className="relative mb-2.5 bf-enter-card"
       style={{ animationDelay: `${Math.min(animIndex, 18) * 42}ms` }}
     >
@@ -977,7 +1035,11 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
           isTheophany
             ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
-        }`}
+        } ${isSelected
+          ? isTheophany
+            ? 'ring-2 ring-theophany-accent/60'
+            : 'ring-2 ring-sanctuary-accent/60'
+          : ''}`}
       >
         <div
           className={`relative aspect-[4/3] w-full max-h-[min(72vmin,380px)] overflow-hidden sm:max-h-[320px] ${
@@ -1019,6 +1081,28 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
         </div>
 
         <div className="px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onFocusMap?.()
+              }}
+              className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+                isTheophany
+                  ? 'border-theophany-accent/45 text-theophany-accent hover:bg-theophany-accent/15'
+                  : 'border-sanctuary-accent/45 text-sanctuary-accent hover:bg-sanctuary-accent/15'
+              }`}
+            >
+              Locate on map
+            </button>
+            {isSelected && (
+              <span className={`font-sans text-[9px] uppercase tracking-[0.18em] ${isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'}`}>
+                Selected
+              </span>
+            )}
+          </div>
           <h3
             className={`font-display mb-1 text-[16px] leading-snug tracking-wide ${
               isTheophany ? 'text-[#ece8f4]' : 'text-sanctuary-text'
