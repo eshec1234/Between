@@ -39,6 +39,7 @@ import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
 import { openDirections } from '../lib/directions'
+import { placeLngLat } from '../lib/placeCoordinates'
 
 /** Philadelphia — primary market. Used until geolocation resolves. */
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
@@ -139,6 +140,7 @@ export default function Home() {
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
   const [selectedPlaceId, setSelectedPlaceId] = useState(null)
+  const [mapNotice, setMapNotice] = useState('')
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
   const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
   // True once we have a real GPS fix (or gave up waiting). Prevents the list from
@@ -460,6 +462,11 @@ export default function Home() {
     center.lng,
   ])
 
+  const mappablePlacesCount = useMemo(
+    () => filteredPlaces.filter((p) => placeLngLat(p) != null).length,
+    [filteredPlaces]
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const visitedIds = useMemo(() => getVisitedIds(), [places, localTick, location.key])
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -509,15 +516,23 @@ export default function Home() {
   }, [scrollCardIntoView])
 
   const onFocusPlaceOnMap = useCallback((placeId) => {
+    const place = filteredPlaces.find((p) => p.id === placeId)
+    if (!place || !placeLngLat(place)) {
+      setMapNotice('This place does not have map coordinates yet. You can still open details and directions.')
+      return
+    }
+    setMapNotice('')
     setSelectedPlaceId(placeId)
     mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     const focused = mapRef.current?.focusPlace?.(placeId)
     if (!focused) {
+      setMapNotice('Could not focus this place on the map right now. Try again in a moment.')
       requestAnimationFrame(() => {
-        mapRef.current?.focusPlace?.(placeId)
+        const retry = mapRef.current?.focusPlace?.(placeId)
+        if (retry) setMapNotice('')
       })
     }
-  }, [])
+  }, [filteredPlaces])
 
   const onDirectionsToPlace = useCallback((place) => {
     const coords = place?.coordinates?.coordinates
@@ -530,6 +545,12 @@ export default function Home() {
       originLat: center.lat
     })
   }, [center.lng, center.lat])
+
+  useEffect(() => {
+    if (!mapNotice) return
+    const t = window.setTimeout(() => setMapNotice(''), 5000)
+    return () => window.clearTimeout(t)
+  }, [mapNotice])
 
   useEffect(() => {
     if (selectedPlaceId == null) return
@@ -805,6 +826,30 @@ export default function Home() {
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
             Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
+          {mapNotice && (
+            <p
+              className={`mt-2 rounded-md border px-2.5 py-2 font-sans text-[10px] leading-relaxed ${
+                isTheophany
+                  ? 'border-theophany-accent/35 bg-black/30 text-theophany-muted'
+                  : 'border-sanctuary-accent/35 bg-white/70 text-sanctuary-muted'
+              }`}
+              role="status"
+            >
+              {mapNotice}
+            </p>
+          )}
+          {mappablePlacesCount === 0 && filteredPlaces.length > 0 && (
+            <p
+              className={`mt-2 rounded-md border px-2.5 py-2 font-sans text-[10px] leading-relaxed ${
+                isTheophany
+                  ? 'border-theophany-accent/35 bg-black/30 text-theophany-muted'
+                  : 'border-sanctuary-accent/35 bg-white/70 text-sanctuary-muted'
+              }`}
+              role="status"
+            >
+              No visible map pins: these places are missing coordinates. The list still works while location data is fixed.
+            </p>
+          )}
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <Suspense fallback={<div className="btw-map-canvas flex items-center justify-center bg-sanctuary-bg/60"><p className="font-serif text-xs italic text-sanctuary-muted opacity-60">Loading map…</p></div>}>
               <Map
@@ -821,6 +866,16 @@ export default function Home() {
                   const place = filteredPlaces.find((p) => p.id === placeId)
                   if (!place) return
                   onDirectionsToPlace(place)
+                }}
+                onRenderStats={({ totalPlaces, mappablePlaces, renderedMarkers }) => {
+                  if (import.meta.env.DEV) {
+                    console.debug('[Map] render stats', {
+                      mode,
+                      totalPlaces,
+                      mappablePlaces,
+                      renderedMarkers
+                    })
+                  }
                 }}
                 heightClass="btw-map-canvas"
                 zoom={7.4}

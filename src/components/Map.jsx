@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
+import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle, useMemo } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
+import { placeLngLat } from '../lib/placeCoordinates'
 
 mapboxgl.accessToken = mapboxToken
 const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
@@ -22,6 +23,7 @@ const Map = forwardRef(function Map({
   selectedPlaceId = null,
   onMarkerSelect = null,
   onMarkerDirections = null,
+  onDiagnostics = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
 }, ref) {
@@ -34,6 +36,15 @@ const Map = forwardRef(function Map({
   const hasTriggeredGeolocateRef = useRef(false)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
+  const mappablePlaces = useMemo(() => places.filter((p) => placeLngLat(p) != null), [places])
+
+  useEffect(() => {
+    onDiagnostics?.({
+      totalPlaces: places.length,
+      mappablePlaces: mappablePlaces.length,
+      markerCount: markersRef.current.length
+    })
+  }, [mappablePlaces.length, onDiagnostics, places.length])
 
   const placeMarkers = useCallback(() => {
     if (!map.current) return
@@ -45,7 +56,8 @@ const Map = forwardRef(function Map({
     const currentMode = pendingModeRef.current
 
     places.forEach((place) => {
-      if (!place.coordinates) return
+      const coords = placeLngLat(place)
+      if (!coords) return
 
       const visited = visitedIds?.has?.(place.id)
       const saved = savedIds?.has?.(place.id)
@@ -89,9 +101,6 @@ const Map = forwardRef(function Map({
         }
       })
 
-      // Coordinates from PostGIS are stored as GeoJSON
-      const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
-
       const popupRoot = document.createElement('div')
       popupRoot.className = 'between-map-popup'
       const title = document.createElement('strong')
@@ -125,7 +134,12 @@ const Map = forwardRef(function Map({
       markersRef.current.push(marker)
       markersByIdRef.current.set(place.id, marker)
     })
-  }, [onMarkerDirections, onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
+    onDiagnostics?.({
+      totalPlaces: places.length,
+      mappablePlaces: mappablePlaces.length,
+      markerCount: markersRef.current.length
+    })
+  }, [mappablePlaces.length, onDiagnostics, onMarkerDirections, onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
   const destroyMap = useCallback(() => {
     if (geolocateTimerRef.current) {
@@ -208,9 +222,10 @@ const Map = forwardRef(function Map({
   useImperativeHandle(ref, () => ({
     focusPlace(placeId) {
       if (!map.current) return false
-      const place = places.find((p) => p.id === placeId && p.coordinates?.coordinates?.length >= 2)
+      const place = places.find((p) => p.id === placeId)
       if (!place) return false
-      const coords = place.coordinates.coordinates
+      const coords = placeLngLat(place)
+      if (!coords) return false
       let nextZoom = 11.5
       try {
         const currentZoom = map.current.getZoom?.()
@@ -298,10 +313,7 @@ const Map = forwardRef(function Map({
   return (
     hasMapboxEnv ? (
       <div className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}>
-        <div
-          ref={mapContainer}
-          style={{ width: '100%', height: '100%' }}
-        />
+        <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
       </div>
     ) : (
       <div className={`w-full ${heightClass} flex items-center justify-center bg-black/5 text-center px-4`}>
