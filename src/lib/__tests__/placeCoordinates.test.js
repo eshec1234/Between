@@ -20,6 +20,16 @@ describe('placeLngLat', () => {
     const point = placeLngLat({ coordinates: { coordinates: [null, 40.1] } })
     expect(point).toBeNull()
   })
+
+  it('parses PostGIS POINT strings from RPC rows', () => {
+    const point = placeLngLat({ coordinates: 'POINT(-75.379 40.6264)' })
+    expect(point).toEqual([-75.379, 40.6264])
+  })
+
+  it('parses PostGIS location text wrappers', () => {
+    const point = placeLngLat({ coordinates: { type: 'Point', coordinates: 'POINT(-74.0060 40.7128)' } })
+    expect(point).toEqual([-74.006, 40.7128])
+  })
 })
 
 describe('hasPlaceCoordinates', () => {

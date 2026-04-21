@@ -7,8 +7,29 @@ function finiteNumber(value) {
   return null
 }
 
+function parsePointText(raw) {
+  const text = String(raw || '').trim()
+  if (!text) return null
+  // Supports forms like:
+  // - POINT(-75.379 40.6264)
+  // - POINT(-75.379,40.6264)
+  // - SRID=4326;POINT(-75.379 40.6264)
+  const match = text.match(
+    /(?:SRID=\d+;)?POINT\s*\(\s*([-+]?\d*\.?\d+)\s*[,\s]\s*([-+]?\d*\.?\d+)\s*\)/i
+  )
+  if (!match) return null
+  const lng = finiteNumber(match[1])
+  const lat = finiteNumber(match[2])
+  if (lng == null || lat == null) return null
+  return [lng, lat]
+}
+
 function normalizeLngLat(candidate) {
   if (!candidate) return null
+
+  if (typeof candidate === 'string') {
+    return parsePointText(candidate)
+  }
 
   if (Array.isArray(candidate) && candidate.length >= 2) {
     const lng = finiteNumber(candidate[0])
@@ -19,7 +40,7 @@ function normalizeLngLat(candidate) {
 
   if (typeof candidate !== 'object') return null
 
-  if (Array.isArray(candidate.coordinates)) {
+  if (candidate.coordinates != null) {
     return normalizeLngLat(candidate.coordinates)
   }
 

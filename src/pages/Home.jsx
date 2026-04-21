@@ -145,6 +145,7 @@ export default function Home() {
   const [savedOnly, setSavedOnly] = useState(false)
   const [selectedPlaceId, setSelectedPlaceId] = useState(null)
   const [mapNotice, setMapNotice] = useState('')
+  const [mapStats, setMapStats] = useState({ totalPlaces: 0, mappablePlaces: 0, markerCount: 0 })
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
   const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
   // True once we have a real GPS fix (or gave up waiting). Prevents the list from
@@ -866,7 +867,7 @@ export default function Home() {
             )}
           </div>
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
-            Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
+            Map: {mapStats.markerCount} yellow nodes shown · ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
           {mapNotice && (
             <p
@@ -909,13 +910,14 @@ export default function Home() {
                   if (!place) return
                   onDirectionsToPlace(place)
                 }}
-                onRenderStats={({ totalPlaces, mappablePlaces, renderedMarkers }) => {
+                onDiagnostics={({ totalPlaces, mappablePlaces, markerCount }) => {
+                  setMapStats({ totalPlaces, mappablePlaces, markerCount })
                   if (import.meta.env.DEV) {
                     console.debug('[Map] render stats', {
                       mode,
                       totalPlaces,
                       mappablePlaces,
-                      renderedMarkers
+                      markerCount
                     })
                   }
                 }}

@@ -23,7 +23,7 @@ const Map = forwardRef(function Map({
   selectedPlaceId = null,
   onMarkerSelect = null,
   onMarkerDirections = null,
-  onDiagnostics = null,
+  onRenderStats = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
   heightClass = 'h-56'
 }, ref) {
@@ -39,12 +39,12 @@ const Map = forwardRef(function Map({
   const mappablePlaces = useMemo(() => places.filter((p) => placeLngLat(p) != null), [places])
 
   useEffect(() => {
-    onDiagnostics?.({
+    onRenderStats?.({
       totalPlaces: places.length,
       mappablePlaces: mappablePlaces.length,
-      markerCount: markersRef.current.length
+      renderedMarkers: markersRef.current.length
     })
-  }, [mappablePlaces.length, onDiagnostics, places.length])
+  }, [mappablePlaces.length, onRenderStats, places.length])
 
   const placeMarkers = useCallback(() => {
     if (!map.current) return
@@ -66,7 +66,7 @@ const Map = forwardRef(function Map({
 
       const el = document.createElement('div')
       el.className = 'between-marker'
-      const base = currentMode === 'theophany' ? '#a78bfa' : '#c8a870'
+      const base = '#f5c542'
       const ring = selected
         ? currentMode === 'theophany'
           ? '0 0 0 4px rgba(192,167,255,0.42)'
@@ -134,12 +134,12 @@ const Map = forwardRef(function Map({
       markersRef.current.push(marker)
       markersByIdRef.current.set(place.id, marker)
     })
-    onDiagnostics?.({
+    onRenderStats?.({
       totalPlaces: places.length,
       mappablePlaces: mappablePlaces.length,
-      markerCount: markersRef.current.length
+      renderedMarkers: markersRef.current.length
     })
-  }, [mappablePlaces.length, onDiagnostics, onMarkerDirections, onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
+  }, [mappablePlaces.length, onMarkerDirections, onMarkerSelect, onRenderStats, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
   const destroyMap = useCallback(() => {
     if (geolocateTimerRef.current) {
