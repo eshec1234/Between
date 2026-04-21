@@ -4,6 +4,12 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
+const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
+const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
+
+function styleForMode(mode) {
+  return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
+}
 
 export default function Map({
   mode,
@@ -20,6 +26,7 @@ export default function Map({
   const map = useRef(null)
   const markersRef = useRef([])
   const geolocateRef = useRef(null)
+  const geolocateTimerRef = useRef(null)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
 
@@ -73,6 +80,78 @@ export default function Map({
     })
   }, [places, visitedIds, savedIds, walkthroughDoneIds])
 
+  const destroyMap = useCallback(() => {
+    if (geolocateTimerRef.current) {
+      clearTimeout(geolocateTimerRef.current)
+      geolocateTimerRef.current = null
+    }
+    markersRef.current.forEach((m) => m.remove())
+    markersRef.current = []
+    geolocateRef.current = null
+    if (map.current) {
+      map.current.remove()
+      map.current = null
+    }
+  }, [])
+
+  const buildMap = useCallback((nextCenter = mapCenter, nextZoom = zoom) => {
+    if (!mapContainer.current || !hasMapboxEnv) return
+    destroyMap()
+
+    const nextMap = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: styleForMode(pendingModeRef.current),
+      center: nextCenter,
+      zoom: nextZoom,
+      scrollZoom: false,
+    })
+    map.current = nextMap
+
+    nextMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
+    geolocateRef.current = new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+      showUserHeading: true,
+    })
+    nextMap.addControl(geolocateRef.current, 'top-right')
+
+    nextMap.on('load', () => {
+      nextMap.resize()
+      placeMarkers()
+      geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
+    })
+    nextMap.on('error', (e) => {
+      console.error('[Mapbox]', e.error?.message ?? e)
+    })
+  }, [destroyMap, hasMapboxEnv, mapCenter, placeMarkers, zoom])
+
+  const ensureContainerIntegrity = useCallback((reason) => {
+    const container = mapContainer.current
+    if (!container || container.classList.contains('mapboxgl-map')) return
+
+    let nextCenter = mapCenter
+    let nextZoom = zoom
+    if (map.current) {
+      try {
+        const currentCenter = map.current.getCenter?.()
+        if (currentCenter && Number.isFinite(currentCenter.lng) && Number.isFinite(currentCenter.lat)) {
+          nextCenter = [currentCenter.lng, currentCenter.lat]
+        }
+      } catch {
+        /* ignore */
+      }
+      try {
+        const currentZoom = map.current.getZoom?.()
+        if (Number.isFinite(currentZoom)) nextZoom = currentZoom
+      } catch {
+        /* ignore */
+      }
+    }
+
+    console.warn('[Mapbox] Recovering map container integrity', { reason })
+    buildMap(nextCenter, nextZoom)
+  }, [buildMap, mapCenter, zoom])
+
   // Initialize map once per mount.
   // rAF defers until after the browser has laid out the lazy-loaded container
   // so Mapbox reads real CSS dimensions rather than 0×0.
@@ -83,40 +162,11 @@ export default function Map({
     let raf
     raf = requestAnimationFrame(() => {
       if (!mapContainer.current || map.current) return
-
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: mode === 'theophany'
-          ? 'mapbox://styles/mapbox/dark-v11'
-          : 'mapbox://styles/mapbox/light-v11',
-        center: mapCenter,
-        zoom,
-        scrollZoom: false,
-      })
-
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
-
-      geolocateRef.current = new mapboxgl.GeolocateControl({
-        positionOptions: { enableHighAccuracy: true },
-        trackUserLocation: true,
-        showUserHeading: true,
-      })
-      map.current.addControl(geolocateRef.current, 'top-right')
-
-      map.current.on('load', () => {
-        map.current?.resize()
-        placeMarkers()
-        setTimeout(() => geolocateRef.current?.trigger(), 600)
-      })
-
-      map.current.on('error', (e) => {
-        console.error('[Mapbox]', e.error?.message ?? e)
-      })
+      buildMap()
     })
 
     return () => cancelAnimationFrame(raf)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMapboxEnv])
+  }, [buildMap, hasMapboxEnv])
 
   // ResizeObserver: whenever the container changes size (e.g. after lazy CSS
   // applies or orientation changes) tell Mapbox to re-measure the canvas.
@@ -139,14 +189,22 @@ export default function Map({
   useEffect(() => {
     if (!map.current) return
     pendingModeRef.current = mode
-    const style = mode === 'theophany'
-      ? 'mapbox://styles/mapbox/dark-v11'
-      : 'mapbox://styles/mapbox/light-v11'
+    ensureContainerIntegrity('mode-change-pre-style')
+    if (!map.current) return
+    const style = styleForMode(mode)
     // Re-place markers once the incoming style has finished loading so they
     // pick up the correct mode colours.
-    map.current.once('style.load', placeMarkers)
+    map.current.once('style.load', () => {
+      ensureContainerIntegrity('style-load')
+      placeMarkers()
+      requestAnimationFrame(() => map.current?.resize())
+    })
     map.current.setStyle(style)
-  }, [mode, placeMarkers])
+    requestAnimationFrame(() => {
+      ensureContainerIntegrity('mode-change-post-style')
+      map.current?.resize()
+    })
+  }, [ensureContainerIntegrity, mode, placeMarkers])
 
   // Re-place markers whenever places or visit/save status sets change
   useEffect(() => {
@@ -161,15 +219,9 @@ export default function Map({
   // (prevents "container already initialized" errors after lazy re-mount)
   useEffect(() => {
     return () => {
-      markersRef.current.forEach((m) => m.remove())
-      markersRef.current = []
-      geolocateRef.current = null
-      if (map.current) {
-        map.current.remove()
-        map.current = null
-      }
+      destroyMap()
     }
-  }, [])
+  }, [destroyMap])
 
   return (
     hasMapboxEnv ? (
