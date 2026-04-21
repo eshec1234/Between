@@ -173,10 +173,12 @@ export default function Map({
 
   return (
     hasMapboxEnv ? (
-      <div
-        ref={mapContainer}
-        className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}
-      />
+      <div className={`w-full ${heightClass} ${mode === 'theophany' ? 'map-theophany' : 'map-sanctuary'}`}>
+        <div
+          ref={mapContainer}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
     ) : (
       <div className={`w-full ${heightClass} flex items-center justify-center bg-black/5 text-center px-4`}>
         <p className="font-sans text-xs uppercase tracking-wider opacity-60">
