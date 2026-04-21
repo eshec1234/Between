@@ -38,6 +38,9 @@ import { useAmbientMode } from '../context/AmbientModeContext'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
+import { openDirections } from '../lib/directions'
+import { placeLngLat } from '../lib/placeCoordinates'
+import { visibleFilterTags } from '../lib/placeTaxonomy'
 
 /** Philadelphia — primary market. Used until geolocation resolves. */
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
@@ -48,6 +51,7 @@ const PLACES_LIST_CAP = 48
 const MAX_FROM_RPC = 24
 /** Refetch nearby list when you’ve moved at least this far (km) while tracking */
 const TRACK_MIN_MOVE_KM = 0.13
+const SURPRISE_CANDIDATE_LIMIT = 600
 
 /** Rotate NY → NJ → PA so the list is not “only nearby state” when the catalog spans the region. */
 function interleaveByState(rows, order = ['NY', 'NJ', 'PA']) {
@@ -88,7 +92,8 @@ function readInitialMode() {
 }
 
 function placeTypeLabel(place) {
-  if (place.category_tags?.length) return place.category_tags[0]
+  const tags = visibleFilterTags(place.place_taxonomy_tags || place.category_tags || [])
+  if (tags.length) return tags[0]
   if (place.mode === 'both') return 'Both'
   return 'Place'
 }
@@ -131,12 +136,15 @@ export default function Home() {
   })
   const [feedLoading, setFeedLoading] = useState(true)
   const [darkHorsePlaces, setDarkHorsePlaces] = useState([])
+  const [surprisePool, setSurprisePool] = useState([])
   const [intent, setIntent] = useState(() => getIntention())
   const [localTick, setLocalTick] = useState(0)
   const [filterTag, setFilterTag] = useState('')
   const [minIntensity, setMinIntensity] = useState(0)
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
+  const [selectedPlaceId, setSelectedPlaceId] = useState(null)
+  const [mapNotice, setMapNotice] = useState('')
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
   const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
   // True once we have a real GPS fix (or gave up waiting). Prevents the list from
@@ -149,6 +157,10 @@ export default function Home() {
   const [showPickerFallback, setShowPickerFallback] = useState(false)
   const locationReadyRef = useRef(!navigator.geolocation)
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
+  const fetchSeqRef = useRef(0)
+  const mapRef = useRef(null)
+  const mapSectionRef = useRef(null)
+  const cardRefs = useRef(new globalThis.Map())
 
   // Stable: flips locationReady exactly once (ref guards against double-fire)
   const markLocationReady = useCallback(() => {
@@ -293,9 +305,33 @@ export default function Home() {
     }
   }, [mode, feedLoading, feed.trendingPlaces])
 
+  useEffect(() => {
+    let cancelled = false
+    async function loadSurprisePool() {
+      if (!hasSupabaseEnv || !supabase) {
+        setSurprisePool([])
+        return
+      }
+      const { data } = await supabase
+        .from('places')
+        .select(PLACES_LIST_SELECT)
+        .or(`mode.eq.${mode},mode.eq.both`)
+        .limit(SURPRISE_CANDIDATE_LIMIT)
+      if (cancelled) return
+      const vetted = (data || []).filter((p) => p?.source !== 'low_confidence_import')
+      setSurprisePool(vetted)
+    }
+    loadSurprisePool()
+    return () => {
+      cancelled = true
+    }
+  }, [mode])
+
   const fetchPlaces = useCallback(async () => {
+    const fetchSeq = ++fetchSeqRef.current
     setLoading(true)
     if (!hasSupabaseEnv || !supabase) {
+      if (fetchSeq !== fetchSeqRef.current) return
       setPlaces([])
       setFeedKind('fallback')
       setLoading(false)
@@ -308,6 +344,7 @@ export default function Home() {
       radius_m: NEARBY_RADIUS_M,
       mode_filter: mode
     })
+    if (fetchSeq !== fetchSeqRef.current) return
 
     // RPC returns rows already sorted by distance — preserve that order.
     // Do NOT pass these through interleaveByState or the closest place will no longer be first.
@@ -321,6 +358,7 @@ export default function Home() {
       .or(`mode.eq.${mode},mode.eq.both`)
       .order('name', { ascending: true })
       .limit(120)
+    if (fetchSeq !== fetchSeqRef.current) return
 
     for (const p of more || []) {
       if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
@@ -342,6 +380,7 @@ export default function Home() {
         .eq('state', st)
         .order('name', { ascending: true })
         .limit(24)
+      if (fetchSeq !== fetchSeqRef.current) return
       for (const p of extra || []) {
         if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
         if (!seen.has(p.id)) {
@@ -358,6 +397,7 @@ export default function Home() {
       ? [...rpcSlice, ...interleaveByState(catalogExtras)]
       : interleaveByState(catalogExtras)
 
+    if (fetchSeq !== fetchSeqRef.current) return
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
     } else if (catalogExtras.length > 0) {
@@ -392,7 +432,7 @@ export default function Home() {
   const allTags = useMemo(() => {
     const s = new Set()
     for (const p of places) {
-      for (const t of p.category_tags || []) s.add(t)
+      for (const t of visibleFilterTags(p.place_taxonomy_tags || p.category_tags || [])) s.add(t)
     }
     return [...s].sort()
   }, [places])
@@ -403,7 +443,9 @@ export default function Home() {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
     if (filterTag) {
-      list = list.filter((p) => (p.category_tags || []).includes(filterTag))
+      list = list.filter((p) =>
+        visibleFilterTags(p.place_taxonomy_tags || p.category_tags || []).includes(filterTag)
+      )
     }
     if (isTheophany && minIntensity > 0) {
       list = list.filter((p) => p.intensity != null && p.intensity >= minIntensity)
@@ -419,11 +461,25 @@ export default function Home() {
     if (!isTheophany && sanctuaryTradition) {
       list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
     }
-    // Attach distance from user's live location, then sort closest-first
+    // Attach distance from user's live location, then sort closest-first.
+    // Tag chips/filter use curated taxonomy tags; place.category_tags stays raw from DB.
     list = list.map((p) => {
+      const normalizedTags = visibleFilterTags(p.place_taxonomy_tags || p.category_tags || [])
       const coords = p.coordinates?.coordinates
-      if (!coords) return { ...p, _distKm: null }
-      return { ...p, _distKm: distanceKm(center.lat, center.lng, coords[1], coords[0]) }
+      if (!coords) {
+        return {
+          ...p,
+          category_tags: normalizedTags,
+          place_taxonomy_tags: normalizedTags,
+          _distKm: null
+        }
+      }
+      return {
+        ...p,
+        category_tags: normalizedTags,
+        place_taxonomy_tags: normalizedTags,
+        _distKm: distanceKm(center.lat, center.lng, coords[1], coords[0])
+      }
     })
     list.sort((a, b) => {
       if (a._distKm == null && b._distKm == null) return 0
@@ -448,6 +504,11 @@ export default function Home() {
     center.lng,
   ])
 
+  const mappablePlacesCount = useMemo(
+    () => filteredPlaces.filter((p) => placeLngLat(p) != null).length,
+    [filteredPlaces]
+  )
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const visitedIds = useMemo(() => getVisitedIds(), [places, localTick, location.key])
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -458,11 +519,11 @@ export default function Home() {
   const mapCenter = [center.lng, center.lat]
 
   const onSurpriseMe = useCallback(() => {
-    const pool = filteredPlaces.length ? filteredPlaces : places
+    const pool = surprisePool.length ? surprisePool : places
     if (!pool.length) return
     const pick = pool[Math.floor(Math.random() * pool.length)]
-    navigate(`/place/${pick.id}?surprise=1`)
-  }, [filteredPlaces, places, navigate])
+    navigate(`/place/${pick.id}?surprise=1&global=1`)
+  }, [surprisePool, places, navigate])
 
   const onToggleTrackNearby = useCallback(() => {
     setTrackNearby((prev) => {
@@ -476,6 +537,69 @@ export default function Home() {
     setSanctuaryTradition(id)
     setSanctuaryTraditionId(id)
   }, [])
+
+  const setCardRef = useCallback((placeId, node) => {
+    if (node) {
+      cardRefs.current.set(placeId, node)
+    } else {
+      cardRefs.current.delete(placeId)
+    }
+  }, [])
+
+  const scrollCardIntoView = useCallback((placeId) => {
+    const node = cardRefs.current.get(placeId)
+    if (!node) return
+    node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
+
+  const onMarkerSelect = useCallback((placeId) => {
+    setSelectedPlaceId(placeId)
+    scrollCardIntoView(placeId)
+  }, [scrollCardIntoView])
+
+  const onFocusPlaceOnMap = useCallback((placeId) => {
+    const place = filteredPlaces.find((p) => p.id === placeId)
+    if (!place || !placeLngLat(place)) {
+      setMapNotice('This place does not have map coordinates yet. You can still open details and directions.')
+      return
+    }
+    setMapNotice('')
+    setSelectedPlaceId(placeId)
+    mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const focused = mapRef.current?.focusPlace?.(placeId)
+    if (!focused) {
+      setMapNotice('Could not focus this place on the map right now. Try again in a moment.')
+      requestAnimationFrame(() => {
+        const retry = mapRef.current?.focusPlace?.(placeId)
+        if (retry) setMapNotice('')
+      })
+    }
+  }, [filteredPlaces])
+
+  const onDirectionsToPlace = useCallback((place) => {
+    const coords = placeLngLat(place)
+    if (!coords?.length) return
+    openDirections({
+      placeName: place.name,
+      destLng: coords[0],
+      destLat: coords[1],
+      originLng: center.lng,
+      originLat: center.lat
+    })
+  }, [center.lng, center.lat])
+
+  useEffect(() => {
+    if (!mapNotice) return
+    const t = window.setTimeout(() => setMapNotice(''), 5000)
+    return () => window.clearTimeout(t)
+  }, [mapNotice])
+
+  useEffect(() => {
+    if (selectedPlaceId == null) return
+    if (!filteredPlaces.some((p) => p.id === selectedPlaceId)) {
+      setSelectedPlaceId(null)
+    }
+  }, [filteredPlaces, selectedPlaceId])
 
   const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
@@ -699,11 +823,11 @@ export default function Home() {
             Surprise me
           </button>
           <p className={`mt-2 text-center font-sans text-[9px] leading-relaxed ${subMuted}`}>
-            A random place — walkthrough first, no name until you choose to reveal.
+            A truly random place from the full catalog (ignores your location). Walkthrough first, then reveal destination details.
           </p>
         </div>
 
-        <div className="px-4 pt-6">
+        <div ref={mapSectionRef} className="px-4 pt-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p
@@ -744,15 +868,57 @@ export default function Home() {
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
             Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
           </p>
+          {mapNotice && (
+            <p
+              className={`mt-2 rounded-md border px-2.5 py-2 font-sans text-[10px] leading-relaxed ${
+                isTheophany
+                  ? 'border-theophany-accent/35 bg-black/30 text-theophany-muted'
+                  : 'border-sanctuary-accent/35 bg-white/70 text-sanctuary-muted'
+              }`}
+              role="status"
+            >
+              {mapNotice}
+            </p>
+          )}
+          {mappablePlacesCount === 0 && filteredPlaces.length > 0 && (
+            <p
+              className={`mt-2 rounded-md border px-2.5 py-2 font-sans text-[10px] leading-relaxed ${
+                isTheophany
+                  ? 'border-theophany-accent/35 bg-black/30 text-theophany-muted'
+                  : 'border-sanctuary-accent/35 bg-white/70 text-sanctuary-muted'
+              }`}
+              role="status"
+            >
+              No visible map pins: these places are missing coordinates. The list still works while location data is fixed.
+            </p>
+          )}
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <Suspense fallback={<div className="btw-map-canvas flex items-center justify-center bg-sanctuary-bg/60"><p className="font-serif text-xs italic text-sanctuary-muted opacity-60">Loading map…</p></div>}>
               <Map
+                ref={mapRef}
                 mode={mode}
                 places={filteredPlaces}
                 mapCenter={mapCenter}
                 visitedIds={visitedIds}
                 savedIds={savedIds}
                 walkthroughDoneIds={walkthroughDoneIds}
+                selectedPlaceId={selectedPlaceId}
+                onMarkerSelect={onMarkerSelect}
+                onMarkerDirections={(placeId) => {
+                  const place = filteredPlaces.find((p) => p.id === placeId)
+                  if (!place) return
+                  onDirectionsToPlace(place)
+                }}
+                onRenderStats={({ totalPlaces, mappablePlaces, renderedMarkers }) => {
+                  if (import.meta.env.DEV) {
+                    console.debug('[Map] render stats', {
+                      mode,
+                      totalPlaces,
+                      mappablePlaces,
+                      renderedMarkers
+                    })
+                  }
+                }}
                 heightClass="btw-map-canvas"
                 zoom={7.4}
               />
@@ -860,6 +1026,10 @@ export default function Home() {
                   isTheophany={isTheophany}
                   animIndex={i}
                   onSaveToggle={() => setLocalTick((t) => t + 1)}
+                  isSelected={selectedPlaceId === place.id}
+                  setCardRef={(node) => setCardRef(place.id, node)}
+                  onFocusMap={() => onFocusPlaceOnMap(place.id)}
+                  onDirections={() => onDirectionsToPlace(place)}
                 />
               ]
               if ((i + 1) % 4 === 0) {
@@ -928,7 +1098,16 @@ function formatDist(km) {
   return `${Math.round(km)} km away`
 }
 
-function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
+function PlaceCard({
+  place,
+  isTheophany,
+  onSaveToggle,
+  animIndex = 0,
+  isSelected = false,
+  setCardRef = null,
+  onFocusMap = null,
+  onDirections = null
+}) {
   const type = placeTypeLabel(place)
   const { label: timeLabel } = photoForPlaceAtTime(place)
   const [saved, setSaved] = useState(() => isSaved(place.id))
@@ -946,6 +1125,7 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
 
   return (
     <div
+      ref={(node) => setCardRef?.(node)}
       className="relative mb-2.5 bf-enter-card"
       style={{ animationDelay: `${Math.min(animIndex, 18) * 42}ms` }}
     >
@@ -972,7 +1152,11 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
           isTheophany
             ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
-        }`}
+        } ${isSelected
+          ? isTheophany
+            ? 'ring-2 ring-theophany-accent/60'
+            : 'ring-2 ring-sanctuary-accent/60'
+          : ''}`}
       >
         <div
           className={`relative aspect-[4/3] w-full max-h-[min(72vmin,380px)] overflow-hidden sm:max-h-[320px] ${
@@ -1008,12 +1192,51 @@ function PlaceCard({ place, isTheophany, onSaveToggle, animIndex = 0 }) {
             {type}
           </div>
           <div className="absolute bottom-2.5 left-2.5">
-            <SourceBadge source={place.source} compact />
+            <SourceBadge source={place.source} sourceConfidence={place.source_confidence} compact />
           </div>
           {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} isTheophany />}
         </div>
 
         <div className="px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onFocusMap?.()
+                }}
+                className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+                  isTheophany
+                    ? 'border-theophany-accent/45 text-theophany-accent hover:bg-theophany-accent/15'
+                    : 'border-sanctuary-accent/45 text-sanctuary-accent hover:bg-sanctuary-accent/15'
+                }`}
+              >
+                Locate on map
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onDirections?.()
+                }}
+                className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+                  isTheophany
+                    ? 'border-theophany-muted/45 text-theophany-muted hover:bg-theophany-accent/10'
+                    : 'border-sanctuary-muted/45 text-sanctuary-muted hover:bg-sanctuary-accent/10'
+                }`}
+              >
+                Directions
+              </button>
+            </div>
+            {isSelected && (
+              <span className={`font-sans text-[9px] uppercase tracking-[0.18em] ${isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'}`}>
+                Selected
+              </span>
+            )}
+          </div>
           <h3
             className={`font-display mb-1 text-[16px] leading-snug tracking-wide ${
               isTheophany ? 'text-[#ece8f4]' : 'text-sanctuary-text'

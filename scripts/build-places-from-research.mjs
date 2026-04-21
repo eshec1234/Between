@@ -157,6 +157,59 @@ function parseTags(raw) {
     .slice(0, 12)
 }
 
+const GEO_NOISE_TAGS = new Set([
+  'pennsylvania',
+  'new jersey',
+  'new york',
+  'pa',
+  'nj',
+  'ny',
+  'county',
+  'region',
+  'state'
+])
+
+function normalizeTagToken(tag) {
+  return String(tag || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
+/**
+ * Keep category tags experiential/thematic, not administrative geography.
+ * This prevents filter chips from showing county/state labels as "themes".
+ */
+function sanitizeCategoryTags(tags = []) {
+  const out = []
+  for (const raw of tags) {
+    const token = normalizeTagToken(raw)
+    if (!token) continue
+    if (GEO_NOISE_TAGS.has(token)) continue
+    // Drop single-word county-like endings (e.g. "lehigh", "erie") only when
+    // they appear as geography fillers from import recipes.
+    if (/^[a-z]+$/.test(token) && token.length > 2 && out.includes('historic') && !out.includes(token)) {
+      if (
+        [
+          'adams', 'allegheny', 'armstrong', 'beaver', 'bedford', 'berks', 'blair', 'bradford', 'bucks',
+          'butler', 'cambria', 'cameron', 'carbon', 'centre', 'chester', 'clarion', 'clearfield', 'clinton',
+          'columbia', 'crawford', 'cumberland', 'dauphin', 'delaware', 'elk', 'erie', 'fayette', 'forest',
+          'franklin', 'fulton', 'greene', 'huntingdon', 'indiana', 'jefferson', 'juniata', 'lackawanna',
+          'lancaster', 'lawrence', 'lebanon', 'lehigh', 'luzerne', 'lycoming', 'mc kean', 'mercer', 'miifflin',
+          'monroe', 'montgomery', 'montour', 'northampton', 'northumberland', 'perry', 'philadelphia',
+          'pike', 'potter', 'schuylkill', 'somerset', 'sullivan', 'susquehanna', 'tioga', 'union', 'venango',
+          'warren', 'washington', 'wayne', 'westmoreland', 'wyoming', 'york'
+        ].includes(token)
+      ) {
+        continue
+      }
+    }
+    if (!out.includes(token)) out.push(token)
+  }
+  return out.slice(0, 12)
+}
+
 function parseNum(v) {
   if (v === '' || v == null) return null
   const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/,/g, ''))
@@ -176,6 +229,7 @@ function normalizeSource(s) {
     .trim()
     .toLowerCase()
   if (x === 'community') return 'community'
+  if (x === 'low_confidence_import') return 'low_confidence_import'
   return 'verified'
 }
 
@@ -234,7 +288,7 @@ function collectStandardSheet(wb, sheetName, sourceFile) {
     const city = String(getField(m, 'city') || '').trim() || 'Unknown'
     const address = String(getField(m, 'address', 'location') || '').trim() || 'See local listings'
     const mode = normalizeMode(getField(m, 'mode'))
-    const tags = parseTags(getField(m, 'category_tags', 'tags'))
+    const tags = sanitizeCategoryTags(parseTags(getField(m, 'category_tags', 'tags')))
     const description = String(getField(m, 'description') || '').trim()
     if (!description) continue
 
@@ -399,11 +453,11 @@ async function main() {
       lat: g.lat,
       lon: g.lon,
       mode: 'both',
-      category_tags: ['historic', 'pennsylvania', p.county.toLowerCase()].filter(Boolean),
+      category_tags: sanitizeCategoryTags(['historic', 'regional listing']),
       traditions: 'Various / see description',
       cultural_sensitivities: 'Visit respectfully; follow posted rules.',
       access_protocols: 'Confirm hours and access before visiting.',
-      source: 'verified',
+      source: 'low_confidence_import',
       description: `${p.name} (${p.county} County, PA). Listed in regional research; atmosphere and access vary by site—check local guidance before going.`,
       photos: resolvePhotos('', p.name, city, 'PA'),
       intensity: null,
