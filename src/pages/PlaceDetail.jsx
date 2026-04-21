@@ -9,7 +9,7 @@ import PlaceWalkthrough from '../components/PlaceWalkthrough'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
-import { photosForPlace, photoForPlaceAtTime, placeImageFallbackChain } from '../lib/placePhotoFallback'
+import { photosForPlace } from '../lib/placePhotoFallback'
 import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
 
 const REFLECTION_TAGS = [
@@ -316,8 +316,6 @@ export default function PlaceDetail() {
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
   const gallery = photosForPlace(place)
   const hasGooglePlacePhoto = gallery.some((u) => String(u).includes('googleusercontent.com'))
-  const heroPick = photoForPlaceAtTime(place)
-  const heroChain = placeImageFallbackChain(place, visitorPhotoUrls)
 
   return (
     <div className={`relative min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom,0px))] ${bgClass}`}>
@@ -362,36 +360,20 @@ export default function PlaceDetail() {
               {visitorPhotoUrls.length === 1 ? 'Visitor photo' : `${visitorPhotoUrls.length} visitor photos`}
             </p>
           )}
-          {!visitorPhotoUrls.length && gallery.length > 1 && heroPick.label && (
-            <p className={`px-4 pb-1 font-sans text-[8px] uppercase tracking-wider ${subClass}`}>
-              AI placeholder · {heroPick.label} (local time) — be the first to add a real photo below
-            </p>
-          )}
           {hasGooglePlacePhoto && (
             <p className={`px-4 pb-1 font-sans text-[8px] leading-snug opacity-80 ${subClass}`}>
               Photos from Google Places. Google Maps and Google Places data © Google.
             </p>
           )}
           <div className="relative min-h-[160px] h-[clamp(160px,min(42dvh,48vmin),400px)] w-full overflow-hidden">
-            {heroChain.length > 0 ? (
-              <PlaceImageFromUrl
-                url={heroChain[0]}
-                isTheophany={isTheophany}
-                variant="hero"
-                imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
-                }`}
-              />
-            ) : (
-              <PlaceImage
-                place={place}
-                isTheophany={isTheophany}
-                variant="hero"
-                imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
-                }`}
-              />
-            )}
+            <PlaceImage
+              place={place}
+              isTheophany={isTheophany}
+              variant="hero"
+              imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+              }`}
+            />
             <div
               className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${
                 isTheophany
@@ -400,10 +382,9 @@ export default function PlaceDetail() {
               }`}
             />
           </div>
-          {/* Gallery strip: visitor photos first, then AI placeholders */}
-          {(visitorPhotoUrls.length > 1 || (!visitorPhotoUrls.length && gallery.length > 1)) && (
+          {visitorPhotoUrls.length > 1 && (
             <div className="flex gap-2 overflow-x-auto px-4 py-2">
-              {(visitorPhotoUrls.length > 1 ? visitorPhotoUrls.slice(1) : gallery.slice(1)).map((url) => (
+              {visitorPhotoUrls.slice(1).map((url) => (
                 <PlaceImageFromUrl
                   key={url}
                   url={url}

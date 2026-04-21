@@ -1,8 +1,10 @@
 import { supabaseUrl } from './env'
 
 /**
- * Photos stored in this project's Supabase Storage bucket are "visitor photos"
- * — real images taken on-location by users.
+ * Only photos stored in this project's Supabase Storage bucket are real
+ * visitor photos. Seeded external URLs (Unsplash, Wikimedia, etc.) are
+ * intentionally excluded — the custom SVG PlaceholderImage is the default
+ * until a real visitor photo is uploaded through the app.
  */
 function isVisitorPhoto(url) {
   return Boolean(
@@ -13,18 +15,11 @@ function isVisitorPhoto(url) {
   )
 }
 
-/**
- * Returns visitor-uploaded photos first; falls back to seeded external URLs
- * (Unsplash, Wikimedia, etc.) as AI placeholders until real photos arrive.
- */
+/** Returns only visitor-uploaded (Supabase Storage) photos for a place. */
 export function photosForPlace(place) {
   const p = place?.photos
-  if (!Array.isArray(p) || !p.length) return []
-  const visitor = p.filter(isVisitorPhoto)
-  // If real visitor photos exist, show only those.
-  if (visitor.length) return visitor
-  // Otherwise return the seeded external URLs as temporary AI placeholders.
-  return p.filter((u) => typeof u === 'string' && u.length > 0)
+  if (Array.isArray(p) && p.length > 0) return p.filter(isVisitorPhoto)
+  return []
 }
 
 const TIME_LABELS = ['Dawn', 'Midday', 'Dusk', 'Night']
@@ -43,19 +38,15 @@ function timeBucketIndex(hour, len) {
   return Math.min(3, len - 1)
 }
 
-/**
- * Pick a photo by local time of day.
- */
+/** Pick a visitor photo by local time of day. */
 export function photoForPlaceAtTime(place) {
   const photos = photosForPlace(place)
   if (!photos.length) return { url: null, label: '' }
   const hour = new Date().getHours()
   const idx = timeBucketIndex(hour, photos.length)
-  // Only show time labels when there are multiple real photos
-  const hasMultiple = photos.length > 1 && photos.some(isVisitorPhoto)
   return {
     url: photos[idx],
-    label: hasMultiple ? TIME_LABELS[Math.min(idx, TIME_LABELS.length - 1)] : ''
+    label: photos.length > 1 ? TIME_LABELS[Math.min(idx, TIME_LABELS.length - 1)] : ''
   }
 }
 
@@ -64,16 +55,14 @@ function dedupePush(out, u) {
 }
 
 /**
- * Ordered URLs to try for image rendering — visitor photos first, then AI
- * placeholder seeds. Accepts optional visitor photo URLs from experience
- * reports, which override the place.photos array entirely.
+ * Ordered URLs to try — visitor-uploaded Supabase photos first (from both
+ * place.photos and any experience_report photo_url values). Empty array
+ * means PlaceImage falls through to the SVG PlaceholderImage.
  */
 export function placeImageFallbackChain(place, visitorPhotoUrls = []) {
   const out = []
-  // Visitor-uploaded photos from experience_reports take top priority
   for (const u of visitorPhotoUrls) dedupePush(out, u)
   if (out.length) return out
-  // Fall back to place.photos (visitor bucket photos, then seeded URLs)
   const { url: primary } = photoForPlaceAtTime(place)
   const pool = photosForPlace(place)
   dedupePush(out, primary)
@@ -81,9 +70,9 @@ export function placeImageFallbackChain(place, visitorPhotoUrls = []) {
   return out
 }
 
-/** Single gallery URL fallback chain. */
+/** Single gallery URL — only passes through if it is a visitor Supabase photo. */
 export function imageUrlFallbackChain(url) {
   const out = []
-  if (url && typeof url === 'string') dedupePush(out, url)
+  if (isVisitorPhoto(url)) dedupePush(out, url)
   return out
 }
