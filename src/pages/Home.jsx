@@ -149,6 +149,7 @@ export default function Home() {
   const [showPickerFallback, setShowPickerFallback] = useState(false)
   const locationReadyRef = useRef(!navigator.geolocation)
   const lastEmitRef = useRef({ lat: null, lng: null, at: 0 })
+  const fetchSeqRef = useRef(0)
 
   // Stable: flips locationReady exactly once (ref guards against double-fire)
   const markLocationReady = useCallback(() => {
@@ -294,8 +295,10 @@ export default function Home() {
   }, [mode, feedLoading, feed.trendingPlaces])
 
   const fetchPlaces = useCallback(async () => {
+    const fetchSeq = ++fetchSeqRef.current
     setLoading(true)
     if (!hasSupabaseEnv || !supabase) {
+      if (fetchSeq !== fetchSeqRef.current) return
       setPlaces([])
       setFeedKind('fallback')
       setLoading(false)
@@ -308,6 +311,7 @@ export default function Home() {
       radius_m: NEARBY_RADIUS_M,
       mode_filter: mode
     })
+    if (fetchSeq !== fetchSeqRef.current) return
 
     // RPC returns rows already sorted by distance — preserve that order.
     // Do NOT pass these through interleaveByState or the closest place will no longer be first.
@@ -321,6 +325,7 @@ export default function Home() {
       .or(`mode.eq.${mode},mode.eq.both`)
       .order('name', { ascending: true })
       .limit(120)
+    if (fetchSeq !== fetchSeqRef.current) return
 
     for (const p of more || []) {
       if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
@@ -342,6 +347,7 @@ export default function Home() {
         .eq('state', st)
         .order('name', { ascending: true })
         .limit(24)
+      if (fetchSeq !== fetchSeqRef.current) return
       for (const p of extra || []) {
         if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
         if (!seen.has(p.id)) {
@@ -358,6 +364,7 @@ export default function Home() {
       ? [...rpcSlice, ...interleaveByState(catalogExtras)]
       : interleaveByState(catalogExtras)
 
+    if (fetchSeq !== fetchSeqRef.current) return
     if (rpcError || !rpcData?.length) {
       setFeedKind('fallback')
     } else if (catalogExtras.length > 0) {
