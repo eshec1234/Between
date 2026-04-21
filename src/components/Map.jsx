@@ -27,6 +27,7 @@ export default function Map({
   const markersRef = useRef([])
   const geolocateRef = useRef(null)
   const geolocateTimerRef = useRef(null)
+  const hasTriggeredGeolocateRef = useRef(false)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
 
@@ -104,21 +105,26 @@ export default function Map({
       center: nextCenter,
       zoom: nextZoom,
       scrollZoom: false,
+      cooperativeGestures: true,
     })
     map.current = nextMap
 
     nextMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
     geolocateRef.current = new mapboxgl.GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
-      trackUserLocation: true,
-      showUserHeading: true,
+      trackUserLocation: false,
+      showUserHeading: false,
+      fitBoundsOptions: { maxZoom: 12 },
     })
     nextMap.addControl(geolocateRef.current, 'top-right')
 
     nextMap.on('load', () => {
       nextMap.resize()
       placeMarkers()
-      geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
+      if (!hasTriggeredGeolocateRef.current) {
+        hasTriggeredGeolocateRef.current = true
+        geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
+      }
     })
     nextMap.on('error', (e) => {
       console.error('[Mapbox]', e.error?.message ?? e)
