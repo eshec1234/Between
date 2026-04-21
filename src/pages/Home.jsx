@@ -763,8 +763,13 @@ export default function Home() {
             )}
           </div>
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
-            Map: ring = opened · gold glow = finished walkthrough · larger dot = saved
+            Map: dot = place · ring = opened · glow = finished walkthrough · larger = saved · tap for directions
           </p>
+          {!loading && (
+            <p className={`mt-0.5 font-sans text-[9px] ${subMuted} opacity-60`}>
+              {filteredPlaces.filter((p) => p.coordinates).length} places with map coordinates
+            </p>
+          )}
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <Suspense fallback={<div className="btw-map-canvas flex items-center justify-center bg-sanctuary-bg/60"><p className="font-serif text-xs italic text-sanctuary-muted opacity-60">Loading map…</p></div>}>
               <Map
