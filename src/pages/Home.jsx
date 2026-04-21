@@ -389,29 +389,12 @@ export default function Home() {
     }
   }, [])
 
-  // Canonical tag vocabulary shown in the filter dropdown.
-  // Raw DB tags can include geographic names, multi-word research notes, etc.
-  // We only surface tags that fall into meaningful browsable categories.
-  const CANONICAL_TAG_SET = new Set([
-    'haunted', 'folklore', 'liminal', 'anomalous', 'ruins', 'abandoned',
-    'cemetery', 'memorial', 'battlefield', 'historic',
-    'cathedral', 'church', 'mosque', 'synagogue', 'temple', 'monastery',
-    'quaker', 'buddhist', 'jewish', 'christian', 'islamic', 'hindu', 'sikh',
-    'lighthouse', 'tower', 'forest', 'garden', 'grotto', 'shrine',
-    'meditation', 'pilgrimage', 'sacred grove', 'landmark',
-    'colonial history', 'ghost lore', 'road', 'library', 'university',
-  ])
-
   const allTags = useMemo(() => {
     const s = new Set()
     for (const p of places) {
-      for (const t of p.category_tags || []) {
-        const norm = t.toLowerCase().trim()
-        if (CANONICAL_TAG_SET.has(norm)) s.add(norm)
-      }
+      for (const t of p.category_tags || []) s.add(t)
     }
     return [...s].sort()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [places])
 
   const filteredPlaces = useMemo(() => {
@@ -475,15 +458,11 @@ export default function Home() {
   const mapCenter = [center.lng, center.lat]
 
   const onSurpriseMe = useCallback(() => {
-    // Pool the full unfiltered list so Surprise Me is truly random —
-    // ignores active tag/tradition/intention filters and picks from both modes.
-    const pool = places.length ? places : filteredPlaces
+    const pool = filteredPlaces.length ? filteredPlaces : places
     if (!pool.length) return
     const pick = pool[Math.floor(Math.random() * pool.length)]
-    // surprise=1 still scrolls to walkthrough first, but PlaceDetail now
-    // shows the address/name immediately (no reveal gate).
     navigate(`/place/${pick.id}?surprise=1`)
-  }, [places, filteredPlaces, navigate])
+  }, [filteredPlaces, places, navigate])
 
   const onToggleTrackNearby = useCallback(() => {
     setTrackNearby((prev) => {
@@ -720,7 +699,7 @@ export default function Home() {
             Surprise me
           </button>
           <p className={`mt-2 text-center font-sans text-[9px] leading-relaxed ${subMuted}`}>
-            Picks randomly from all places — you get the address and name up front. Go.
+            A random place — walkthrough first, no name until you choose to reveal.
           </p>
         </div>
 
@@ -763,11 +742,11 @@ export default function Home() {
             )}
           </div>
           <p className={`mt-2 font-sans text-[9px] ${subMuted}`}>
-            Map: dot = place · ring = opened · glow = finished walkthrough · larger = saved · tap for directions
+            Map: dot = place · tap for address + directions · ring = opened · glow = walkthrough done
           </p>
           {!loading && (
-            <p className={`mt-0.5 font-sans text-[9px] ${subMuted} opacity-60`}>
-              {filteredPlaces.filter((p) => p.coordinates).length} places with map coordinates
+            <p className={`mt-0.5 font-sans text-[9px] ${subMuted} opacity-55`}>
+              {filteredPlaces.filter((p) => p.coordinates).length} places on map
             </p>
           )}
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">

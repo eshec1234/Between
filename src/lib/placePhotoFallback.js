@@ -1,12 +1,13 @@
 import { supabaseUrl } from './env'
 
 /**
- * Only photos stored in this project's Supabase Storage bucket are real
- * visitor photos. Seeded external URLs (Unsplash, Wikimedia, etc.) are
- * intentionally excluded — the custom SVG PlaceholderImage is the default
- * until a real visitor photo is uploaded through the app.
+ * Only photos that live in this project's Supabase Storage bucket are
+ * considered "user-uploaded" and shown as real images. All seeded external
+ * URLs (Unsplash, Wikimedia, Flickr, Wikipedia, etc.) are intentionally
+ * ignored so that the SVG placeholder templates are the default display —
+ * a real photo only appears once a user has uploaded one through the app.
  */
-function isVisitorPhoto(url) {
+function isUserPhoto(url) {
   return Boolean(
     url &&
     typeof url === 'string' &&
@@ -15,10 +16,12 @@ function isVisitorPhoto(url) {
   )
 }
 
-/** Returns only visitor-uploaded (Supabase Storage) photos for a place. */
+/** Generic fallbacks — intentionally empty; SVG templates are the default. */
+export const DEFAULT_PLACE_PHOTOS = []
+
 export function photosForPlace(place) {
   const p = place?.photos
-  if (Array.isArray(p) && p.length > 0) return p.filter(isVisitorPhoto)
+  if (Array.isArray(p) && p.length > 0) return p.filter(isUserPhoto)
   return []
 }
 
@@ -38,7 +41,9 @@ function timeBucketIndex(hour, len) {
   return Math.min(3, len - 1)
 }
 
-/** Pick a visitor photo by local time of day. */
+/**
+ * Pick a user-uploaded photo by local time of day.
+ */
 export function photoForPlaceAtTime(place) {
   const photos = photosForPlace(place)
   if (!photos.length) return { url: null, label: '' }
@@ -54,25 +59,19 @@ function dedupePush(out, u) {
   if (u && typeof u === 'string' && !out.includes(u)) out.push(u)
 }
 
-/**
- * Ordered URLs to try — visitor-uploaded Supabase photos first (from both
- * place.photos and any experience_report photo_url values). Empty array
- * means PlaceImage falls through to the SVG PlaceholderImage.
- */
-export function placeImageFallbackChain(place, visitorPhotoUrls = []) {
-  const out = []
-  for (const u of visitorPhotoUrls) dedupePush(out, u)
-  if (out.length) return out
+/** Ordered URLs to try — only user-uploaded Supabase photos; empty → SVG renders. */
+export function placeImageFallbackChain(place) {
   const { url: primary } = photoForPlaceAtTime(place)
   const pool = photosForPlace(place)
+  const out = []
   dedupePush(out, primary)
   for (const u of pool) dedupePush(out, u)
   return out
 }
 
-/** Single gallery URL — only passes through if it is a visitor Supabase photo. */
+/** Single gallery URL — only passes through if it is a user-uploaded Supabase photo. */
 export function imageUrlFallbackChain(url) {
   const out = []
-  if (isVisitorPhoto(url)) dedupePush(out, url)
+  if (isUserPhoto(url)) dedupePush(out, url)
   return out
 }
