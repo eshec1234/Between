@@ -166,6 +166,13 @@ export default function PlaceDetail() {
     [experienceReports]
   )
 
+  // Must be above early returns — visitor photos from experience_reports
+  // override the AI placeholder on the hero image.
+  const visitorPhotoUrls = useMemo(
+    () => experienceReports.map((r) => r.photo_url).filter(Boolean),
+    [experienceReports]
+  )
+
   const submitExperienceReport = async (e) => {
     e.preventDefault()
     if (!reportContent.trim()) return
@@ -307,11 +314,6 @@ export default function PlaceDetail() {
   const bodyClass = isTheophany ? 'text-theophany-text' : 'text-sanctuary-text'
   const subClass = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
   const maxLen = contentKind === 'tip' ? TIP_MAX : REVIEW_MAX
-  // Collect visitor-uploaded photos from experience reports (overrides AI placeholder)
-  const visitorPhotoUrls = useMemo(
-    () => experienceReports.map((r) => r.photo_url).filter(Boolean),
-    [experienceReports]
-  )
   const gallery = photosForPlace(place)
   const hasGooglePlacePhoto = gallery.some((u) => String(u).includes('googleusercontent.com'))
   const heroPick = photoForPlaceAtTime(place)

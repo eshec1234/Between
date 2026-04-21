@@ -720,7 +720,7 @@ export default function Home() {
             Surprise me
           </button>
           <p className={`mt-2 text-center font-sans text-[9px] leading-relaxed ${subMuted}`}>
-            A random place — walkthrough first, no name until you choose to reveal.
+            Picks randomly from all places — you get the address and name up front. Go.
           </p>
         </div>
 
