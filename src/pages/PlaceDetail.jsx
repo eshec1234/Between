@@ -394,28 +394,6 @@ export default function PlaceDetail() {
               <p className={`mt-1 font-sans text-xs uppercase tracking-wider ${subClass}`}>
                 {place.address} · {place.city}, {place.state}
               </p>
-              {place.coordinates?.coordinates && (
-                <a
-                  href={(() => {
-                    const [lng, lat] = place.coordinates.coordinates
-                    const dest = `${lat},${lng}`
-                    const label = encodeURIComponent(place.name)
-                    const isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream
-                    return isApple
-                      ? `https://maps.apple.com/?daddr=${dest}&dirflg=d&t=m&q=${label}`
-                      : `https://www.google.com/maps/dir/?api=1&destination=${dest}&destination_place_name=${label}`
-                  })()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`mt-2 inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-wider transition-colors ${
-                    isTheophany
-                      ? 'border-theophany-accent text-theophany-accent hover:bg-theophany-accent/15'
-                      : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
-                  }`}
-                >
-                  Get Directions →
-                </a>
-              )}
             </div>
 
             {place.curated_quote && (

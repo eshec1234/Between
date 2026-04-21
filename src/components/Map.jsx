@@ -5,17 +5,6 @@ import { mapboxToken, hasMapboxEnv } from '../lib/env'
 
 mapboxgl.accessToken = mapboxToken
 
-/** Opens native navigation — Apple Maps on iOS/macOS, Google Maps elsewhere. */
-function directionsUrl(coords, name) {
-  const [lng, lat] = coords
-  const dest = `${lat},${lng}`
-  const label = encodeURIComponent(name)
-  const isApple = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream
-  return isApple
-    ? `https://maps.apple.com/?daddr=${dest}&dirflg=d&t=m&q=${label}`
-    : `https://www.google.com/maps/dir/?api=1&destination=${dest}&destination_place_name=${label}`
-}
-
 export default function Map({
   mode,
   places,
@@ -79,23 +68,12 @@ export default function Map({
         border: 2px solid ${currentMode === 'theophany' ? '#1e0b32' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
-        transition: transform 0.15s ease;
       `
-      // Hover scale animation
-      el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.4)' })
-      el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
-
-      const addr = place.address
-        ? `<p style="margin:2px 0 6px;font-size:11px;opacity:0.7;">${place.address}, ${place.city}, ${place.state}</p>`
-        : `<p style="margin:2px 0 6px;font-size:11px;opacity:0.7;">${place.city}, ${place.state}</p>`
-      const dUrl = directionsUrl(coords, place.name)
-      const popupHtml = `<strong style="font-size:13px;">${place.name}</strong>${addr}<a href="${dUrl}" target="_blank" rel="noopener noreferrer" style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#c8a870;text-decoration:none;">Get Directions →</a>`
-
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
         .setPopup(
-          new mapboxgl.Popup({ offset: 18, maxWidth: '220px' })
-            .setHTML(popupHtml)
+          new mapboxgl.Popup({ offset: 16 })
+            .setHTML(`<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`)
         )
         .addTo(map.current)
       markersRef.current.push(marker)
