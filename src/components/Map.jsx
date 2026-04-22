@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapboxToken, hasMapboxEnv } from '../lib/env'
+import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 
 mapboxgl.accessToken = mapboxToken
 const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
@@ -9,34 +10,6 @@ const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
 
 function styleForMode(mode) {
   return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
-}
-
-/** [lng, lat] from PostgREST / PostGIS GeoJSON, or null if unusable */
-function lngLatFromPlace(place) {
-  let c = place?.coordinates
-  if (c == null) return null
-  if (typeof c === 'string') {
-    try {
-      c = JSON.parse(c)
-    } catch {
-      return null
-    }
-  }
-  let arr = null
-  if (c && typeof c === 'object') {
-    if (c.type === 'Point' && Array.isArray(c.coordinates) && c.coordinates.length >= 2) {
-      arr = c.coordinates
-    } else if (Array.isArray(c.coordinates) && c.coordinates.length >= 2) {
-      arr = c.coordinates
-    }
-  }
-  if (!arr && Array.isArray(c) && c.length >= 2) arr = c
-  if (!arr || arr.length < 2) return null
-  const lng = Number(arr[0])
-  const lat = Number(arr[1])
-  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null
-  if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return null
-  return [lng, lat]
 }
 
 const Map = forwardRef(function Map({
@@ -128,7 +101,7 @@ const Map = forwardRef(function Map({
         )
         .addTo(map.current)
       markersRef.current.push(marker)
-      markersByIdRef.current.set(place.id, marker)
+      markersByIdRef.current.set(String(place.id), marker)
     })
   }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
@@ -216,10 +189,24 @@ const Map = forwardRef(function Map({
   }, [buildMap, mapCenter, zoom])
 
   useImperativeHandle(ref, () => ({
-    focusPlace(placeId) {
+    /**
+     * @param {string} placeId
+     * @param {[number, number] | null} [lonLatFromCard] — from the clicked card; avoids lookup failures when Map just mounted or lists differ
+     */
+    focusPlace(placeId, lonLatFromCard) {
       if (!map.current) return false
-      const place = places.find((p) => String(p.id) === String(placeId))
-      const coords = place ? lngLatFromPlace(place) : null
+      let coords = null
+      if (
+        Array.isArray(lonLatFromCard) &&
+        lonLatFromCard.length >= 2 &&
+        Number.isFinite(lonLatFromCard[0]) &&
+        Number.isFinite(lonLatFromCard[1])
+      ) {
+        coords = lonLatFromCard
+      } else {
+        const place = places.find((p) => String(p.id) === String(placeId))
+        coords = place ? lngLatFromPlace(place) : null
+      }
       if (!coords) return false
       try {
         map.current.resize()
@@ -235,7 +222,7 @@ const Map = forwardRef(function Map({
       })
       map.current.once('moveend', () => {
         try {
-          markersByIdRef.current.get(place.id)?.togglePopup?.()
+          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
         } catch {
           /* ignore */
         }

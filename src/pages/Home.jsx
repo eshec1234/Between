@@ -38,6 +38,7 @@ import { useAmbientMode } from '../context/AmbientModeContext'
 import AmbientOrbs from '../components/AmbientOrbs'
 import FilmGrain from '../components/FilmGrain'
 import { PLACES_LIST_SELECT } from '../lib/placesSelect'
+import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 
 /** Philadelphia — primary market. Used until geolocation resolves. */
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
@@ -494,19 +495,20 @@ export default function Home() {
     scrollCardIntoView(placeId)
   }, [scrollCardIntoView])
 
-  const onFocusPlaceOnMap = useCallback((placeId) => {
-    setSelectedPlaceId(placeId)
+  const onFocusPlaceOnMap = useCallback((place) => {
+    if (!place?.id) return
+    const lonLat = lngLatFromPlace(place)
+    setSelectedPlaceId(place.id)
     mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    const run = () => mapRef.current?.focusPlace?.(placeId)
+    const run = () => mapRef.current?.focusPlace?.(place.id, lonLat)
     run()
     requestAnimationFrame(run)
-    setTimeout(run, 350)
-    setTimeout(run, 750)
+    ;[120, 350, 700, 1200, 2000].forEach((ms) => setTimeout(run, ms))
   }, [])
 
   useEffect(() => {
     if (selectedPlaceId == null) return
-    if (!filteredPlaces.some((p) => p.id === selectedPlaceId)) {
+    if (!filteredPlaces.some((p) => String(p.id) === String(selectedPlaceId))) {
       setSelectedPlaceId(null)
     }
   }, [filteredPlaces, selectedPlaceId])
@@ -896,7 +898,7 @@ export default function Home() {
                   onSaveToggle={() => setLocalTick((t) => t + 1)}
                   isSelected={selectedPlaceId === place.id}
                   setCardRef={(node) => setCardRef(place.id, node)}
-                  onFocusMap={() => onFocusPlaceOnMap(place.id)}
+                  onFocusMap={() => onFocusPlaceOnMap(place)}
                 />
               ]
               if ((i + 1) % 4 === 0) {
