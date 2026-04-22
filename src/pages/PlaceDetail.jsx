@@ -188,15 +188,19 @@ export default function PlaceDetail() {
     setSubmitting(true)
     const sessionId = getOrCreateSession()
 
-    // Upload photo if one was selected
+    // Upload photo if one was selected (needs Storage policies on place-photos — see migration 013)
     let uploadedPhotoUrl = null
+    let uploadErrorMsg = null
     if (photoFile) {
       const ext = photoFile.name.split('.').pop() || 'jpg'
       const path = `${id}/${sessionId}-${Date.now()}.${ext}`
       const { error: uploadErr } = await supabase.storage
         .from('place-photos')
-        .upload(path, photoFile, { upsert: false, contentType: photoFile.type })
-      if (!uploadErr) {
+        .upload(path, photoFile, { upsert: false, contentType: photoFile.type || 'image/jpeg' })
+      if (uploadErr) {
+        uploadErrorMsg = uploadErr.message
+        console.error('[Between] Storage upload failed:', uploadErr)
+      } else {
         const { data: urlData } = supabase.storage.from('place-photos').getPublicUrl(path)
         uploadedPhotoUrl = urlData?.publicUrl ?? null
       }
@@ -220,8 +224,17 @@ export default function PlaceDetail() {
     let { error } = await supabase.from('experience_reports').insert(extended)
 
     if (error) {
-      const { error: err2 } = await supabase.from('experience_reports').insert(base)
-      error = err2
+      const slim = {
+        ...base,
+        ...(uploadedPhotoUrl ? { photo_url: uploadedPhotoUrl } : {})
+      }
+      const { error: errSlim } = await supabase.from('experience_reports').insert(slim)
+      if (errSlim) {
+        const { error: errBase } = await supabase.from('experience_reports').insert(base)
+        error = errBase
+      } else {
+        error = null
+      }
     }
 
     if (error) {
@@ -232,14 +245,18 @@ export default function PlaceDetail() {
       setPostFlash(msg)
       setTimeout(() => setPostFlash(''), 5000)
     } else {
-      setPostFlash(contentKind === 'tip' ? 'Tip posted.' : 'Experience report posted.')
-      setTimeout(() => setPostFlash(''), 4000)
+      let msg = contentKind === 'tip' ? 'Tip posted.' : 'Experience report posted.'
+      if (uploadErrorMsg) {
+        msg = `Saved, but photo upload failed (${uploadErrorMsg}). In Supabase → SQL, run migration 013 (Storage policies for bucket place-photos).`
+      }
+      setPostFlash(msg)
+      setTimeout(() => setPostFlash(''), uploadErrorMsg ? 9000 : 4000)
       setReportContent('')
       setSelectedTag('')
       setContentKind('review')
       setPhotoFile(null)
       setPhotoPreview(null)
-      fetchExperienceReports()
+      await fetchExperienceReports()
     }
     setSubmitting(false)
   }

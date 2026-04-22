@@ -427,3 +427,20 @@ WHERE name IN (
 ORDER BY name;
 
 -- Done. In Supabase: Table Editor -> places -> confirm rows. App feed merges recent rows after RPC (see Home fetchPlaces).
+
+-- --- 013: Storage policies for visitor photo uploads (place-photos bucket) ------------
+-- Run AFTER creating public bucket `place-photos` in Dashboard → Storage.
+-- Copy from supabase/migrations/013_storage_place_photos_policies.sql if this block is missing.
+
+DROP POLICY IF EXISTS "place_photos_anon_insert" ON storage.objects;
+DROP POLICY IF EXISTS "place_photos_public_read" ON storage.objects;
+
+CREATE POLICY "place_photos_anon_insert"
+  ON storage.objects FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (bucket_id = 'place-photos');
+
+CREATE POLICY "place_photos_public_read"
+  ON storage.objects FOR SELECT
+  TO public
+  USING (bucket_id = 'place-photos');
