@@ -133,7 +133,6 @@ export default function Home() {
   const [darkHorsePlaces, setDarkHorsePlaces] = useState([])
   const [intent, setIntent] = useState(() => getIntention())
   const [localTick, setLocalTick] = useState(0)
-  const [filterTag, setFilterTag] = useState('')
   const [minIntensity, setMinIntensity] = useState(0)
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
@@ -400,21 +399,10 @@ export default function Home() {
     }
   }, [])
 
-  const allTags = useMemo(() => {
-    const s = new Set()
-    for (const p of places) {
-      for (const t of p.category_tags || []) s.add(t)
-    }
-    return [...s].sort()
-  }, [places])
-
   const filteredPlaces = useMemo(() => {
     let list = places
     if (intent) {
       list = list.filter((p) => placeMatchesIntention(p, intent))
-    }
-    if (filterTag) {
-      list = list.filter((p) => (p.category_tags || []).includes(filterTag))
     }
     if (isTheophany && minIntensity > 0) {
       list = list.filter((p) => p.intensity != null && p.intensity >= minIntensity)
@@ -447,7 +435,6 @@ export default function Home() {
   }, [
     places,
     intent,
-    filterTag,
     minIntensity,
     hideVisited,
     savedOnly,
@@ -719,9 +706,6 @@ export default function Home() {
 
         <FeedFilters
           isTheophany={isTheophany}
-          allTags={allTags}
-          filterTag={filterTag}
-          setFilterTag={setFilterTag}
           minIntensity={minIntensity}
           setMinIntensity={setMinIntensity}
           hideVisited={hideVisited}
