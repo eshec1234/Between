@@ -27,7 +27,8 @@ import {
   HOME_MODE_STORAGE_KEY,
   getHomeMode
 } from '../lib/betweenLocal'
-import { placeMatchesIntention, placeReadsAsMemorialOrCemetery } from '../data/intentions'
+import { placeMatchesIntention } from '../data/intentions'
+import { placeAppearsInSanctuaryHome, placeAppearsInTheophanyHome } from '../data/modeExclusivity'
 import { placeMatchesSanctuaryTradition, normalizeSanctuaryTraditionId } from '../data/sanctuaryTraditions'
 import EngagementHub from '../components/EngagementHub'
 import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
@@ -382,6 +383,11 @@ export default function Home() {
 
   const filteredPlaces = useMemo(() => {
     let list = places
+    if (isTheophany) {
+      list = list.filter((p) => placeAppearsInTheophanyHome(p))
+    } else {
+      list = list.filter((p) => placeAppearsInSanctuaryHome(p))
+    }
     if (intent && isTheophany) {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
@@ -393,11 +399,8 @@ export default function Home() {
       const s = getSavedIds()
       list = list.filter((p) => s.has(p.id))
     }
-    if (!isTheophany) {
-      list = list.filter((p) => !placeReadsAsMemorialOrCemetery(p))
-      if (sanctuaryTradition) {
-        list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
-      }
+    if (!isTheophany && sanctuaryTradition) {
+      list = list.filter((p) => placeMatchesSanctuaryTradition(p, sanctuaryTradition))
     }
     // Attach distance from user's live location, then sort closest-first
     list = list.map((p) => {
