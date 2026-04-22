@@ -5,8 +5,8 @@ export default function SanctuaryTraditionBar({ value, onChange, subClass, borde
     <div className="rounded-xl border-2 border-sanctuary-accent/25 bg-white/[0.06] px-3 py-3">
       <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Tradition</p>
       <p className={`mt-1 font-sans text-[10px] leading-snug opacity-90 ${subClass}`}>
-        Filter by how places describe themselves — synagogues, mosques, churches, and more. Uses tags and tradition
-        lines; choose “All” to see everything.
+        Browse in order: everything, faith & worship, then loose groupings (memorials, campuses, landmarks, outdoors).
+        Matching uses tags and short descriptions — tap “All” to clear.
       </p>
       <div className="mt-2.5 flex flex-wrap gap-2">
         {SANCTUARY_TRADITIONS.map((t) => (

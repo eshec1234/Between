@@ -111,28 +111,28 @@ export default function EngagementHub({
         </div>
       )}
 
-      <div>
-        <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Intention</p>
-        <p className={`mt-1 font-sans text-[10px] ${subClass}`}>Soft-filter the list (tap again to clear)</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {INTENTIONS.map((it) => (
-            <button
-              key={it.id || 'all-intent'}
-              type="button"
-              onClick={() => onIntent(it.id)}
-              className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${
-                intent === it.id
-                  ? isTheophany
+      {isTheophany && (
+        <div>
+          <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Intention</p>
+          <p className={`mt-1 font-sans text-[10px] ${subClass}`}>Soft-filter the list (tap again to clear)</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {INTENTIONS.map((it) => (
+              <button
+                key={it.id || 'all-intent'}
+                type="button"
+                onClick={() => onIntent(it.id)}
+                className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${
+                  intent === it.id
                     ? 'border-theophany-accent bg-theophany-accent/20 text-theophany-text'
-                    : 'border-sanctuary-accent bg-sanctuary-accent/15 text-sanctuary-text'
-                  : `${borderClass} ${subClass} hover:opacity-90`
-              }`}
-            >
-              {it.label}
-            </button>
-          ))}
+                    : `${borderClass} ${subClass} hover:opacity-90`
+                }`}
+              >
+                {it.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {routesResolved.length > 0 && (
         <div>

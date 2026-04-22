@@ -29,7 +29,7 @@ import {
   getHomeMode
 } from '../lib/betweenLocal'
 import { placeMatchesIntention } from '../data/intentions'
-import { placeMatchesSanctuaryTradition } from '../data/sanctuaryTraditions'
+import { placeMatchesSanctuaryTradition, normalizeSanctuaryTraditionId } from '../data/sanctuaryTraditions'
 import EngagementHub from '../components/EngagementHub'
 import SanctuaryTraditionBar from '../components/SanctuaryTraditionBar'
 import FeedFilters from '../components/FeedFilters'
@@ -160,7 +160,9 @@ export default function Home() {
   const [savedOnly, setSavedOnly] = useState(false)
   const [selectedPlaceId, setSelectedPlaceId] = useState(null)
   const [trackNearby, setTrackNearby] = useState(() => getNearbyTrackingEnabled())
-  const [sanctuaryTradition, setSanctuaryTradition] = useState(() => getSanctuaryTraditionId())
+  const [sanctuaryTradition, setSanctuaryTradition] = useState(() =>
+    normalizeSanctuaryTraditionId(getSanctuaryTraditionId())
+  )
   // True once we have a real GPS fix (or gave up waiting). Prevents the list from
   // rendering with the default center before location resolves.
   const [locationReady, setLocationReady] = useState(!navigator.geolocation)
@@ -423,7 +425,7 @@ export default function Home() {
 
   const filteredPlaces = useMemo(() => {
     let list = places
-    if (intent) {
+    if (intent && isTheophany) {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
     if (isTheophany && minIntensity > 0) {
@@ -557,8 +559,18 @@ export default function Home() {
   }, [])
 
   const onSanctuaryTraditionChange = useCallback((id) => {
-    setSanctuaryTradition(id)
-    setSanctuaryTraditionId(id)
+    const next = normalizeSanctuaryTraditionId(id)
+    setSanctuaryTradition(next)
+    setSanctuaryTraditionId(next)
+  }, [])
+
+  useEffect(() => {
+    const raw = getSanctuaryTraditionId()
+    const norm = normalizeSanctuaryTraditionId(raw)
+    if (norm !== raw) {
+      setSanctuaryTraditionId(norm)
+      setSanctuaryTradition(norm)
+    }
   }, [])
 
   const setCardRef = useCallback((placeId, node) => {
@@ -720,8 +732,17 @@ export default function Home() {
             Hyperlocal · Anonymous · Feed
           </p>
           <p className={`mx-auto mt-2 max-w-md font-sans text-[11px] leading-relaxed ${isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>
-            Set an intention, follow a mini-route, or browse — open a place for a walkthrough and reflections. Saved and
-            visited states stay on this device.
+            {isTheophany ? (
+              <>
+                Set an intention, follow a mini-route, or browse — open a place for a walkthrough and reflections. Saved
+                and visited states stay on this device.
+              </>
+            ) : (
+              <>
+                Use tradition groups above, then mini-routes or the list — open a place for a walkthrough and
+                reflections. Saved and visited states stay on this device.
+              </>
+            )}
           </p>
         </div>
 
@@ -970,7 +991,11 @@ export default function Home() {
           ) : filteredPlaces.length === 0 ? (
             <div className="space-y-3 pt-12 text-center">
               <p className="font-serif italic opacity-60">
-                {places.length === 0 ? 'No places here yet.' : 'Nothing matches these filters — try clearing intention or saved-only.'}
+                {places.length === 0
+                  ? 'No places here yet.'
+                  : isTheophany
+                    ? 'Nothing matches these filters — try clearing intention or saved-only.'
+                    : 'Nothing matches these filters — try “All” under Tradition or turning off saved-only.'}
               </p>
               {places.length === 0 && (
                 <p className="font-sans text-xs uppercase tracking-wider opacity-40">Be the first to add one.</p>
