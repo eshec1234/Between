@@ -17,7 +17,6 @@ export function buildWalkthroughSteps(place) {
   const desc = clip(place.description || '', 520)
   const primaryTag = place.category_tags?.[0] || 'place'
   const mode = place.mode || 'sanctuary'
-  const intensity = place.intensity
 
   const steps = []
 
@@ -70,19 +69,6 @@ export function buildWalkthroughSteps(place) {
         desc ||
         `You sense layers — footfalls that are not only yours. History here is not a lesson; it is atmosphere pressing gently against the skin.`
     })
-    if (intensity != null && intensity >= 1) {
-      const level =
-        intensity <= 2
-          ? 'a low hum at the edge of awareness'
-          : intensity <= 4
-            ? 'a steady pull, like tide under ice'
-            : 'a strong pull — the boundary feels thin'
-      steps.push({
-        id: 'charge',
-        title: 'Charge of the place',
-        body: `On the intensity you sense here, the place registers as ${level}. Nothing demands belief — only attention. You notice what you are ready to notice.`
-      })
-    }
     steps.push({
       id: 'linger',
       title: 'Linger or leave',

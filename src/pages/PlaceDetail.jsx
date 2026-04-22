@@ -11,7 +11,6 @@ import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
 import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
 import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
-import { theophanyIntensityTier } from '../data/intensityLegend'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -584,49 +583,23 @@ export default function PlaceDetail() {
               </div>
             )}
 
-            {(place.intensity != null || place.approach_tags?.length > 0) && (
+            {place.approach_tags?.length > 0 && (
               <div
                 className={`space-y-2 rounded-md border-2 p-4 ${borderClass} ${
                   isTheophany ? 'bg-white/[0.06]' : 'bg-black/[0.04]'
                 }`}
               >
                 <h3 className={`font-sans text-xs font-semibold uppercase tracking-wider ${subClass}`}>Vibe</h3>
-                {place.intensity != null && (
-                  <p className="font-sans text-sm text-current">
-                    <span className={`font-medium ${subClass}`}>Intensity:</span>{' '}
-                    {isTheophany
-                      ? (() => {
-                          const tier = theophanyIntensityTier(place.intensity)
-                          return (
-                            <>
-                              {'●'.repeat(tier)}
-                              {'○'.repeat(3 - tier)}
-                              <span className={`ml-1.5 font-sans text-[10px] normal-case tracking-normal ${subClass}`}>
-                                (tier {tier} of 3)
-                              </span>
-                            </>
-                          )
-                        })()
-                      : (
-                          <>
-                            {'●'.repeat(place.intensity)}
-                            {'○'.repeat(5 - place.intensity)}
-                          </>
-                        )}
-                  </p>
-                )}
-                {place.approach_tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {place.approach_tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {place.approach_tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className={`rounded border px-2 py-1 font-sans text-xs font-medium uppercase tracking-wider ${borderClass} ${subClass}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 

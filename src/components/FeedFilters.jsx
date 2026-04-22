@@ -1,14 +1,10 @@
 export default function FeedFilters({
   isTheophany,
-  minIntensity,
-  setMinIntensity,
   hideVisited,
   setHideVisited,
   savedOnly,
   setSavedOnly,
-  subClass,
-  borderClass,
-  accentClass
+  subClass
 }) {
   return (
     <div
@@ -18,23 +14,6 @@ export default function FeedFilters({
     >
       <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Filters</p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-        {isTheophany && (
-          <label className={`flex items-center gap-2 font-sans text-[10px] ${subClass}`}>
-            <span>Intensity tier ≥</span>
-            <select
-              value={minIntensity}
-              onChange={(e) => setMinIntensity(Number(e.target.value))}
-              className={`rounded border bg-transparent px-2 py-1 font-sans text-[10px] ${borderClass} ${accentClass}`}
-            >
-              <option value={0}>Any</option>
-              {[1, 2, 3].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
         <label className={`flex cursor-pointer items-center gap-2 font-sans text-[10px] ${subClass}`}>
           <input
             type="checkbox"

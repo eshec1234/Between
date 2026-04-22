@@ -4,7 +4,6 @@ import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Starfield from '../components/Starfield'
 const Map = lazy(() => import('../components/Map'))
 import { getDailyOmen } from '../data/omens'
-import { INTENSITY_LEVELS, INTENSITY_LEVELS_THEOPHANY, theophanyIntensityTier } from '../data/intensityLegend'
 import { fetchActivityFeed, fetchDarkHorsePlaces } from '../lib/feed'
 import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
@@ -95,47 +94,6 @@ function placeTypeLabel(place) {
   return 'Place'
 }
 
-function IntensityBar({ level, isTheophany }) {
-  const empty = isTheophany ? 'rgba(120,90,160,0.22)' : 'rgba(255,255,255,0.1)'
-  if (isTheophany) {
-    const tier = level == null || level < 1 || level > 3 ? 2 : level
-    const meta = INTENSITY_LEVELS_THEOPHANY[tier - 1]
-    return (
-      <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
-        <span className="mr-0.5 font-sans text-[9px] font-semibold tabular-nums text-white/80" aria-hidden>
-          {tier}
-        </span>
-        {[1, 2, 3].map((n) => (
-          <div
-            key={n}
-            className="h-[3px] w-3.5 rounded-sm"
-            style={{ background: n <= tier ? meta.c : empty }}
-          />
-        ))}
-        <span className="ml-1 font-sans text-[9px] uppercase tracking-wider" style={{ color: meta.c }}>
-          {meta.label}
-        </span>
-      </div>
-    )
-  }
-  if (level == null || level < 1 || level > 5) return null
-  const meta = INTENSITY_LEVELS[level - 1]
-  return (
-    <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <div
-          key={n}
-          className="h-[3px] w-3 rounded-sm"
-          style={{ background: n <= level ? meta.c : empty }}
-        />
-      ))}
-      <span className="ml-1 font-sans text-[9px] uppercase tracking-wider" style={{ color: meta.c }}>
-        {meta.label}
-      </span>
-    </div>
-  )
-}
-
 export default function Home() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -155,7 +113,6 @@ export default function Home() {
   const [darkHorsePlaces, setDarkHorsePlaces] = useState([])
   const [intent, setIntent] = useState(() => getIntention())
   const [localTick, setLocalTick] = useState(0)
-  const [minIntensity, setMinIntensity] = useState(0)
   const [hideVisited, setHideVisited] = useState(false)
   const [savedOnly, setSavedOnly] = useState(false)
   const [selectedPlaceId, setSelectedPlaceId] = useState(null)
@@ -428,9 +385,6 @@ export default function Home() {
     if (intent && isTheophany) {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
-    if (isTheophany && minIntensity > 0) {
-      list = list.filter((p) => theophanyIntensityTier(p.intensity) >= minIntensity)
-    }
     if (hideVisited) {
       const v = getVisitedIds()
       list = list.filter((p) => !v.has(p.id))
@@ -459,7 +413,6 @@ export default function Home() {
   }, [
     places,
     intent,
-    minIntensity,
     hideVisited,
     savedOnly,
     isTheophany,
@@ -540,37 +493,7 @@ export default function Home() {
 
     if (!filteredPlaces.length) return rows
 
-    if (!isTheophany) {
-      filteredPlaces.forEach(addPlaceCard)
-      return rows
-    }
-
-    const byTier = [[], [], []]
-    for (const p of filteredPlaces) {
-      byTier[theophanyIntensityTier(p.intensity) - 1].push(p)
-    }
-
-    let firstHeader = true
-    for (let t = 0; t < 3; t++) {
-      const tierPlaces = byTier[t]
-      if (!tierPlaces.length) continue
-      const meta = INTENSITY_LEVELS_THEOPHANY[t]
-      rows.push(
-        <div
-          key={`tier-${t + 1}`}
-          className={`px-0 ${firstHeader ? '-mt-1' : 'mt-6 border-t border-violet-950/35 pt-4'}`}
-        >
-          <p className={`font-sans text-[9px] uppercase tracking-[0.3em] ${subMuted}`}>
-            {t + 1} — {meta.label}
-          </p>
-          <p className={`mt-0.5 font-sans text-[10px] leading-snug ${subMuted}`}>
-            {tierPlaces.length} place{tierPlaces.length === 1 ? '' : 's'} · sorted nearest first within this tier
-          </p>
-        </div>
-      )
-      firstHeader = false
-      tierPlaces.forEach(addPlaceCard)
-    }
+    filteredPlaces.forEach(addPlaceCard)
     return rows
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredPlaces, isTheophany, selectedPlaceId, subMuted])
@@ -754,25 +677,6 @@ export default function Home() {
               </div>
               <p className="m-0 font-serif text-sm italic leading-relaxed text-violet-100/90">{omen}</p>
             </div>
-            <div className="rounded border border-violet-950/45 bg-[rgba(8,4,18,0.55)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(167,139,250,0.08)] backdrop-blur-sm">
-              <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-violet-500/45">
-                Intensity (1–3)
-              </div>
-              <p className="mb-2 font-sans text-[9px] leading-snug text-violet-200/55">
-                Each place appears under one of three tiers below. Stored 1–2 → tier 1, 3 → tier 2, 4–5 → tier 3; missing data defaults to tier 2.
-              </p>
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5">
-                {INTENSITY_LEVELS_THEOPHANY.map((l, i) => (
-                  <div key={l.label} className="flex items-center gap-1.5">
-                    <span className="font-sans text-[9px] font-semibold tabular-nums text-violet-200/70">{i + 1}</span>
-                    <div className="h-2 w-2 shrink-0 rounded-full" style={{ background: l.c }} />
-                    <span className="font-sans text-[8px]" style={{ color: l.c }}>
-                      {l.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 
@@ -817,15 +721,11 @@ export default function Home() {
 
         <FeedFilters
           isTheophany={isTheophany}
-          minIntensity={minIntensity}
-          setMinIntensity={setMinIntensity}
           hideVisited={hideVisited}
           setHideVisited={setHideVisited}
           savedOnly={savedOnly}
           setSavedOnly={setSavedOnly}
           subClass={subMuted}
-          borderClass={bord}
-          accentClass={accent}
         />
 
         <div className="px-4 pt-5">
@@ -1168,9 +1068,6 @@ function PlaceCard({
           <div className="absolute bottom-2.5 left-2.5">
             <SourceBadge source={place.source} compact />
           </div>
-          {isTheophany && (
-            <IntensityBar level={theophanyIntensityTier(place.intensity)} isTheophany />
-          )}
         </div>
 
         <div className="px-4 py-3.5">

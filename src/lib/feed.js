@@ -75,7 +75,7 @@ export async function fetchDarkHorsePlaces(supabase, mode, trendingIds = []) {
 
   const { data, error } = await supabase
     .from('places')
-    .select('id, name, city, state, mode, source, flags, created_at, photos, category_tags, description, traditions, intensity')
+    .select('id, name, city, state, mode, source, flags, created_at, photos, category_tags, description, traditions')
     .or(modeFilter)
     .limit(120)
 

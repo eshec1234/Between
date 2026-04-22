@@ -18,7 +18,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: 'What is Theophany?',
-    a: 'Theophany (meaning "divine appearing") guides you toward liminal and haunted locations — places where the boundary between the ordinary and the extraordinary has grown thin. Each site includes immersive AI narration and an intensity rating.'
+    a: 'Theophany (meaning "divine appearing") guides you toward liminal and haunted locations — places where the boundary between the ordinary and the extraordinary has grown thin. Each site includes immersive AI narration.'
   },
   {
     q: 'How does location work?',
