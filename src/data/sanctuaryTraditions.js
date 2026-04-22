@@ -42,29 +42,9 @@ export const SANCTUARY_TRADITIONS = [
     match: ['jewish', 'judaism', 'synagogue', 'torah', 'shabbat', 'hebrew', 'kosher', 'yeshiva', 'hasidic', 'reform judaism', 'conservative judaism']
   },
   {
-    id: 'islam',
-    label: 'Islam',
-    match: ['islam', 'muslim', 'mosque', 'masjid', 'quran', "qur'an", 'ramadan', 'minaret', 'imam', 'sunni', 'shia', 'islamic']
-  },
-  {
-    id: 'hindu',
-    label: 'Hinduism',
-    match: ['hindu', 'hinduism', 'mandir', 'vedic', 'puja', 'diwali', 'shiva', 'vishnu', 'devi', 'swaminarayan']
-  },
-  {
     id: 'buddhist',
     label: 'Buddhism',
     match: ['buddhist', 'buddhism', 'vihara', 'stupa', 'zen', 'nembutsu', 'theravada', 'mahayana', 'bodhisattva', 'dharma hall']
-  },
-  {
-    id: 'sikh',
-    label: 'Sikhism',
-    match: ['sikh', 'sikhism', 'gurdwara', 'guru granth', 'khalsa', 'singh sabha']
-  },
-  {
-    id: 'bahai',
-    label: "Baha'i",
-    match: ['bahai', 'bahá', "baha'i", 'baháʼí', 'bahai faith']
   }
 ]
 
