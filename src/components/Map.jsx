@@ -13,8 +13,15 @@ function styleForMode(mode) {
 
 /** [lng, lat] from PostgREST GeoJSON Point, or null if missing/invalid */
 function lngLatFromPlace(place) {
-  const c = place?.coordinates
+  let c = place?.coordinates
   if (!c) return null
+  if (typeof c === 'string') {
+    try {
+      c = JSON.parse(c)
+    } catch {
+      return null
+    }
+  }
   const arr = Array.isArray(c.coordinates)
     ? c.coordinates
     : Array.isArray(c) && c.length >= 2

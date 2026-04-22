@@ -974,6 +974,7 @@ function PlaceCard({
   setCardRef = null,
   onFocusMap = null
 }) {
+  const navigate = useNavigate()
   const type = placeTypeLabel(place)
   const { label: timeLabel } = photoForPlaceAtTime(place)
   const [saved, setSaved] = useState(() => isSaved(place.id))
@@ -1012,9 +1013,19 @@ function PlaceCard({
       >
         {saved ? '♥' : '♡'}
       </button>
-      <Link to={`/place/${place.id}`} className="block">
+      {/* div+navigate — not <a><button/></a> (invalid; Locate on map would not fire reliably) */}
       <div
-        className={`group overflow-hidden rounded-xl border shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
+        role="link"
+        tabIndex={0}
+        aria-label={`Open ${place.name}`}
+        onClick={() => navigate(`/place/${place.id}`)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            navigate(`/place/${place.id}`)
+          }
+        }}
+        className={`group block cursor-pointer overflow-hidden rounded-xl border text-left shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
           isTheophany
             ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
@@ -1064,7 +1075,7 @@ function PlaceCard({
         </div>
 
         <div className="px-4 py-3.5">
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="relative z-10 mb-2 flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={(e) => {
@@ -1072,7 +1083,7 @@ function PlaceCard({
                 e.stopPropagation()
                 onFocusMap?.()
               }}
-              className={`rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
+              className={`relative z-20 rounded-md border px-2.5 py-1 font-sans text-[9px] uppercase tracking-[0.18em] transition-colors ${
                 isTheophany
                   ? 'border-theophany-accent/45 text-theophany-accent hover:bg-theophany-accent/15'
                   : 'border-sanctuary-accent/45 text-sanctuary-accent hover:bg-sanctuary-accent/15'
@@ -1121,7 +1132,6 @@ function PlaceCard({
           )}
         </div>
       </div>
-    </Link>
     </div>
   )
 }
