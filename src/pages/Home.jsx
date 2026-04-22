@@ -4,7 +4,7 @@ import { supabase, hasSupabaseEnv } from '../lib/supabase'
 import Starfield from '../components/Starfield'
 const Map = lazy(() => import('../components/Map'))
 import { getDailyOmen } from '../data/omens'
-import { INTENSITY_LEVELS, INTENSITY_LEVELS_THEOPHANY } from '../data/intensityLegend'
+import { INTENSITY_LEVELS, INTENSITY_LEVELS_THEOPHANY, theophanyIntensityTier } from '../data/intensityLegend'
 import { fetchActivityFeed, fetchDarkHorsePlaces } from '../lib/feed'
 import ActivityFeed from '../components/ActivityFeed'
 import MockAdSlot from '../components/MockAdSlot'
@@ -44,9 +44,10 @@ import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 const DEFAULT_CENTER = { lat: 39.9526, lng: -75.1652 }
 /** ~350km — PA/NJ/NY seeds span hundreds of km; 10km hid almost everything. */
 const NEARBY_RADIUS_M = 350000
-const PLACES_LIST_CAP = 48
-/** Leave headroom so newest catalog rows (e.g. tradition seeds) can merge into the list */
-const MAX_FROM_RPC = 24
+/** Large enough to load full PA/NJ/NY catalog from merged queries (~500+ rows) */
+const PLACES_LIST_CAP = 1000
+/** Match PostGIS `places_nearby` LIMIT so closest-first RPC rows are not truncated early */
+const MAX_FROM_RPC = 50
 /** Refetch nearby list when you’ve moved at least this far (km) while tracking */
 const TRACK_MIN_MOVE_KM = 0.13
 
@@ -95,10 +96,30 @@ function placeTypeLabel(place) {
 }
 
 function IntensityBar({ level, isTheophany }) {
-  if (level == null || level < 1 || level > 5) return null
-  const scale = isTheophany ? INTENSITY_LEVELS_THEOPHANY : INTENSITY_LEVELS
-  const meta = scale[level - 1]
   const empty = isTheophany ? 'rgba(120,90,160,0.22)' : 'rgba(255,255,255,0.1)'
+  if (isTheophany) {
+    const tier = level == null || level < 1 || level > 3 ? 2 : level
+    const meta = INTENSITY_LEVELS_THEOPHANY[tier - 1]
+    return (
+      <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
+        <span className="mr-0.5 font-sans text-[9px] font-semibold tabular-nums text-white/80" aria-hidden>
+          {tier}
+        </span>
+        {[1, 2, 3].map((n) => (
+          <div
+            key={n}
+            className="h-[3px] w-3.5 rounded-sm"
+            style={{ background: n <= tier ? meta.c : empty }}
+          />
+        ))}
+        <span className="ml-1 font-sans text-[9px] uppercase tracking-wider" style={{ color: meta.c }}>
+          {meta.label}
+        </span>
+      </div>
+    )
+  }
+  if (level == null || level < 1 || level > 5) return null
+  const meta = INTENSITY_LEVELS[level - 1]
   return (
     <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -328,7 +349,7 @@ export default function Home() {
       .select(PLACES_LIST_SELECT)
       .or(`mode.eq.${mode},mode.eq.both`)
       .order('name', { ascending: true })
-      .limit(120)
+      .limit(1000)
     if (fetchSeq !== fetchSeqRef.current) return
 
     for (const p of more || []) {
@@ -350,7 +371,7 @@ export default function Home() {
         .or(`mode.eq.${mode},mode.eq.both`)
         .eq('state', st)
         .order('name', { ascending: true })
-        .limit(24)
+        .limit(120)
       if (fetchSeq !== fetchSeqRef.current) return
       for (const p of extra || []) {
         if (rpcSlice.length + catalogExtras.length >= PLACES_LIST_CAP) break
@@ -406,7 +427,7 @@ export default function Home() {
       list = list.filter((p) => placeMatchesIntention(p, intent))
     }
     if (isTheophany && minIntensity > 0) {
-      list = list.filter((p) => p.intensity != null && p.intensity >= minIntensity)
+      list = list.filter((p) => theophanyIntensityTier(p.intensity) >= minIntensity)
     }
     if (hideVisited) {
       const v = getVisitedIds()
@@ -453,6 +474,70 @@ export default function Home() {
   const savedIds = useMemo(() => getSavedIds(), [places, localTick, location.key])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const walkthroughDoneIds = useMemo(() => getWalkthroughDoneIds(), [places, localTick, location.key])
+
+  const nearbyFeedRows = useMemo(() => {
+    const rows = []
+    let cardAnim = 0
+    let ordinal = 0
+
+    const addPlaceCard = (place) => {
+      ordinal += 1
+      rows.push(
+        <PlaceCard
+          key={place.id}
+          place={place}
+          isTheophany={isTheophany}
+          animIndex={cardAnim}
+          onSaveToggle={() => setLocalTick((t) => t + 1)}
+          isSelected={selectedPlaceId === place.id}
+          setCardRef={(node) => setCardRef(place.id, node)}
+          onFocusMap={() => onFocusPlaceOnMap(place)}
+        />
+      )
+      cardAnim += 1
+      if (ordinal % 4 === 0) {
+        rows.push(
+          <MockAdSlot key={`ad-slot-${place.id}-${ordinal}`} index={Math.floor(ordinal / 4) - 1} isTheophany={isTheophany} />
+        )
+      }
+    }
+
+    if (!filteredPlaces.length) return rows
+
+    if (!isTheophany) {
+      filteredPlaces.forEach(addPlaceCard)
+      return rows
+    }
+
+    const byTier = [[], [], []]
+    for (const p of filteredPlaces) {
+      byTier[theophanyIntensityTier(p.intensity) - 1].push(p)
+    }
+
+    let firstHeader = true
+    for (let t = 0; t < 3; t++) {
+      const tierPlaces = byTier[t]
+      if (!tierPlaces.length) continue
+      const meta = INTENSITY_LEVELS_THEOPHANY[t]
+      rows.push(
+        <div
+          key={`tier-${t + 1}`}
+          className={`px-0 ${firstHeader ? '-mt-1' : 'mt-6 border-t border-violet-950/35 pt-4'}`}
+        >
+          <p className={`font-sans text-[9px] uppercase tracking-[0.3em] ${subMuted}`}>
+            {t + 1} — {meta.label}
+          </p>
+          <p className={`mt-0.5 font-sans text-[10px] leading-snug ${subMuted}`}>
+            {tierPlaces.length} place{tierPlaces.length === 1 ? '' : 's'} · sorted nearest first within this tier
+          </p>
+        </div>
+      )
+      firstHeader = false
+      tierPlaces.forEach(addPlaceCard)
+    }
+    return rows
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredPlaces, isTheophany, selectedPlaceId, subMuted])
 
   const mapCenter = [center.lng, center.lat]
 
@@ -650,12 +735,16 @@ export default function Home() {
             </div>
             <div className="rounded border border-violet-950/45 bg-[rgba(8,4,18,0.55)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(167,139,250,0.08)] backdrop-blur-sm">
               <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.3em] text-violet-500/45">
-                Intensity scale
+                Intensity (1–3)
               </div>
-              <div className="flex flex-wrap gap-2.5">
-                {INTENSITY_LEVELS_THEOPHANY.map((l) => (
-                  <div key={l.label} className="flex items-center gap-1">
-                    <div className="h-2 w-2 rounded-full" style={{ background: l.c }} />
+              <p className="mb-2 font-sans text-[9px] leading-snug text-violet-200/55">
+                Each place appears under one of three tiers below. Stored 1–2 → tier 1, 3 → tier 2, 4–5 → tier 3; missing data defaults to tier 2.
+              </p>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1.5">
+                {INTENSITY_LEVELS_THEOPHANY.map((l, i) => (
+                  <div key={l.label} className="flex items-center gap-1.5">
+                    <span className="font-sans text-[9px] font-semibold tabular-nums text-violet-200/70">{i + 1}</span>
+                    <div className="h-2 w-2 shrink-0 rounded-full" style={{ background: l.c }} />
                     <span className="font-sans text-[8px]" style={{ color: l.c }}>
                       {l.label}
                     </span>
@@ -888,26 +977,7 @@ export default function Home() {
               )}
             </div>
           ) : (
-            filteredPlaces.flatMap((place, i) => {
-              const cards = [
-                <PlaceCard
-                  key={place.id}
-                  place={place}
-                  isTheophany={isTheophany}
-                  animIndex={i}
-                  onSaveToggle={() => setLocalTick((t) => t + 1)}
-                  isSelected={selectedPlaceId === place.id}
-                  setCardRef={(node) => setCardRef(place.id, node)}
-                  onFocusMap={() => onFocusPlaceOnMap(place)}
-                />
-              ]
-              if ((i + 1) % 4 === 0) {
-                cards.push(
-                  <MockAdSlot key={`ad-slot-${place.id}`} index={Math.floor(i / 4)} isTheophany={isTheophany} />
-                )
-              }
-              return cards
-            })
+            nearbyFeedRows
           )}
         </div>
       </div>
@@ -1073,7 +1143,9 @@ function PlaceCard({
           <div className="absolute bottom-2.5 left-2.5">
             <SourceBadge source={place.source} compact />
           </div>
-          {isTheophany && place.intensity != null && <IntensityBar level={place.intensity} isTheophany />}
+          {isTheophany && (
+            <IntensityBar level={theophanyIntensityTier(place.intensity)} isTheophany />
+          )}
         </div>
 
         <div className="px-4 py-3.5">

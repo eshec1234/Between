@@ -117,7 +117,7 @@ export default function EngagementHub({
         <div className="mt-2 flex flex-wrap gap-2">
           {INTENTIONS.map((it) => (
             <button
-              key={it.id}
+              key={it.id || 'all-intent'}
               type="button"
               onClick={() => onIntent(it.id)}
               className={`min-h-[44px] rounded-full border px-3 py-2 font-sans text-[10px] font-medium uppercase tracking-wider ${

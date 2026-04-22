@@ -11,6 +11,7 @@ import FilmGrain from '../components/FilmGrain'
 import Starfield from '../components/Starfield'
 import { photosForPlace, photoForPlaceAtTime } from '../lib/placePhotoFallback'
 import PlaceImage, { PlaceImageFromUrl } from '../components/PlaceImage'
+import { theophanyIntensityTier } from '../data/intensityLegend'
 
 const REFLECTION_TAGS = [
   'Helped me slow down',
@@ -593,8 +594,25 @@ export default function PlaceDetail() {
                 {place.intensity != null && (
                   <p className="font-sans text-sm text-current">
                     <span className={`font-medium ${subClass}`}>Intensity:</span>{' '}
-                    {'●'.repeat(place.intensity)}
-                    {'○'.repeat(5 - place.intensity)}
+                    {isTheophany
+                      ? (() => {
+                          const tier = theophanyIntensityTier(place.intensity)
+                          return (
+                            <>
+                              {'●'.repeat(tier)}
+                              {'○'.repeat(3 - tier)}
+                              <span className={`ml-1.5 font-sans text-[10px] normal-case tracking-normal ${subClass}`}>
+                                (tier {tier} of 3)
+                              </span>
+                            </>
+                          )
+                        })()
+                      : (
+                          <>
+                            {'●'.repeat(place.intensity)}
+                            {'○'.repeat(5 - place.intensity)}
+                          </>
+                        )}
                   </p>
                 )}
                 {place.approach_tags?.length > 0 && (

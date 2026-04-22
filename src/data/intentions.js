@@ -1,6 +1,7 @@
 /** Intention chips → loose tag matching on category_tags (substring) */
 
 export const INTENTIONS = [
+  { id: '', label: 'All locations' },
   { id: 'edge', label: 'Edge / liminal', match: ['anomalous', 'liminal', 'ruins', 'abandoned', 'forest', 'folklore'] },
   { id: 'grief', label: 'Grief / memory', match: ['cemetery', 'memorial', 'battlefield', 'civil', 'national'] },
   {
