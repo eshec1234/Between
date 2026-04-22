@@ -340,7 +340,7 @@ export default function PlaceDetail() {
             className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh]"
             style={{
               background:
-                'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.2), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.1), transparent 45%), radial-gradient(ellipse_at_center, transparent 20%, rgba(10, 8, 22, 0.42) 100%)'
+                'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.16), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.08), transparent 45%), radial-gradient(ellipse_at_center, transparent 24%, rgba(8, 4, 20, 0.35) 100%)'
             }}
           />
         </>

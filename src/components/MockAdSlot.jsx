@@ -17,7 +17,7 @@ export default function MockAdSlot({ index = 0, isTheophany }) {
     <div
       className={`relative overflow-hidden rounded-lg border-2 border-dashed px-3 py-3 ${
         isTheophany
-          ? 'border-theophany-muted/40 bg-black/25'
+          ? 'border-theophany-muted/40 bg-theophany-primary/30'
           : 'border-sanctuary-muted/35 bg-black/[0.03]'
       }`}
     >

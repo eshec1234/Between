@@ -55,7 +55,7 @@ const Map = forwardRef(function Map({
 
       const el = document.createElement('div')
       el.className = 'between-marker'
-      const base = currentMode === 'theophany' ? '#a78bfa' : '#c8a870'
+      const base = currentMode === 'theophany' ? '#b8a4fc' : '#c8a870'
       const ring = selected
         ? currentMode === 'theophany'
           ? '0 0 0 4px rgba(192,167,255,0.42)'
@@ -73,7 +73,7 @@ const Map = forwardRef(function Map({
         height: ${size}px;
         border-radius: 50%;
         background: ${base};
-        border: 2px solid ${currentMode === 'theophany' ? '#1e0b32' : '#fffef8'};
+        border: 2px solid ${currentMode === 'theophany' ? '#2f2a4a' : '#fffef8'};
         box-shadow: ${ring};
         cursor: pointer;
         transition: transform 150ms ease-out;

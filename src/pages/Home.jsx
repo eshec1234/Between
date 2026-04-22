@@ -557,7 +557,7 @@ export default function Home() {
           className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh]"
           style={{
             background:
-              'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.22), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.12), transparent 45%), radial-gradient(ellipse_at_center, transparent 16%, rgba(0,0,0,0.78) 100%)'
+              'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.18), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.1), transparent 45%), radial-gradient(ellipse_at_center, transparent 24%, rgba(8,4,20,0.45) 100%)'
           }}
         />
       )}
@@ -641,7 +641,7 @@ export default function Home() {
       >
         {isTheophany && (
           <section
-            className="mx-4 mt-2 rounded-md border border-violet-900/45 bg-[rgba(10,5,20,0.85)] px-3 py-3 shadow-[0_0_32px_rgba(100,60,160,0.12)] backdrop-blur-sm"
+            className="mx-4 mt-2 rounded-md border border-violet-400/25 bg-theophany-primary/80 px-3 py-3 shadow-[0_0_32px_rgba(100,60,160,0.1)] backdrop-blur-sm"
             aria-label="Theophany disclaimer"
           >
             <h2 className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">Disclaimer</h2>
@@ -677,7 +677,7 @@ export default function Home() {
 
         {isTheophany && (
           <div className="mx-4 mt-4 space-y-3">
-            <div className="rounded-md border border-purple-950/50 bg-[rgba(12,6,22,0.72)] px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.12)] backdrop-blur-sm">
+            <div className="rounded-md border border-violet-400/25 bg-theophany-secondary/70 px-3 py-3.5 text-center shadow-[0_0_40px_rgba(100,60,160,0.1)] backdrop-blur-sm">
               <div className="mb-2 font-sans text-[8px] uppercase tracking-[0.35em] text-violet-400/55">
                 Today&apos;s omen
               </div>
@@ -741,7 +741,7 @@ export default function Home() {
             disabled={!places.length}
             className={`w-full rounded-xl border-2 px-4 py-3.5 font-display text-sm tracking-[0.2em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
               isTheophany
-                ? 'border-theophany-accent/50 bg-black/25 text-theophany-accent hover:bg-theophany-accent/10'
+                ? 'border-theophany-accent/50 bg-theophany-primary/40 text-theophany-accent hover:bg-theophany-accent/10'
                 : 'border-sanctuary-accent/45 bg-white/50 text-sanctuary-text hover:bg-sanctuary-accent/10'
             }`}
           >
@@ -782,7 +782,7 @@ export default function Home() {
                       ? 'border-theophany-accent bg-theophany-accent/25 text-theophany-text'
                       : 'border-sanctuary-accent bg-sanctuary-accent/20 text-sanctuary-text'
                     : isTheophany
-                      ? 'border-theophany-muted/50 text-theophany-muted hover:bg-black/30'
+                      ? 'border-theophany-muted/50 text-theophany-muted hover:bg-theophany-primary/25'
                       : 'border-sanctuary-muted/40 text-sanctuary-muted hover:bg-black/[0.04]'
                 }`}
               >
@@ -831,7 +831,7 @@ export default function Home() {
                   to={`/place/${p.id}`}
                   className={`min-w-[200px] max-w-[220px] shrink-0 rounded-lg border p-3 transition-colors ${
                     isTheophany
-                      ? 'border-theophany-muted/35 bg-black/30 hover:border-theophany-accent/40'
+                      ? 'border-theophany-muted/35 bg-theophany-primary/30 hover:border-theophany-accent/40'
                       : 'border-sanctuary-muted/30 bg-white/70 hover:border-sanctuary-accent/35'
                   }`}
                 >
@@ -1005,7 +1005,7 @@ function PlaceCard({
         className={`absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border text-lg shadow-md transition-colors ${
           isTheophany
             ? saved
-              ? 'border-theophany-accent bg-black/60 text-theophany-accent'
+              ? 'border-theophany-accent bg-theophany-primary/50 text-theophany-accent'
               : 'border-white/20 bg-black/50 text-white/80 hover:bg-black/70'
             : saved
               ? 'border-sanctuary-accent bg-white/95 text-sanctuary-accent'
@@ -1030,7 +1030,7 @@ function PlaceCard({
         }}
         className={`group block cursor-pointer overflow-hidden rounded-xl border text-left shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
           isTheophany
-            ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
+            ? 'border-violet-400/30 bg-theophany-secondary/80 hover:border-theophany-accent/40 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.4)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
         } ${isSelected
           ? isTheophany
@@ -1047,7 +1047,7 @@ function PlaceCard({
             place={place}
             isTheophany={isTheophany}
             imgClassName={`h-full w-full object-cover transition-transform duration-[1.15s] ease-out will-change-transform group-hover:scale-[1.06] ${
-              isTheophany ? 'brightness-[0.68] saturate-[0.32]' : 'brightness-105 saturate-70'
+              isTheophany ? 'brightness-[0.8] saturate-[0.4]' : 'brightness-105 saturate-70'
             }`}
           />
           {!isTheophany && (
@@ -1059,7 +1059,7 @@ function PlaceCard({
           <div
             className={`absolute inset-0 ${
               isTheophany
-                ? 'bg-gradient-to-t from-[rgba(4,10,14,0.97)] via-transparent to-transparent'
+                ? 'bg-gradient-to-t from-[rgba(20,16,40,0.9)] via-transparent to-transparent'
                 : 'bg-gradient-to-t from-[rgba(255,253,247,0.95)] via-transparent to-transparent'
             }`}
           />

@@ -41,7 +41,7 @@ export default function InstallPwaPrompt({ isTheophany }) {
     <div
       className={`mx-4 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2.5 ${
         isTheophany
-          ? 'border-theophany-accent/40 bg-theophany-primary/60'
+          ? 'border-theophany-accent/40 bg-theophany-primary/45'
           : 'border-sanctuary-accent/40 bg-sanctuary-primary/80'
       }`}
     >

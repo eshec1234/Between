@@ -9,7 +9,7 @@ export default function FeedFilters({
   return (
     <div
       className={`mx-4 mt-2 rounded-xl border-2 px-3 py-3 ${
-        isTheophany ? 'border-theophany-accent/25 bg-black/20' : 'border-sanctuary-accent/25 bg-white/[0.05]'
+        isTheophany ? 'border-theophany-accent/30 bg-theophany-primary/35' : 'border-sanctuary-accent/25 bg-white/[0.05]'
       }`}
     >
       <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Filters</p>

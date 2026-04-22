@@ -63,7 +63,7 @@ export default function ActivityFeed({
                   key={p.id}
                   to={`/place/${p.id}`}
                   className={`flex min-w-[168px] max-w-[200px] shrink-0 overflow-hidden rounded-lg border ${
-                    isTheophany ? 'border-theophany-muted/35 bg-black/30' : 'border-sanctuary-muted/30 bg-white/60'
+                    isTheophany ? 'border-theophany-muted/35 bg-theophany-primary/30' : 'border-sanctuary-muted/30 bg-white/60'
                   }`}
                 >
                   <div
@@ -121,7 +121,7 @@ export default function ActivityFeed({
                   to={`/place/${p.id}`}
                   className={`min-w-[200px] max-w-[240px] shrink-0 overflow-hidden rounded-lg border ${
                     isTheophany
-                      ? 'border-theophany-muted/35 bg-black/30'
+                      ? 'border-theophany-muted/35 bg-theophany-primary/30'
                       : 'border-sanctuary-muted/30 bg-white/60'
                   }`}
                 >
@@ -159,7 +159,7 @@ export default function ActivityFeed({
                 to={`/place/${pl.id}`}
                 className={`min-w-[200px] max-w-[260px] shrink-0 overflow-hidden rounded-lg border ${
                   isTheophany
-                    ? 'border-theophany-muted/35 bg-black/30'
+                    ? 'border-theophany-muted/35 bg-theophany-primary/30'
                     : 'border-sanctuary-muted/30 bg-white/60'
                 }`}
               >

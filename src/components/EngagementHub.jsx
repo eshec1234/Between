@@ -66,7 +66,7 @@ export default function EngagementHub({
     <div className="space-y-4 px-4">
       <div
         className={`rounded-xl border-2 px-4 py-3 ${
-          isTheophany ? 'border-theophany-accent/35 bg-black/25' : 'border-sanctuary-accent/30 bg-white/[0.06]'
+          isTheophany ? 'border-theophany-accent/35 bg-theophany-primary/30' : 'border-sanctuary-accent/30 bg-white/[0.06]'
         }`}
       >
         <p className={`font-sans text-[8px] uppercase tracking-[0.35em] ${subClass}`}>Today</p>
@@ -98,7 +98,7 @@ export default function EngagementHub({
       {nearest && (
         <div
           className={`rounded-lg border px-3 py-2.5 ${
-            isTheophany ? 'border-[#0a2828] bg-black/30' : 'border-sanctuary-accent/25 bg-white/[0.04]'
+            isTheophany ? 'border-violet-500/20 bg-theophany-primary/25' : 'border-sanctuary-accent/25 bg-white/[0.04]'
           }`}
         >
           <p className={`font-sans text-[8px] uppercase tracking-[0.3em] ${subClass}`}>Near you</p>
@@ -143,7 +143,7 @@ export default function EngagementHub({
               <li
                 key={route.id}
                 className={`rounded-lg border px-3 py-2.5 ${
-                  isTheophany ? 'border-violet-950/45 bg-black/22' : 'border-sanctuary-accent/20 bg-black/[0.03]'
+                  isTheophany ? 'border-violet-400/25 bg-theophany-primary/30' : 'border-sanctuary-accent/20 bg-black/[0.03]'
                 }`}
               >
                 <p className={`font-display text-sm tracking-wide ${accentClass}`}>{route.title}</p>
