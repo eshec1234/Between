@@ -11,10 +11,10 @@ function styleForMode(mode) {
   return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
 }
 
-/** [lng, lat] from PostgREST GeoJSON Point, or null if missing/invalid */
+/** [lng, lat] from PostgREST / PostGIS GeoJSON, or null if unusable */
 function lngLatFromPlace(place) {
   let c = place?.coordinates
-  if (!c) return null
+  if (c == null) return null
   if (typeof c === 'string') {
     try {
       c = JSON.parse(c)
@@ -22,11 +22,15 @@ function lngLatFromPlace(place) {
       return null
     }
   }
-  const arr = Array.isArray(c.coordinates)
-    ? c.coordinates
-    : Array.isArray(c) && c.length >= 2
-      ? c
-      : null
+  let arr = null
+  if (c && typeof c === 'object') {
+    if (c.type === 'Point' && Array.isArray(c.coordinates) && c.coordinates.length >= 2) {
+      arr = c.coordinates
+    } else if (Array.isArray(c.coordinates) && c.coordinates.length >= 2) {
+      arr = c.coordinates
+    }
+  }
+  if (!arr && Array.isArray(c) && c.length >= 2) arr = c
   if (!arr || arr.length < 2) return null
   const lng = Number(arr[0])
   const lat = Number(arr[1])
@@ -73,7 +77,8 @@ const Map = forwardRef(function Map({
       const visited = visitedIds?.has?.(place.id)
       const saved = savedIds?.has?.(place.id)
       const walked = walkthroughDoneIds?.has?.(place.id)
-      const selected = selectedPlaceId != null && place.id === selectedPlaceId
+      const selected =
+        selectedPlaceId != null && String(place.id) === String(selectedPlaceId)
 
       const el = document.createElement('div')
       el.className = 'between-marker'
@@ -127,6 +132,11 @@ const Map = forwardRef(function Map({
     })
   }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
 
+  const placeMarkersRef = useRef(placeMarkers)
+  useEffect(() => {
+    placeMarkersRef.current = placeMarkers
+  }, [placeMarkers])
+
   const destroyMap = useCallback(() => {
     if (geolocateTimerRef.current) {
       clearTimeout(geolocateTimerRef.current)
@@ -167,7 +177,7 @@ const Map = forwardRef(function Map({
 
     nextMap.on('load', () => {
       nextMap.resize()
-      placeMarkers()
+      placeMarkersRef.current()
       if (!hasTriggeredGeolocateRef.current) {
         hasTriggeredGeolocateRef.current = true
         geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
@@ -176,7 +186,7 @@ const Map = forwardRef(function Map({
     nextMap.on('error', (e) => {
       console.error('[Mapbox]', e.error?.message ?? e)
     })
-  }, [destroyMap, mapCenter, placeMarkers, zoom])
+  }, [destroyMap, mapCenter, zoom])
 
   const ensureContainerIntegrity = useCallback((reason) => {
     const container = mapContainer.current
@@ -278,7 +288,7 @@ const Map = forwardRef(function Map({
     // pick up the correct mode colours.
     map.current.once('style.load', () => {
       ensureContainerIntegrity('style-load')
-      placeMarkers()
+      placeMarkersRef.current()
       requestAnimationFrame(() => map.current?.resize())
     })
     map.current.setStyle(style)
@@ -286,7 +296,7 @@ const Map = forwardRef(function Map({
       ensureContainerIntegrity('mode-change-post-style')
       map.current?.resize()
     })
-  }, [ensureContainerIntegrity, mode, placeMarkers])
+  }, [ensureContainerIntegrity, mode])
 
   // Re-place markers whenever places or visit/save status sets change.
   // If style is already loaded: place immediately.
@@ -296,7 +306,7 @@ const Map = forwardRef(function Map({
     if (map.current.isStyleLoaded()) {
       placeMarkers()
     } else {
-      map.current.once('style.load', () => placeMarkers())
+      map.current.once('style.load', () => placeMarkersRef.current())
     }
   }, [placeMarkers])
 
