@@ -53,7 +53,10 @@ export default function PlaceDetail() {
   const [resonanceSelf, setResonanceSelf] = useState(false)
   const [resonanceBusy, setResonanceBusy] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [photoFile, setPhotoFile] = useState(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
   const textareaRef = useRef(null)
+  const photoInputRef = useRef(null)
 
   const isTheophany =
     place?.mode === 'theophany' ||
@@ -165,6 +168,15 @@ export default function PlaceDetail() {
     [experienceReports]
   )
 
+  // Visitor-uploaded photos, newest first
+  const visitorPhotoUrls = useMemo(
+    () => experienceReports
+      .filter((r) => r.photo_url)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map((r) => r.photo_url),
+    [experienceReports]
+  )
+
   const submitExperienceReport = async (e) => {
     e.preventDefault()
     if (!reportContent.trim()) return
@@ -175,6 +187,20 @@ export default function PlaceDetail() {
 
     setSubmitting(true)
     const sessionId = getOrCreateSession()
+
+    // Upload photo if one was selected
+    let uploadedPhotoUrl = null
+    if (photoFile) {
+      const ext = photoFile.name.split('.').pop() || 'jpg'
+      const path = `${id}/${sessionId}-${Date.now()}.${ext}`
+      const { error: uploadErr } = await supabase.storage
+        .from('place-photos')
+        .upload(path, photoFile, { upsert: false, contentType: photoFile.type })
+      if (!uploadErr) {
+        const { data: urlData } = supabase.storage.from('place-photos').getPublicUrl(path)
+        uploadedPhotoUrl = urlData?.publicUrl ?? null
+      }
+    }
 
     const base = {
       place_id: id,
@@ -187,7 +213,8 @@ export default function PlaceDetail() {
       ...base,
       content_kind: contentKind,
       stillness_rating:
-        contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') ? stillness : null
+        contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') ? stillness : null,
+      ...(uploadedPhotoUrl ? { photo_url: uploadedPhotoUrl } : {})
     }
 
     let { error } = await supabase.from('experience_reports').insert(extended)
@@ -210,6 +237,8 @@ export default function PlaceDetail() {
       setReportContent('')
       setSelectedTag('')
       setContentKind('review')
+      setPhotoFile(null)
+      setPhotoPreview(null)
       fetchExperienceReports()
     }
     setSubmitting(false)
@@ -334,14 +363,24 @@ export default function PlaceDetail() {
             </p>
           )}
           <div className="relative min-h-[160px] h-[clamp(160px,min(42dvh,48vmin),400px)] w-full overflow-hidden">
-            <PlaceImage
-              place={place}
-              isTheophany={isTheophany}
-              variant="hero"
-              imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
-              }`}
-            />
+            {visitorPhotoUrls.length > 0 ? (
+              <img
+                src={visitorPhotoUrls[0]}
+                alt={place.name}
+                className={`h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                }`}
+              />
+            ) : (
+              <PlaceImage
+                place={place}
+                isTheophany={isTheophany}
+                variant="hero"
+                imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
+                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                }`}
+              />
+            )}
             <div
               className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${
                 isTheophany
@@ -643,6 +682,49 @@ export default function PlaceDetail() {
             <p className={`text-right font-sans text-[10px] ${subClass}`}>
               {reportContent.length}/{maxLen}
             </p>
+
+            {/* Photo upload */}
+            <div>
+              <p className={`mb-2 font-sans text-[10px] uppercase tracking-wider ${subClass}`}>
+                Add a photo from your visit (optional)
+              </p>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setPhotoFile(file)
+                  setPhotoPreview(URL.createObjectURL(file))
+                }}
+              />
+              {photoPreview ? (
+                <div className="relative w-full overflow-hidden rounded-lg" style={{ maxHeight: 180 }}>
+                  <img src={photoPreview} alt="preview" className="w-full object-cover" style={{ maxHeight: 180 }} />
+                  <button
+                    type="button"
+                    onClick={() => { setPhotoFile(null); setPhotoPreview(null) }}
+                    className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-sans text-[10px] text-white hover:bg-black/80"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed py-5 font-sans text-[11px] uppercase tracking-wider transition-colors ${
+                    isTheophany
+                      ? 'border-theophany-accent/40 text-theophany-muted hover:border-theophany-accent hover:text-theophany-accent'
+                      : 'border-sanctuary-accent/40 text-sanctuary-muted hover:border-sanctuary-accent hover:text-sanctuary-accent'
+                  }`}
+                >
+                  <span className="text-base">📷</span> Upload photo
+                </button>
+              )}
+            </div>
 
             {contentKind === 'review' && (place.mode === 'sanctuary' || place.mode === 'both') && (
               <div>
