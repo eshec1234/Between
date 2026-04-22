@@ -11,6 +11,23 @@ function styleForMode(mode) {
   return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
 }
 
+/** [lng, lat] from PostgREST GeoJSON Point, or null if missing/invalid */
+function lngLatFromPlace(place) {
+  const c = place?.coordinates
+  if (!c) return null
+  const arr = Array.isArray(c.coordinates)
+    ? c.coordinates
+    : Array.isArray(c) && c.length >= 2
+      ? c
+      : null
+  if (!arr || arr.length < 2) return null
+  const lng = Number(arr[0])
+  const lat = Number(arr[1])
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null
+  if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return null
+  return [lng, lat]
+}
+
 const Map = forwardRef(function Map({
   mode,
   places,
@@ -88,8 +105,8 @@ const Map = forwardRef(function Map({
         }
       })
 
-      // Coordinates from PostGIS are stored as GeoJSON
-      const coords = place.coordinates.coordinates || [-75.1652, 39.9526]
+      const coords = lngLatFromPlace(place)
+      if (!coords) return
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
@@ -184,18 +201,28 @@ const Map = forwardRef(function Map({
   useImperativeHandle(ref, () => ({
     focusPlace(placeId) {
       if (!map.current) return false
-      const place = places.find((p) => p.id === placeId && p.coordinates?.coordinates?.length >= 2)
-      if (!place) return false
-      const coords = place.coordinates.coordinates
-      let nextZoom = 11.5
+      const place = places.find((p) => String(p.id) === String(placeId))
+      const coords = place ? lngLatFromPlace(place) : null
+      if (!coords) return false
       try {
-        const currentZoom = map.current.getZoom?.()
-        if (Number.isFinite(currentZoom)) nextZoom = Math.max(currentZoom, 11.5)
+        map.current.resize()
       } catch {
         /* ignore */
       }
-      map.current.flyTo({ center: coords, zoom: nextZoom, duration: 650, essential: true })
-      markersByIdRef.current.get(placeId)?.togglePopup?.()
+      const targetZoom = 14
+      map.current.flyTo({
+        center: coords,
+        zoom: targetZoom,
+        duration: 900,
+        essential: true
+      })
+      map.current.once('moveend', () => {
+        try {
+          markersByIdRef.current.get(place.id)?.togglePopup?.()
+        } catch {
+          /* ignore */
+        }
+      })
       return true
     }
   }), [places])

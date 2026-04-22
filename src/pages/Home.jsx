@@ -497,12 +497,11 @@ export default function Home() {
   const onFocusPlaceOnMap = useCallback((placeId) => {
     setSelectedPlaceId(placeId)
     mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    const focused = mapRef.current?.focusPlace?.(placeId)
-    if (!focused) {
-      requestAnimationFrame(() => {
-        mapRef.current?.focusPlace?.(placeId)
-      })
-    }
+    const run = () => mapRef.current?.focusPlace?.(placeId)
+    run()
+    requestAnimationFrame(run)
+    setTimeout(run, 350)
+    setTimeout(run, 750)
   }, [])
 
   useEffect(() => {
@@ -1013,18 +1012,9 @@ function PlaceCard({
       >
         {saved ? '♥' : '♡'}
       </button>
+      <Link to={`/place/${place.id}`} className="block">
       <div
-        role="button"
-        tabIndex={0}
-        aria-label={`Show ${place.name} on map`}
-        onClick={() => onFocusMap?.()}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onFocusMap?.()
-          }
-        }}
-        className={`group block cursor-pointer overflow-hidden rounded-xl border text-left shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
+        className={`group overflow-hidden rounded-xl border shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 ${
           isTheophany
             ? 'border-violet-950/55 bg-[rgba(10,6,20,0.92)] hover:border-theophany-accent/35 hover:shadow-[0_28px_64px_-16px_rgba(60,20,80,0.55)]'
             : 'border-sanctuary-accent/25 bg-[rgba(255,253,247,0.97)] hover:shadow-[0_24px_56px_-20px_rgba(80,50,15,0.2)]'
@@ -1096,15 +1086,13 @@ function PlaceCard({
               </span>
             )}
           </div>
-          <Link
-            to={`/place/${place.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className={`font-display mb-1 block text-[16px] leading-snug tracking-wide transition-opacity hover:opacity-90 ${
+          <h3
+            className={`font-display mb-1 text-[16px] leading-snug tracking-wide ${
               isTheophany ? 'text-[#ece8f4]' : 'text-sanctuary-text'
             }`}
           >
             {place.name}
-          </Link>
+          </h3>
           <p
             className={`mb-2 font-sans text-[9px] uppercase tracking-[0.12em] ${
               isTheophany ? 'text-violet-400/45' : 'text-sanctuary-muted'
@@ -1133,6 +1121,7 @@ function PlaceCard({
           )}
         </div>
       </div>
+    </Link>
     </div>
   )
 }
