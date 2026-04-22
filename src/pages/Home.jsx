@@ -477,6 +477,40 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const walkthroughDoneIds = useMemo(() => getWalkthroughDoneIds(), [places, localTick, location.key])
 
+  const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
+  const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
+  const bord = isTheophany ? 'border-theophany-accent/45' : 'border-sanctuary-accent/45'
+
+  const setCardRef = useCallback((placeId, node) => {
+    if (node) {
+      cardRefs.current.set(placeId, node)
+    } else {
+      cardRefs.current.delete(placeId)
+    }
+  }, [])
+
+  const scrollCardIntoView = useCallback((placeId) => {
+    const node = cardRefs.current.get(placeId)
+    if (!node) return
+    node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [])
+
+  const onMarkerSelect = useCallback((placeId) => {
+    setSelectedPlaceId(placeId)
+    scrollCardIntoView(placeId)
+  }, [scrollCardIntoView])
+
+  const onFocusPlaceOnMap = useCallback((place) => {
+    if (!place?.id) return
+    const lonLat = lngLatFromPlace(place)
+    setSelectedPlaceId(place.id)
+    mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const run = () => mapRef.current?.focusPlace?.(place.id, lonLat)
+    run()
+    requestAnimationFrame(run)
+    ;[120, 350, 700, 1200, 2000].forEach((ms) => setTimeout(run, ms))
+  }, [])
+
   const nearbyFeedRows = useMemo(() => {
     const rows = []
     let cardAnim = 0
@@ -573,46 +607,12 @@ export default function Home() {
     }
   }, [])
 
-  const setCardRef = useCallback((placeId, node) => {
-    if (node) {
-      cardRefs.current.set(placeId, node)
-    } else {
-      cardRefs.current.delete(placeId)
-    }
-  }, [])
-
-  const scrollCardIntoView = useCallback((placeId) => {
-    const node = cardRefs.current.get(placeId)
-    if (!node) return
-    node.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [])
-
-  const onMarkerSelect = useCallback((placeId) => {
-    setSelectedPlaceId(placeId)
-    scrollCardIntoView(placeId)
-  }, [scrollCardIntoView])
-
-  const onFocusPlaceOnMap = useCallback((place) => {
-    if (!place?.id) return
-    const lonLat = lngLatFromPlace(place)
-    setSelectedPlaceId(place.id)
-    mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    const run = () => mapRef.current?.focusPlace?.(place.id, lonLat)
-    run()
-    requestAnimationFrame(run)
-    ;[120, 350, 700, 1200, 2000].forEach((ms) => setTimeout(run, ms))
-  }, [])
-
   useEffect(() => {
     if (selectedPlaceId == null) return
     if (!filteredPlaces.some((p) => String(p.id) === String(selectedPlaceId))) {
       setSelectedPlaceId(null)
     }
   }, [filteredPlaces, selectedPlaceId])
-
-  const subMuted = isTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'
-  const accent = isTheophany ? 'text-theophany-accent' : 'text-sanctuary-accent'
-  const bord = isTheophany ? 'border-theophany-accent/45' : 'border-sanctuary-accent/45'
 
   return (
     <div
