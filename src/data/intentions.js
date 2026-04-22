@@ -1,10 +1,24 @@
 /** Intention chips → loose tag matching on category_tags (substring) */
 
 export const INTENTIONS = [
-  { id: 'calm', label: 'Calm', match: ['chapel', 'gothic', 'university', 'collegiate', 'quiet', 'tasteful'] },
-  { id: 'wonder', label: 'Wonder', match: ['cathedral', 'landmark', 'basilica', 'domes'] },
+  { id: 'edge', label: 'Edge / liminal', match: ['anomalous', 'liminal', 'ruins', 'abandoned', 'forest', 'folklore'] },
   { id: 'grief', label: 'Grief / memory', match: ['cemetery', 'memorial', 'battlefield', 'civil', 'national'] },
-  { id: 'edge', label: 'Edge / liminal', match: ['anomalous', 'liminal', 'ruins', 'abandoned', 'forest', 'folklore'] }
+  {
+    id: 'calm',
+    label: 'Calm',
+    match: [
+      'chapel',
+      'gothic',
+      'university',
+      'collegiate',
+      'quiet',
+      'tasteful',
+      'cathedral',
+      'landmark',
+      'basilica',
+      'domes'
+    ]
+  }
 ]
 
 export function placeMatchesIntention(place, intentionId) {

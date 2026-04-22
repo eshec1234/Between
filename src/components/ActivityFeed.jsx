@@ -68,7 +68,7 @@ export default function ActivityFeed({
                 >
                   <div
                     className={`relative h-14 w-14 shrink-0 overflow-hidden ${
-                      isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
+                      isTheophany ? 'bg-theophany-primary' : 'bg-[#f5ead5]'
                     }`}
                   >
                     <PlaceImage
@@ -127,7 +127,7 @@ export default function ActivityFeed({
                 >
                   <div
                     className={`relative aspect-[4/3] w-full max-h-[min(200px,55vmin)] overflow-hidden ${
-                      isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
+                      isTheophany ? 'bg-theophany-primary' : 'bg-[#f5ead5]'
                     }`}
                   >
                     <PlaceImage
@@ -165,7 +165,7 @@ export default function ActivityFeed({
               >
                 <div
                   className={`relative aspect-[4/3] w-full max-h-[min(200px,55vmin)] overflow-hidden ${
-                    isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
+                    isTheophany ? 'bg-theophany-primary' : 'bg-[#f5ead5]'
                   }`}
                 >
                   <PlaceImage

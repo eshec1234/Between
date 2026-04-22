@@ -179,7 +179,7 @@ export default function PlaceWalkthrough({
     <section
       className={`relative overflow-hidden rounded-xl border-2 px-4 py-5 sm:px-6 ${
         isTheophany
-          ? 'border-theophany-accent/35 bg-gradient-to-b from-[#0e0818] via-[#120a22] to-[#0a0614] shadow-[0_0_48px_rgba(70,35,110,0.38)]'
+          ? 'border-theophany-accent/35 bg-gradient-to-b from-theophany-primary via-theophany-secondary to-theophany-bg shadow-[0_0_48px_rgba(70,35,110,0.32)]'
           : 'border-sanctuary-accent/30 bg-gradient-to-b from-[#fffdf8] via-[#faf3e8] to-[#f2e8d8] shadow-md'
       }`}
       aria-label="Immersive walkthrough"

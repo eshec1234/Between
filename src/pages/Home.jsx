@@ -1037,14 +1037,14 @@ function PlaceCard({
       >
         <div
           className={`relative aspect-[4/3] w-full max-h-[min(72vmin,380px)] overflow-hidden sm:max-h-[320px] ${
-            isTheophany ? 'bg-[#0c0618]' : 'bg-[#f5ead5]'
+            isTheophany ? 'bg-theophany-primary' : 'bg-[#f5ead5]'
           }`}
         >
           <PlaceImage
             place={place}
             isTheophany={isTheophany}
             imgClassName={`h-full w-full object-cover transition-transform duration-[1.15s] ease-out will-change-transform group-hover:scale-[1.06] ${
-              isTheophany ? 'brightness-[0.48] saturate-[0.18]' : 'brightness-105 saturate-70'
+              isTheophany ? 'brightness-[0.68] saturate-[0.32]' : 'brightness-105 saturate-70'
             }`}
           />
           {!isTheophany && (

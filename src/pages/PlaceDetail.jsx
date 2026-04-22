@@ -340,7 +340,7 @@ export default function PlaceDetail() {
             className="pointer-events-none fixed inset-0 z-[1] min-h-[100dvh]"
             style={{
               background:
-                'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.22), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.12), transparent 45%), radial-gradient(ellipse_at_center, transparent 16%, rgba(0,0,0,0.78) 100%)'
+                'radial-gradient(ellipse 85% 55% at 50% -15%, rgba(120, 70, 180, 0.2), transparent 52%), radial-gradient(ellipse 90% 70% at 100% 50%, rgba(60, 30, 90, 0.1), transparent 45%), radial-gradient(ellipse_at_center, transparent 20%, rgba(10, 8, 22, 0.42) 100%)'
             }}
           />
         </>
@@ -385,7 +385,7 @@ export default function PlaceDetail() {
                 src={visitorPhotoUrls[0]}
                 alt={place.name}
                 className={`h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                  isTheophany ? 'brightness-[0.78] saturate-[0.4]' : 'brightness-[1.02] saturate-[0.85]'
                 }`}
               />
             ) : (
@@ -394,7 +394,7 @@ export default function PlaceDetail() {
                 isTheophany={isTheophany}
                 variant="hero"
                 imgClassName={`bf-hero-kenburns h-[115%] w-full min-w-full -translate-y-[5%] object-cover ${
-                  isTheophany ? 'brightness-[0.55] saturate-[0.25]' : 'brightness-[1.02] saturate-[0.85]'
+                  isTheophany ? 'brightness-[0.78] saturate-[0.4]' : 'brightness-[1.02] saturate-[0.85]'
                 }`}
               />
             )}
