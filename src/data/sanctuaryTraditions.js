@@ -108,23 +108,6 @@ export const SANCTUARY_TRADITIONS = [
     ]
   },
   {
-    id: 'memorials',
-    label: 'Memorials & remembrance',
-    match: [
-      'cemetery',
-      'memorial',
-      'battlefield',
-      'civil war',
-      'national cemetery',
-      'memorial park',
-      'grave',
-      'mourning',
-      'fallen',
-      'veterans',
-      'plaque'
-    ]
-  },
-  {
     id: 'campus',
     label: 'Campuses & quiet study',
     match: [
@@ -175,7 +158,9 @@ const VALID_IDS = new Set(SANCTUARY_TRADITIONS.map((t) => t.id).filter(Boolean))
 const LEGACY_TO_NEW = {
   christian: 'religion',
   jewish: 'religion',
-  buddhist: 'religion'
+  buddhist: 'religion',
+  /** Moved to Theophany intentions */
+  memorials: ''
 }
 
 /** Maps removed chip ids (e.g. christian) to `religion`; unknown ids → '' */
