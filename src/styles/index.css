@@ -65,7 +65,7 @@ body {
 
 /* Theophany mode map — cold purple night */
 .map-theophany .mapboxgl-canvas {
-  filter: brightness(0.58) saturate(1.35) hue-rotate(268deg) contrast(1.08);
+  filter: brightness(0.78) saturate(0.6) contrast(1.05);
 }
 
 /* Line clamp utility */

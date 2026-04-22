@@ -243,15 +243,18 @@ export default function PlaceDetail() {
   }
 
   if (loading) {
+    const loadingIsTheophany = getHomeMode() === 'theophany'
     return (
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b from-sanctuary-bg to-sanctuary-secondary">
+      <div className={`relative flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b ${
+        loadingIsTheophany ? 'from-theophany-bg to-theophany-secondary' : 'from-sanctuary-bg to-sanctuary-secondary'
+      }`}>
         <FilmGrain opacity={0.05} />
         <div className="relative z-10 flex flex-1 flex-col gap-4 p-6 pt-10">
-          <div className="bf-skeleton h-4 w-28 rounded-md bg-sanctuary-muted/25" />
-          <div className="bf-skeleton h-[clamp(160px,min(42dvh,48vmin),400px)] min-h-[160px] w-full rounded-xl bg-sanctuary-muted/20" />
-          <div className="bf-skeleton h-8 w-3/4 max-w-md rounded bg-sanctuary-muted/25" />
-          <div className="bf-skeleton h-20 w-full rounded-lg bg-sanctuary-muted/15" />
-          <p className="pt-4 text-center font-serif text-sm italic text-sanctuary-muted">Opening the space…</p>
+          <div className={`bf-skeleton h-4 w-28 rounded-md ${loadingIsTheophany ? 'bg-theophany-muted/25' : 'bg-sanctuary-muted/25'}`} />
+          <div className={`bf-skeleton h-[clamp(160px,min(42dvh,48vmin),400px)] min-h-[160px] w-full rounded-xl ${loadingIsTheophany ? 'bg-theophany-muted/20' : 'bg-sanctuary-muted/20'}`} />
+          <div className={`bf-skeleton h-8 w-3/4 max-w-md rounded ${loadingIsTheophany ? 'bg-theophany-muted/25' : 'bg-sanctuary-muted/25'}`} />
+          <div className={`bf-skeleton h-20 w-full rounded-lg ${loadingIsTheophany ? 'bg-theophany-muted/15' : 'bg-sanctuary-muted/15'}`} />
+          <p className={`pt-4 text-center font-serif text-sm italic ${loadingIsTheophany ? 'text-theophany-muted' : 'text-sanctuary-muted'}`}>Opening the space…</p>
         </div>
       </div>
     )
