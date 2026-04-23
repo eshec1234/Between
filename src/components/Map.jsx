@@ -188,6 +188,12 @@ const Map = forwardRef(function Map({
     buildMap(nextCenter, nextZoom)
   }, [buildMap, mapCenter, zoom])
 
+  /** Only for Sanctuary↔Theophany style swap — must NOT depend on mapCenter/ zoom refs (avoids setStyle on every GPS tick). */
+  const ensureContainerIntegrityRef = useRef(ensureContainerIntegrity)
+  useEffect(() => {
+    ensureContainerIntegrityRef.current = ensureContainerIntegrity
+  }, [ensureContainerIntegrity])
+
   useImperativeHandle(ref, () => ({
     /**
      * @param {string} placeId
@@ -264,26 +270,27 @@ const Map = forwardRef(function Map({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
 
-  // Update map style when mode changes; re-place markers after new style loads
+  // Update map style when mode changes; re-place markers after new style loads.
+  // Deps: [mode] only — if ensureContainerIntegrity/buildMap are deps, every mapCenter
+  // change recreates the callback and re-runs setStyle(), which clears markers.
   useEffect(() => {
     if (!map.current) return
     pendingModeRef.current = mode
-    ensureContainerIntegrity('mode-change-pre-style')
+    const recover = ensureContainerIntegrityRef.current
+    recover('mode-change-pre-style')
     if (!map.current) return
     const style = styleForMode(mode)
-    // Re-place markers once the incoming style has finished loading so they
-    // pick up the correct mode colours.
     map.current.once('style.load', () => {
-      ensureContainerIntegrity('style-load')
+      ensureContainerIntegrityRef.current('style-load')
       placeMarkersRef.current()
       requestAnimationFrame(() => map.current?.resize())
     })
     map.current.setStyle(style)
     requestAnimationFrame(() => {
-      ensureContainerIntegrity('mode-change-post-style')
+      ensureContainerIntegrityRef.current('mode-change-post-style')
       map.current?.resize()
     })
-  }, [ensureContainerIntegrity, mode])
+  }, [mode])
 
   // Re-place markers whenever places or visit/save status sets change.
   // If style is already loaded: place immediately.
