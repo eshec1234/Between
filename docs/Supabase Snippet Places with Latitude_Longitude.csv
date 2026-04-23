@@ -1,0 +1,101 @@
+id,name,address,city,state,mode,lat,lng
+7ec8a30c-9ed8-4192-8302-2bcc4eb525b0,Devil's Tower,Esplanade,Alpine,NJ,theophany,40.932429,-73.9308478
+9223dadc-78ba-4f6b-893c-3cfa1d61a357,St. Paul's Abbey (Newton Priory),289 US Route 206,Andover Township,NJ,sanctuary,41.0314862,-74.7668322
+59bdb42b-440b-47c9-b415-3c142360535e,The Atco Ghost,Burnt Mill Rd,Atco,NJ,theophany,39.7553514,-74.8720972
+0289aad0-6943-4bdd-b75c-595552518c50,Absecon Lighthouse,31 S Rhode Island Ave,Atlantic City,NJ,theophany,39.3662273,-74.4143604
+82c8c425-ba5c-4a8c-9ec9-f96a8fc9c7d6,Bernardsville Public Library (Parker Tavern / Phyllis Parker Ghost),2 Mine Brook Road,Bernardsville,NJ,theophany,40.718197,-74.569329
+76a22bb0-630e-41a0-8629-0e72c880c9c4,Friends Meeting House,340 High St,Burlington,NJ,sanctuary,40.0782367,-74.858864
+01a882e6-4378-4664-aedf-66ddfc27f214,St. Babs!,321 N Delsea Dr,C.M. Court House,NJ,sanctuary,39.1375,-74.854
+0279f364-aeee-4174-9916-5c05c01639b2,Marianist Retreat Center,417 Yale Ave,Cape May Point,NJ,sanctuary,38.935634,-74.9666388
+ae288d43-dee3-49bb-83dd-3eb26359eff7,Red Mill Museum Village,56 Main St,Clinton,NJ,theophany,40.6361703,-74.9127536
+5c15331e-8b0a-4a14-ae02-0ddaefe02543,Spruce Run Recreation Area,68 Van Syckels Rd,Clinton,NJ,both,40.6561293,-74.9303284
+8b1bd47d-6d42-42e3-b76d-70fa4dea5cd2,Historic Village of Old Bridge,Main St & Old Bridge Tpke,East Brunswick,NJ,theophany,40.4145,-74.3656
+64221b5d-cb68-428e-a603-8e41e062775c,Smithville Mansion,803 Smithville Rd,Eastampton,NJ,both,39.9867017,-74.749199
+06a90543-d2b2-4767-9bf3-d5e7bed15d0d,Piscatawaytown Burial Ground,2136 Woodbridge Ave,Edison,NJ,both,40.5004912,-74.3960959
+8305f261-dd6e-4807-8910-a28ca9ead83f,Peace Pilgrim Park,70 Chestnut St,Egg Harbor City,NJ,sanctuary,39.5273,-74.6444
+6c60a980-ff1d-48f6-aa63-49494601d088,Benedictine Center for Spirituality (St. Walburga Monastery),851 North Broad Street,Elizabeth,NJ,sanctuary,40.6693,-74.1777
+85e470c4-97a7-40fc-812b-ed67858769d1,Union County Courthouse,2 Broad Street,Elizabeth,NJ,theophany,40.6643,-74.2116
+ef65ce78-9558-4b7e-8660-5836c60bb42a,St. Michael's Monastery,1780 County Rd 537,Farmingdale,NJ,sanctuary,40.1986,-74.1833
+e338b52d-d4a9-49d4-b775-5a8cd007c943,Union Hotel,401 Union Ave,Flemington,NJ,theophany,40.5106625,-74.8587384
+b9cb228a-e297-43f5-b0ab-b18e52d15e57,Tohill Auditorium (Rowan University),201 Mullica Hill Rd,Glassboro,NJ,theophany,39.7103526,-75.1193267
+618202fe-e900-481c-a9a8-1d05e6835e3e,Gabreil Daveis Tavern,500 3rd Ave,Glendora,NJ,theophany,39.8375,-75.0608
+a45d5fd6-6598-4d83-90c2-084109c45383,Ghost Lake,"Off Shades of Death Rd, south of I-80 overpass",Great Meadows,NJ,both,40.9237,-74.8748
+61346457-6f92-44cd-a849-0bc42a360b96,Jenny Jump State Forest,State Park Road,Great Meadows,NJ,both,40.876,-74.884
+090db0ca-ce6c-4e57-a39b-4b1109680f15,Shades of Death Road,Shades of Death Road (southern end at Hope Rd/CR 611),Great Meadows,NJ,theophany,40.8869,-74.8928
+5fee3ead-0e40-4315-8793-5d3ae23366d7,The Fairy Hole (Lenape Cave near Ghost Lake),"Adjacent to Ghost Lake, off Shades of Death Rd",Great Meadows,NJ,both,40.923,-74.8752
+0e9db2b5-0a94-4d58-80dc-76a378c9c029,Tea Burners Monument,Market St,Greenwich,NJ,both,39.8278129,-75.2777864
+06dc2b2b-d3d0-4800-94ea-f39ed62c6bce,Centenary University (Tillie Smith Ghost),400 Jefferson Street,Hackettstown,NJ,theophany,40.850018,-74.832671
+1d830fdc-7fbc-4474-a60f-42cdf8612f6a,The Ritz Theatre,915 White Horse Pike,Haddon Twp,NJ,theophany,39.9005401,-75.0754563
+6a1e44fa-f0ad-4b74-b6c4-8b2cbf2a38d3,Batsto Village,31 Batsto Rd,Hammonton,NJ,both,39.643388,-74.6481908
+3413ae69-220c-430f-9f6f-2da76cd17819,Alloways Creek Friends Meetinghouse,Buttonwood Ave (150 ft west of Main St),Hancock's Bridge,NJ,sanctuary,39.5028,-75.4556
+8b01e3b3-24be-4f16-8f65-9c5120e61fe6,Hancock House,3 Front Street,Hancock's Bridge,NJ,both,39.4986,-75.4558
+acdea820-4911-43f8-b65d-d56976978ed3,East Point Lighthouse,10 Lighthouse Rd,Heislerville,NJ,both,39.1961,-75.0284
+4674e45e-a359-43c5-8b6a-3188e272ec5c,The Hermitage,335 Franklin Tpk,Ho-Ho-Kus,NJ,both,41.0071393,-74.1177338
+f6b04742-5c91-437e-bb70-1fdda8772e54,Bayview-New York Bay Cemetery,321 Garfield Ave,Jersey City,NJ,both,40.6941534,-74.0879919
+04bb85ce-3041-4dd2-8123-5cd717bc5e2f,Old Bergen Church,1 Highland Ave,Jersey City,NJ,sanctuary,40.7276932,-74.068029
+6540218e-8107-4a24-8fad-3f65f500468c,The Eyes of St. Joseph (St. Joseph Church),511 Pavonia Ave,Jersey City,NJ,theophany,40.7305272,-74.0574078
+ca2bb170-9333-4f0d-9910-448afb9a83d7,Johnsonburg Camp & Retreat Center,29 Johnsonburg Camp Road,Johnsonburg,NJ,sanctuary,40.956,-74.9176
+faf4f2da-2002-4fdc-bf7c-6f872324dab5,Cathedral of the Air (Chapel of the Air),264 Hope Chapel Road,Lakehurst,NJ,sanctuary,40.022,-74.3262
+91923f13-2153-405b-92af-0fbd63ac9b73,Hindenburg Crash Site Memorial,"Landsdowne Rd, JB McGuire-Dix-Lakehurst",Lakehurst,NJ,theophany,40.0268,-74.3327
+6b3f9901-6ea0-4160-bb50-6386a1b68e79,Murray Grove Retreat & Conference Center,94 Montague Ave,Lanoka Harbor,NJ,sanctuary,39.7916,-74.3036
+76e93a2a-eb22-4a31-8454-e6e5e036977f,Phareloch Castle (Beatty Castle),Off Lyons Road,Liberty Corner,NJ,theophany,40.694,-74.52
+cb89bd74-438c-4a80-aaa0-a3e6b8daac83,Monmouth Battlefield State Park,16 Business Route 33,Manalapan,NJ,theophany,40.2701821,-74.3175408
+591cda4c-ccb4-420c-aa76-9b3358ad7785,The Devil's Tree,Mountain Road (near #181),Martinsville,NJ,theophany,40.63,-74.5831
+858d67a6-b41e-49c4-8072-56d791a14b43,Kip's Castle Park,22 Crestmont Rd,Montclair,NJ,both,40.8290266,-74.2257431
+0b42f7cb-4ddb-4d1d-8d3c-6690123742c6,Greystone Park Psychiatric Hospital (Original Site),59 Koch Ave,Morris Plains,NJ,theophany,40.8388893,-74.5102538
+b6e67bc8-c01f-4365-8147-b43cb3f30c9e,Evergreen Cemetery,65 Martin Luther King Ave,Morristown,NJ,both,40.804524,-74.4744328
+25f89f2d-4aa1-4155-8186-e1d710725bc0,Jockey Hollow (Morristown National Historical Park),580 Tempe Wick Rd,Morristown,NJ,both,40.7614,-74.5425
+f0ae0c83-5091-40f1-ae4b-694fda05edea,Macculloch Hall Gardens,45 Macculloch Ave,Morristown,NJ,sanctuary,40.792573,-74.481932
+246a05e3-701c-446a-9e3e-48e2eda0679e,St. Peter's Episcopal Church,121 South St,Morristown,NJ,sanctuary,40.7931282,-74.4774378
+d968536b-957c-4f59-8b60-a51108e5ff86,Burl. County Prison Museum,128 High St,Mount Holly,NJ,theophany,39.9965894,-74.7892595
+cb48492a-280f-419e-8870-d08baaeeedd6,Watchung Reservation,New Providence Road (primary entrance),Mountainside,NJ,both,40.6576,-74.3607
+b1ae52aa-c3c4-4cd8-be57-ca9393638850,Whitall House (Red Bank Battlefield),100 Hessian Ave,National Park,NJ,theophany,39.868976,-75.189551
+80000fd6-d429-40a8-a253-65f4250d4318,All Saints Memorial Church,202 Navesink Ave,Navesink,NJ,both,40.3983747,-74.0205699
+bd6871ef-ab33-4cb3-816e-2fbaba7be1e7,Christ Episcopal Church Cemetery,5 Paterson St,New Brunswick,NJ,both,40.495768,-74.442621
+31d67f40-3e84-4d13-b199-b87ab0b28495,Branch Brook Park,Park Ave & Lake St,Newark,NJ,sanctuary,40.7713635,-74.1756347
+ec3a8b48-a5d3-4f92-a1c3-964d70c30f00,Cathedral of Sacred Heart,89 Ridge St,Newark,NJ,sanctuary,40.7561157,-74.1781429
+5ebc841d-6451-4f63-a86e-9701a6b0f075,Clinton Place House,Clinton Pl,Newark,NJ,theophany,40.715524,-74.2128637
+9c769703-c780-4080-9129-e009ef0418bb,Cave Grave (The Three Children's Cave),Near Oak Ridge Road (exact location per local knowledge),Newton,NJ,theophany,41.0488,-74.7512
+8e64d770-aa4c-41bd-b1bd-3f29ea701877,Sacred Heart Spirituality Center,20 Old Swartswood Road,Newton,NJ,sanctuary,41.068165,-74.785694
+38a01f78-aaea-4456-bb05-8228f874ca9e,Sterling Hill Mining Museum,30 Plant Street,Ogdensburg,NJ,theophany,41.0855,-74.5935
+a0c0d3d0-a360-4bcc-8501-45d09c0abe1a,Great Falls of the Passaic River,McBride Ave & Spruce St (Great Falls National Historical Park),Paterson,NJ,both,40.9165,-74.1712
+dfd10530-adf8-40d1-8668-19cefdddf3b8,Finn's Point National Cemetery,Fort Mott Road,Pennsville,NJ,sanctuary,39.5793,-75.5294
+8f0f36f6-4b26-4089-806c-86889d06a847,Fort Mott State Park,454 Fort Mott Rd,Pennsville,NJ,both,39.5604,-75.5273
+2802d69a-416f-4d63-b149-e28c11c8f489,Proprietary House,149 Kearny Ave,Perth Amboy,NJ,theophany,40.5034163,-74.2692933
+783de6b5-4b6a-4968-92ff-4c34ab55d6e5,Quaker Meeting House (Quakertown),290 White Bridge Rd,Pittstown,NJ,sanctuary,40.5664,-74.9436
+d49af51a-d35f-48d3-8caa-85d64bfd6c01,Spy House (Seabrook-Wilson House),119 Port Monmouth Rd,Port Monmouth,NJ,theophany,40.4383932,-74.0914695
+891becd1-b2a3-4e75-8a61-0768e0f528db,Mt. Pisgah AME Church,170 Witherspoon St,Princeton,NJ,sanctuary,40.3542738,-74.6618529
+e03da7fb-f9b8-4ff2-920a-ca588844122d,Princeton Friends Meeting House,470 Quaker Rd,Princeton,NJ,sanctuary,40.3269746,-74.6780237
+f1ecb39d-f38d-4919-b32b-125d33543c21,Ringwood Manor State Park,1304 Sloatsburg Road,Ringwood,NJ,both,41.1148,-74.244
+cde8a6dd-4fbb-41b8-80fd-288b9cfdb1ae,Salem Friends Meeting House,79 West Broadway,Salem,NJ,sanctuary,39.5787,-75.4674
+1c85b230-de1a-4da0-9d9d-358b3c36c7a0,The Old Salem Oak,Walnut Street (Salem Friends Burial Ground),Salem,NJ,both,39.5772,-75.4673
+fdf924f7-f287-4b5e-bf29-7a77e3e9c436,Allen House,400 Sycamore Ave,Shrewsbury,NJ,theophany,40.32397,-74.061674
+1f5b74c9-f89e-4bdd-a4e2-7df51c12bc50,Wallace House and Old Dutch Parsonage,71 Somerset Street,Somerville,NJ,both,40.5689908,-74.6213706
+464d7d82-43a8-467c-807d-2d7ee8fe62da,Surf City Hotel (Powhattan Wreck Site),813 Long Beach Blvd,Surf City,NJ,theophany,39.7285,-74.1658
+11ed0198-a909-48f1-a283-1cc23d12d8d3,High Point State Park (High Point Monument Overlook),1480 State Route 23,Sussex,NJ,sanctuary,41.3239,-74.6609
+902b02f4-f192-4dc1-9008-1c389878ef56,Trinity Episcopal Cemetery,1208 Kings Hwy,Swedesboro,NJ,both,39.749926,-75.3072415
+810069e2-095f-475a-97a0-21557b28886c,Annie's Road (Riverview Drive),Riverview Drive,Totowa,NJ,theophany,40.8853052,-74.2308565
+ec500a66-72fd-4571-95da-a30f6d773547,Kean University – Wilkins Theater,1000 Morris Avenue,Union,NJ,theophany,40.6780173,-74.2339287
+6f8643da-8b92-4bd9-a97d-d63b119c54d4,Pine Barrens (Jersey Devil Territory),Waretown Road area (multiple access points throughout),Waretown,NJ,both,39.7877,-74.3148
+c7f187d1-3d48-483f-a6b6-316a2dbcb73e,Mount Saint Mary House of Prayer,1651 US Route 22,Watchung,NJ,sanctuary,40.6485,-74.41455
+4f9e2dea-9b3a-483b-8120-4bafd99dc077,"Clinton Furnace (""Druid Temple"" Ruins)","Clinton Road (off-road, south section)",West Milford,NJ,theophany,41.1132,-74.2984
+7f5e04fe-4a9d-48bc-8e7b-0b6dc9b6f825,Clinton Road,"Clinton Road (begins at Route 23, Newfoundland)",West Milford,NJ,theophany,41.1565407,-74.395547
+722ed2cb-d047-4359-b69c-f008732295f5,Trenton Psychiatric Hospital Grounds,Sullivan Way,West Trenton,NJ,theophany,40.2436,-74.8055
+591a4303-ea80-4fae-8c04-cb84d5bbfe19,Gallows Hill Road (Westfield Hanging Tree Site),Corner of Gallows Hill Road and Brookside Place,Westfield,NJ,theophany,40.6509,-74.3461
+a9a29b6a-4935-40c6-8f42-55800c1c5887,America's Keswick Christian Retreat and Conference Center,601 Route 530,Whiting,NJ,sanctuary,39.9643,-74.3196
+81b4fd8a-b46e-44d6-bea4-387b8051b180,The Blue Hole,Piney Hollow Rd,Winslow,NJ,theophany,39.6320819,-74.8820475
+cb9def2b-44d2-46b7-98e0-b3f0e0edebab,Gloucester County Courthouse,1 N Broad St,Woodbury,NJ,theophany,39.838298,-75.15319
+9fba861b-42fd-49a0-985e-7c796eaafdb6,Woodbury Friends Meeting House,120 N Broad St,Woodbury,NJ,sanctuary,39.8399584,-75.1517196
+e47ef59b-eaab-4b42-b536-2ae055dc03c1,Cathedral of the All Saints (Episcopal),62 S Swan St,Albany,NY,sanctuary,42.6489,-73.7545
+47196342-610f-4a88-84a5-7bd48264c4fb,New York State Capitol Building,State St and Washington Ave,Albany,NY,theophany,42.6526,-73.7573
+271090d6-5ed6-40f4-81b1-8545b6bedb16,Shaker Heritage Society,25 Meeting House Rd,Albany,NY,both,42.7247,-73.8114
+4a75a58e-2f98-413c-86f3-1e7013008737,Ten Broeck Mansion,9 Ten Broeck Pl,Albany,NY,theophany,42.6661,-73.7545
+dfd979fd-d5f3-4cef-921b-9efc92c247f9,Washington Park,State St to Western Ave,Albany,NY,theophany,42.6518,-73.765
+b8dd269c-1b5f-4cfb-a250-ddfb09f02682,Amityville Horror House,112 Ocean Avenue,Amityville,NY,theophany,40.673185,-73.418243
+9b693f25-6f52-4250-a740-8d679498995e,Winery at Marjim Manor,7171 E Lake Rd,Appleton,NY,theophany,43.3483165,-78.6390915
+3e1fb5ab-f6df-496d-990e-33acba6883fe,Museum of the Moving Image,36-01 35th Ave,Astoria,NY,theophany,40.7558,-73.9267
+75de2a2d-3135-46e5-8291-63e45352323e,Auburn Correctional Facility (Historic),135 State St,Auburn,NY,theophany,42.9341905,-76.5750409
+4e5373e7-9dd6-41e7-9b86-d21ebd9b04c7,Fort Hill Cemetery,19 Fort St,Auburn,NY,both,42.9322,-76.564
+ec1ba535-b10d-4bd1-ae8a-6553a4234fbf,Harriet Tubman National Historical Park,180 South St,Auburn,NY,sanctuary,42.9319,-76.5664
+b94f0b92-5aed-4b04-bce6-c3d01bc9611b,Ausable Chasm,2144 U.S. Route 9,Ausable Chasm,NY,both,44.5248,-73.4615
+594561f0-68f2-44dc-943e-ebd757fd4661,Batavia Cemetery,Washington Ave,Batavia,NY,both,42.9998064,-78.180003

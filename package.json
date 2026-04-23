@@ -14,7 +14,9 @@
     "smoke": "npm run build && node scripts/smoke-routes.mjs",
     "check:api": "node scripts/api-contract-check.mjs",
     "build:places-sql": "node scripts/build-places-from-research.mjs",
-    "fetch-place-photos": "node scripts/fetch-place-photos.mjs"
+    "build:theophany-half-migration": "node scripts/generate-theophany-half-migration.mjs",
+    "fetch-place-photos": "node scripts/fetch-place-photos.mjs",
+    "qa:places-inventory": "node scripts/qa-places-inventory-report.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

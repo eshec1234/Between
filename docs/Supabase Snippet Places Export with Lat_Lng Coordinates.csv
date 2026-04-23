@@ -1,0 +1,514 @@
+id,name,address,city,state,mode,lat,lng
+7ec8a30c-9ed8-4192-8302-2bcc4eb525b0,Devil's Tower,Esplanade,Alpine,NJ,theophany,40.932429,-73.9308478
+9223dadc-78ba-4f6b-893c-3cfa1d61a357,St. Paul's Abbey (Newton Priory),289 US Route 206,Andover Township,NJ,sanctuary,41.0314862,-74.7668322
+59bdb42b-440b-47c9-b415-3c142360535e,The Atco Ghost,Burnt Mill Rd,Atco,NJ,theophany,39.7553514,-74.8720972
+0289aad0-6943-4bdd-b75c-595552518c50,Absecon Lighthouse,31 S Rhode Island Ave,Atlantic City,NJ,theophany,39.3662273,-74.4143604
+82c8c425-ba5c-4a8c-9ec9-f96a8fc9c7d6,Bernardsville Public Library (Parker Tavern / Phyllis Parker Ghost),2 Mine Brook Road,Bernardsville,NJ,theophany,40.718197,-74.569329
+76a22bb0-630e-41a0-8629-0e72c880c9c4,Friends Meeting House,340 High St,Burlington,NJ,sanctuary,40.0782367,-74.858864
+01a882e6-4378-4664-aedf-66ddfc27f214,St. Babs!,321 N Delsea Dr,C.M. Court House,NJ,sanctuary,39.1375,-74.854
+0279f364-aeee-4174-9916-5c05c01639b2,Marianist Retreat Center,417 Yale Ave,Cape May Point,NJ,sanctuary,38.935634,-74.9666388
+ae288d43-dee3-49bb-83dd-3eb26359eff7,Red Mill Museum Village,56 Main St,Clinton,NJ,theophany,40.6361703,-74.9127536
+5c15331e-8b0a-4a14-ae02-0ddaefe02543,Spruce Run Recreation Area,68 Van Syckels Rd,Clinton,NJ,both,40.6561293,-74.9303284
+8b1bd47d-6d42-42e3-b76d-70fa4dea5cd2,Historic Village of Old Bridge,Main St & Old Bridge Tpke,East Brunswick,NJ,theophany,40.4145,-74.3656
+64221b5d-cb68-428e-a603-8e41e062775c,Smithville Mansion,803 Smithville Rd,Eastampton,NJ,both,39.9867017,-74.749199
+06a90543-d2b2-4767-9bf3-d5e7bed15d0d,Piscatawaytown Burial Ground,2136 Woodbridge Ave,Edison,NJ,both,40.5004912,-74.3960959
+8305f261-dd6e-4807-8910-a28ca9ead83f,Peace Pilgrim Park,70 Chestnut St,Egg Harbor City,NJ,sanctuary,39.5273,-74.6444
+6c60a980-ff1d-48f6-aa63-49494601d088,Benedictine Center for Spirituality (St. Walburga Monastery),851 North Broad Street,Elizabeth,NJ,sanctuary,40.6693,-74.1777
+85e470c4-97a7-40fc-812b-ed67858769d1,Union County Courthouse,2 Broad Street,Elizabeth,NJ,theophany,40.6643,-74.2116
+ef65ce78-9558-4b7e-8660-5836c60bb42a,St. Michael's Monastery,1780 County Rd 537,Farmingdale,NJ,sanctuary,40.1986,-74.1833
+e338b52d-d4a9-49d4-b775-5a8cd007c943,Union Hotel,401 Union Ave,Flemington,NJ,theophany,40.5106625,-74.8587384
+b9cb228a-e297-43f5-b0ab-b18e52d15e57,Tohill Auditorium (Rowan University),201 Mullica Hill Rd,Glassboro,NJ,theophany,39.7103526,-75.1193267
+618202fe-e900-481c-a9a8-1d05e6835e3e,Gabreil Daveis Tavern,500 3rd Ave,Glendora,NJ,theophany,39.8375,-75.0608
+a45d5fd6-6598-4d83-90c2-084109c45383,Ghost Lake,"Off Shades of Death Rd, south of I-80 overpass",Great Meadows,NJ,both,40.9237,-74.8748
+61346457-6f92-44cd-a849-0bc42a360b96,Jenny Jump State Forest,State Park Road,Great Meadows,NJ,both,40.876,-74.884
+090db0ca-ce6c-4e57-a39b-4b1109680f15,Shades of Death Road,Shades of Death Road (southern end at Hope Rd/CR 611),Great Meadows,NJ,theophany,40.8869,-74.8928
+5fee3ead-0e40-4315-8793-5d3ae23366d7,The Fairy Hole (Lenape Cave near Ghost Lake),"Adjacent to Ghost Lake, off Shades of Death Rd",Great Meadows,NJ,both,40.923,-74.8752
+0e9db2b5-0a94-4d58-80dc-76a378c9c029,Tea Burners Monument,Market St,Greenwich,NJ,both,39.8278129,-75.2777864
+06dc2b2b-d3d0-4800-94ea-f39ed62c6bce,Centenary University (Tillie Smith Ghost),400 Jefferson Street,Hackettstown,NJ,theophany,40.850018,-74.832671
+1d830fdc-7fbc-4474-a60f-42cdf8612f6a,The Ritz Theatre,915 White Horse Pike,Haddon Twp,NJ,theophany,39.9005401,-75.0754563
+6a1e44fa-f0ad-4b74-b6c4-8b2cbf2a38d3,Batsto Village,31 Batsto Rd,Hammonton,NJ,both,39.643388,-74.6481908
+3413ae69-220c-430f-9f6f-2da76cd17819,Alloways Creek Friends Meetinghouse,Buttonwood Ave (150 ft west of Main St),Hancock's Bridge,NJ,sanctuary,39.5028,-75.4556
+8b01e3b3-24be-4f16-8f65-9c5120e61fe6,Hancock House,3 Front Street,Hancock's Bridge,NJ,both,39.4986,-75.4558
+acdea820-4911-43f8-b65d-d56976978ed3,East Point Lighthouse,10 Lighthouse Rd,Heislerville,NJ,both,39.1961,-75.0284
+4674e45e-a359-43c5-8b6a-3188e272ec5c,The Hermitage,335 Franklin Tpk,Ho-Ho-Kus,NJ,both,41.0071393,-74.1177338
+f6b04742-5c91-437e-bb70-1fdda8772e54,Bayview-New York Bay Cemetery,321 Garfield Ave,Jersey City,NJ,both,40.6941534,-74.0879919
+04bb85ce-3041-4dd2-8123-5cd717bc5e2f,Old Bergen Church,1 Highland Ave,Jersey City,NJ,sanctuary,40.7276932,-74.068029
+6540218e-8107-4a24-8fad-3f65f500468c,The Eyes of St. Joseph (St. Joseph Church),511 Pavonia Ave,Jersey City,NJ,theophany,40.7305272,-74.0574078
+ca2bb170-9333-4f0d-9910-448afb9a83d7,Johnsonburg Camp & Retreat Center,29 Johnsonburg Camp Road,Johnsonburg,NJ,sanctuary,40.956,-74.9176
+faf4f2da-2002-4fdc-bf7c-6f872324dab5,Cathedral of the Air (Chapel of the Air),264 Hope Chapel Road,Lakehurst,NJ,sanctuary,40.022,-74.3262
+91923f13-2153-405b-92af-0fbd63ac9b73,Hindenburg Crash Site Memorial,"Landsdowne Rd, JB McGuire-Dix-Lakehurst",Lakehurst,NJ,theophany,40.0268,-74.3327
+6b3f9901-6ea0-4160-bb50-6386a1b68e79,Murray Grove Retreat & Conference Center,94 Montague Ave,Lanoka Harbor,NJ,sanctuary,39.7916,-74.3036
+76e93a2a-eb22-4a31-8454-e6e5e036977f,Phareloch Castle (Beatty Castle),Off Lyons Road,Liberty Corner,NJ,theophany,40.694,-74.52
+cb89bd74-438c-4a80-aaa0-a3e6b8daac83,Monmouth Battlefield State Park,16 Business Route 33,Manalapan,NJ,theophany,40.2701821,-74.3175408
+591cda4c-ccb4-420c-aa76-9b3358ad7785,The Devil's Tree,Mountain Road (near #181),Martinsville,NJ,theophany,40.63,-74.5831
+858d67a6-b41e-49c4-8072-56d791a14b43,Kip's Castle Park,22 Crestmont Rd,Montclair,NJ,both,40.8290266,-74.2257431
+0b42f7cb-4ddb-4d1d-8d3c-6690123742c6,Greystone Park Psychiatric Hospital (Original Site),59 Koch Ave,Morris Plains,NJ,theophany,40.8388893,-74.5102538
+b6e67bc8-c01f-4365-8147-b43cb3f30c9e,Evergreen Cemetery,65 Martin Luther King Ave,Morristown,NJ,both,40.804524,-74.4744328
+25f89f2d-4aa1-4155-8186-e1d710725bc0,Jockey Hollow (Morristown National Historical Park),580 Tempe Wick Rd,Morristown,NJ,both,40.7614,-74.5425
+f0ae0c83-5091-40f1-ae4b-694fda05edea,Macculloch Hall Gardens,45 Macculloch Ave,Morristown,NJ,sanctuary,40.792573,-74.481932
+246a05e3-701c-446a-9e3e-48e2eda0679e,St. Peter's Episcopal Church,121 South St,Morristown,NJ,sanctuary,40.7931282,-74.4774378
+d968536b-957c-4f59-8b60-a51108e5ff86,Burl. County Prison Museum,128 High St,Mount Holly,NJ,theophany,39.9965894,-74.7892595
+cb48492a-280f-419e-8870-d08baaeeedd6,Watchung Reservation,New Providence Road (primary entrance),Mountainside,NJ,both,40.6576,-74.3607
+b1ae52aa-c3c4-4cd8-be57-ca9393638850,Whitall House (Red Bank Battlefield),100 Hessian Ave,National Park,NJ,theophany,39.868976,-75.189551
+80000fd6-d429-40a8-a253-65f4250d4318,All Saints Memorial Church,202 Navesink Ave,Navesink,NJ,both,40.3983747,-74.0205699
+bd6871ef-ab33-4cb3-816e-2fbaba7be1e7,Christ Episcopal Church Cemetery,5 Paterson St,New Brunswick,NJ,both,40.495768,-74.442621
+31d67f40-3e84-4d13-b199-b87ab0b28495,Branch Brook Park,Park Ave & Lake St,Newark,NJ,sanctuary,40.7713635,-74.1756347
+ec3a8b48-a5d3-4f92-a1c3-964d70c30f00,Cathedral of Sacred Heart,89 Ridge St,Newark,NJ,sanctuary,40.7561157,-74.1781429
+5ebc841d-6451-4f63-a86e-9701a6b0f075,Clinton Place House,Clinton Pl,Newark,NJ,theophany,40.715524,-74.2128637
+9c769703-c780-4080-9129-e009ef0418bb,Cave Grave (The Three Children's Cave),Near Oak Ridge Road (exact location per local knowledge),Newton,NJ,theophany,41.0488,-74.7512
+8e64d770-aa4c-41bd-b1bd-3f29ea701877,Sacred Heart Spirituality Center,20 Old Swartswood Road,Newton,NJ,sanctuary,41.068165,-74.785694
+38a01f78-aaea-4456-bb05-8228f874ca9e,Sterling Hill Mining Museum,30 Plant Street,Ogdensburg,NJ,theophany,41.0855,-74.5935
+a0c0d3d0-a360-4bcc-8501-45d09c0abe1a,Great Falls of the Passaic River,McBride Ave & Spruce St (Great Falls National Historical Park),Paterson,NJ,both,40.9165,-74.1712
+dfd10530-adf8-40d1-8668-19cefdddf3b8,Finn's Point National Cemetery,Fort Mott Road,Pennsville,NJ,sanctuary,39.5793,-75.5294
+8f0f36f6-4b26-4089-806c-86889d06a847,Fort Mott State Park,454 Fort Mott Rd,Pennsville,NJ,both,39.5604,-75.5273
+2802d69a-416f-4d63-b149-e28c11c8f489,Proprietary House,149 Kearny Ave,Perth Amboy,NJ,theophany,40.5034163,-74.2692933
+783de6b5-4b6a-4968-92ff-4c34ab55d6e5,Quaker Meeting House (Quakertown),290 White Bridge Rd,Pittstown,NJ,sanctuary,40.5664,-74.9436
+d49af51a-d35f-48d3-8caa-85d64bfd6c01,Spy House (Seabrook-Wilson House),119 Port Monmouth Rd,Port Monmouth,NJ,theophany,40.4383932,-74.0914695
+891becd1-b2a3-4e75-8a61-0768e0f528db,Mt. Pisgah AME Church,170 Witherspoon St,Princeton,NJ,sanctuary,40.3542738,-74.6618529
+e03da7fb-f9b8-4ff2-920a-ca588844122d,Princeton Friends Meeting House,470 Quaker Rd,Princeton,NJ,sanctuary,40.3269746,-74.6780237
+f1ecb39d-f38d-4919-b32b-125d33543c21,Ringwood Manor State Park,1304 Sloatsburg Road,Ringwood,NJ,both,41.1148,-74.244
+cde8a6dd-4fbb-41b8-80fd-288b9cfdb1ae,Salem Friends Meeting House,79 West Broadway,Salem,NJ,sanctuary,39.5787,-75.4674
+1c85b230-de1a-4da0-9d9d-358b3c36c7a0,The Old Salem Oak,Walnut Street (Salem Friends Burial Ground),Salem,NJ,both,39.5772,-75.4673
+fdf924f7-f287-4b5e-bf29-7a77e3e9c436,Allen House,400 Sycamore Ave,Shrewsbury,NJ,theophany,40.32397,-74.061674
+1f5b74c9-f89e-4bdd-a4e2-7df51c12bc50,Wallace House and Old Dutch Parsonage,71 Somerset Street,Somerville,NJ,both,40.5689908,-74.6213706
+464d7d82-43a8-467c-807d-2d7ee8fe62da,Surf City Hotel (Powhattan Wreck Site),813 Long Beach Blvd,Surf City,NJ,theophany,39.7285,-74.1658
+11ed0198-a909-48f1-a283-1cc23d12d8d3,High Point State Park (High Point Monument Overlook),1480 State Route 23,Sussex,NJ,sanctuary,41.3239,-74.6609
+902b02f4-f192-4dc1-9008-1c389878ef56,Trinity Episcopal Cemetery,1208 Kings Hwy,Swedesboro,NJ,both,39.749926,-75.3072415
+810069e2-095f-475a-97a0-21557b28886c,Annie's Road (Riverview Drive),Riverview Drive,Totowa,NJ,theophany,40.8853052,-74.2308565
+ec500a66-72fd-4571-95da-a30f6d773547,Kean University – Wilkins Theater,1000 Morris Avenue,Union,NJ,theophany,40.6780173,-74.2339287
+6f8643da-8b92-4bd9-a97d-d63b119c54d4,Pine Barrens (Jersey Devil Territory),Waretown Road area (multiple access points throughout),Waretown,NJ,both,39.7877,-74.3148
+c7f187d1-3d48-483f-a6b6-316a2dbcb73e,Mount Saint Mary House of Prayer,1651 US Route 22,Watchung,NJ,sanctuary,40.6485,-74.41455
+4f9e2dea-9b3a-483b-8120-4bafd99dc077,"Clinton Furnace (""Druid Temple"" Ruins)","Clinton Road (off-road, south section)",West Milford,NJ,theophany,41.1132,-74.2984
+7f5e04fe-4a9d-48bc-8e7b-0b6dc9b6f825,Clinton Road,"Clinton Road (begins at Route 23, Newfoundland)",West Milford,NJ,theophany,41.1565407,-74.395547
+722ed2cb-d047-4359-b69c-f008732295f5,Trenton Psychiatric Hospital Grounds,Sullivan Way,West Trenton,NJ,theophany,40.2436,-74.8055
+591a4303-ea80-4fae-8c04-cb84d5bbfe19,Gallows Hill Road (Westfield Hanging Tree Site),Corner of Gallows Hill Road and Brookside Place,Westfield,NJ,theophany,40.6509,-74.3461
+a9a29b6a-4935-40c6-8f42-55800c1c5887,America's Keswick Christian Retreat and Conference Center,601 Route 530,Whiting,NJ,sanctuary,39.9643,-74.3196
+81b4fd8a-b46e-44d6-bea4-387b8051b180,The Blue Hole,Piney Hollow Rd,Winslow,NJ,theophany,39.6320819,-74.8820475
+cb9def2b-44d2-46b7-98e0-b3f0e0edebab,Gloucester County Courthouse,1 N Broad St,Woodbury,NJ,theophany,39.838298,-75.15319
+9fba861b-42fd-49a0-985e-7c796eaafdb6,Woodbury Friends Meeting House,120 N Broad St,Woodbury,NJ,sanctuary,39.8399584,-75.1517196
+e47ef59b-eaab-4b42-b536-2ae055dc03c1,Cathedral of the All Saints (Episcopal),62 S Swan St,Albany,NY,sanctuary,42.6489,-73.7545
+47196342-610f-4a88-84a5-7bd48264c4fb,New York State Capitol Building,State St and Washington Ave,Albany,NY,theophany,42.6526,-73.7573
+271090d6-5ed6-40f4-81b1-8545b6bedb16,Shaker Heritage Society,25 Meeting House Rd,Albany,NY,both,42.7247,-73.8114
+4a75a58e-2f98-413c-86f3-1e7013008737,Ten Broeck Mansion,9 Ten Broeck Pl,Albany,NY,theophany,42.6661,-73.7545
+dfd979fd-d5f3-4cef-921b-9efc92c247f9,Washington Park,State St to Western Ave,Albany,NY,theophany,42.6518,-73.765
+b8dd269c-1b5f-4cfb-a250-ddfb09f02682,Amityville Horror House,112 Ocean Avenue,Amityville,NY,theophany,40.673185,-73.418243
+9b693f25-6f52-4250-a740-8d679498995e,Winery at Marjim Manor,7171 E Lake Rd,Appleton,NY,theophany,43.3483165,-78.6390915
+3e1fb5ab-f6df-496d-990e-33acba6883fe,Museum of the Moving Image,36-01 35th Ave,Astoria,NY,theophany,40.7558,-73.9267
+75de2a2d-3135-46e5-8291-63e45352323e,Auburn Correctional Facility (Historic),135 State St,Auburn,NY,theophany,42.9341905,-76.5750409
+4e5373e7-9dd6-41e7-9b86-d21ebd9b04c7,Fort Hill Cemetery,19 Fort St,Auburn,NY,both,42.9322,-76.564
+ec1ba535-b10d-4bd1-ae8a-6553a4234fbf,Harriet Tubman National Historical Park,180 South St,Auburn,NY,sanctuary,42.9319,-76.5664
+b94f0b92-5aed-4b04-bce6-c3d01bc9611b,Ausable Chasm,2144 U.S. Route 9,Ausable Chasm,NY,both,44.5248,-73.4615
+594561f0-68f2-44dc-943e-ebd757fd4661,Batavia Cemetery,Washington Ave,Batavia,NY,both,42.9998064,-78.180003
+2a12cf00-8326-468e-a052-231b76fafef5,Chapin Mill Retreat Center (Rochester Zen Center),9295 Buffalo Rd,Batavia,NY,sanctuary,42.9784,-77.9893
+334bd344-d42a-4958-988b-7542752db2ed,DeWitt Recreation Area,Chestnut Ridge Rd,Batavia,NY,sanctuary,42.9891947,-78.1607497
+02453ef1-e2d5-4b3d-ba3a-66944ce2ed3b,Holland Land Office Museum,131 W Main St,Batavia,NY,both,42.9991863,-78.1908551
+e44c42be-37df-4ccc-9fd1-d63edee20359,Fire Island Lighthouse,4640 Captree Island,Bay Shore,NY,theophany,40.6284,-73.2169
+904e2914-525b-478f-b42b-709f73e25d2a,Bayside Cemetery,2201 Corporal Kennedy St,Bayside,NY,both,40.7785,-73.7609
+ca874c23-23be-46b5-bc85-dbe1e71860d9,Fort Totten,Cross Island Pkwy,Bayside,NY,theophany,40.7898,-73.7785
+ada582b5-2a0b-4e59-bb6d-153de2e20cf8,Bannerman Castle,Pollepel Island (tour departure commonly from 2 Red Flynn Dr.),Beacon,NY,both,41.455688,-73.988609
+8a4cb1b5-61ef-45bd-b5ee-6028f0e541b5,Bundy Museum of History and Art,129 Main St,Binghamton,NY,theophany,42.1018928,-75.9282391
+7655840e-ffe3-4725-a16b-f4ba604e7e3c,Phelps Mansion Museum,191 Court St,Binghamton,NY,theophany,42.0994,-75.912
+da81f56a-5a68-4db6-b8e1-64d83269bf1c,Recreation Park Pond Area,Route 11,Binghamton,NY,sanctuary,42.0912,-75.9203
+97ea4449-3fa7-4500-877e-802186228817,Roberson Museum & Science Center,30 Front St,Binghamton,NY,theophany,42.0989,-75.9167
+c7f99279-a9a4-4129-84dd-f0cfc33ccaf2,Blue Mountain Lake Overlook,Route 28,Blue Mountain Lake,NY,both,43.854415,-74.4366001
+26a0c1b2-fbc5-46f2-be2e-e36d07b17c91,Bare Hill Unique Area,Bare Hill Rd,Branchport,NY,both,42.615,-77.162
+51cf1331-f322-410c-bfaf-eb1ed3e462be,Fordham University Campus,441 E Fordham Rd,Bronx,NY,theophany,40.8595611,-73.8840495
+792b6aba-9426-400e-a1aa-d6d195e7333b,New York Botanical Garden,2900 Southern Blvd,Bronx,NY,sanctuary,40.8622,-73.8769
+ed9f6f8e-5e98-4b2c-87bd-f095483405ba,Wave Hill Public Garden,4900 Independence Ave,Bronx,NY,sanctuary,40.8983,-73.9129
+52350343-bcb1-47c2-87b3-047e291da933,Woodlawn Cemetery,Webster Ave & East 233rd St,Bronx,NY,both,40.8957,-73.8729
+809e2b53-f3a6-4923-949b-15e085b85f0a,Brooklyn Botanic Garden,990 Washington Ave,Brooklyn,NY,sanctuary,40.6694128,-73.9628997
+005db7ea-508f-4634-91fe-aea3ef18dc75,Fort Greene Park Prison Ship Martyrs Monument,Washington Park,Brooklyn,NY,both,40.6914522,-73.97349
+c6527b13-1e99-45eb-b364-fdd62818696d,Green-Wood Cemetery,500 25th St,Brooklyn,NY,both,40.6580892,-73.994841
+33551712-05a9-4532-b869-252f394ccd41,Plymouth Church,75 Hicks St,Brooklyn,NY,sanctuary,40.6993187,-73.9937276
+cf03a547-ce7c-4e5c-ac71-a01e0f1b8362,St. Mark's Church in-the-Bowery,131 E 10th St,Brooklyn,NY,both,40.6668951,-73.9833181
+831c1a12-17a2-4260-b30d-a72f9edffd10,Forest Park Cemetery (Pinewoods),1521 State Route 2,Brunswick,NY,theophany,42.7602,-73.5936
+66230ed9-78e4-403b-87a4-c53e8bc25d50,Buffalo Central Terminal,495 Paderewski Drive,Buffalo,NY,theophany,42.8891443,-78.830536
+eb0e5db6-f085-4c89-9ff0-a98606b13ab8,Forest Lawn Cemetery,1411 Delaware Avenue,Buffalo,NY,both,42.922408,-78.867316
+c0cb1de2-4630-4f10-a300-7203d0b9dab3,Garrett Memorial Chapel (Little Chapel on the Mount),Garrett Chapel Rd,Burdett,NY,sanctuary,42.455,-76.95
+8a736d6e-e668-471e-b676-276d968a9cc6,Van Horn Mansion,2165 Lockport-Olcott Rd,Burt,NY,theophany,43.3119365,-78.7142853
+1d251b3f-30b5-459d-a786-66ac59dce346,The Hub (St. Lawrence University),23 Romoda Dr,Canton,NY,theophany,44.591,-75.1663
+dd4af74e-cf30-44d8-887a-2135c8a1b5a1,Letchworth State Park,1 Letchworth State Park,Castile,NY,both,42.6428,-77.9797
+2d64a1f5-0f3b-4d5e-af05-4ddc06d8d309,Mount Morris Dam and Letchworth State Park — Inspiration Point,1 Letchworth State Park,Castile,NY,both,42.5698,-78.0534
+e8bec933-4231-4fcb-b6ae-3928b7725edc,Old Catskill Point,1 Main St,Catskill,NY,sanctuary,42.2102422,-73.8536856
+63428307-b355-48cf-88f3-254414c74893,Thomas Cole National Historic Site,218 Spring St,Catskill,NY,sanctuary,42.225766,-73.8615472
+a01c544d-b287-4d33-ab0d-fadcff38f2a1,Chittenango Falls State Park,2300 Rathbun Rd,Cazenovia,NY,both,42.9769269,-75.8425772
+12bc3cc3-9877-41c6-9b1e-e6ed020a7577,Lorenzo State Historic Site,17 Rippleton Rd,Cazenovia,NY,both,42.9222779,-75.8616308
+c0d553be-a39d-4e15-87e3-5e35de9f5646,Chautauqua Institution,1 Ames Ave,Chautauqua,NY,sanctuary,42.2096,-79.4634
+3ac547bc-d3a2-4c04-91c8-ef04924aca19,Cedar Point State Park,Route 12E,Clayton,NY,both,44.1228,-76.2827
+bf50e8ad-ab0e-4efa-8c51-5f326350362b,Bull's Head Inn,2 Park Place,Cobleskill,NY,theophany,42.677106,-74.487085
+dcddfb00-c918-47ee-ad88-3ca7952a39a1,Grapevine Farms,135 Mineral Springs Rd,Cobleskill,NY,theophany,42.6731099,-74.431794
+3f3ec38b-44c7-42b5-832e-7fca0afdba92,Conesus Lake — South End Wetlands,E Lake Rd,Conesus,NY,both,42.7435031,-77.7113747
+df975f4e-ecfb-4f90-8e56-139e41ba516d,Constableville Congregational Church,7 Royce St,Constableville,NY,sanctuary,43.559,-75.4279
+6f6bac19-ad61-49fa-9d0f-e588d38b347d,Bannerman Castle (Pollepel Island),"Hudson River, Newburgh",Cornwall,NY,theophany,41.4499,-73.9929
+19928738-8fae-41ef-980a-3ef32f00bb27,Lime Hollow Nature Center,338 McLean Road,Cortland,NY,sanctuary,42.56914,-76.251381
+26fdcbf5-59c4-4317-9c95-2d32fda2b867,The 1890 House Museum,37 Tompkins Street,Cortland,NY,theophany,42.596139,-76.182222
+3fbdc087-d7fe-4255-bbff-8dc2eedf1622,Crown Point State Historic Site,21 Grandview Drive,Crown Point,NY,both,44.02683,-73.429418
+0811fb20-80b8-49d1-a2b3-1d68d3fae339,Rolling Hills Asylum,11001 Bethany Center Rd,East Bethany,NY,theophany,42.8811842,-78.1328049
+63df8dbc-de4d-44d8-aa8a-2e4bc0ab1d95,Hanford Mills Museum,51 County Highway 12,East Meredith,NY,both,42.4234,-74.8855
+e37e8b6a-f920-4fc4-8ef5-05cfc51beba7,Arnot Art Museum,235 Lake St,Elmira,NY,theophany,42.0908375,-76.8025713
+54b37686-5caa-43b4-9eb6-80489272d14b,Mark Twain Study,One Park Place,Elmira,NY,sanctuary,42.0852,-76.8027
+2bafc7c1-4fe8-4de3-814d-170ad60bd612,Mark Twain's Study at Elmira College,1 Park Pl,Elmira,NY,sanctuary,42.0879,-76.8053
+e0b70f17-714d-4160-a639-9432b1af319a,Newtown Battlefield State Park,Rte 60,Elmira,NY,both,42.0612,-76.7803
+7fd115de-4630-4bf3-be94-ca8a3c7b7bc4,Woodlawn Cemetery (Elmira),1200 Walnut St,Elmira,NY,both,42.072,-76.8088
+74b8c518-b6a0-4204-a088-d95e43c9d1a4,Woodlawn National Cemetery,1825 Davis St,Elmira,NY,both,42.0814,-76.8122
+b76a5ef0-40da-4a7b-8ef9-c879dd3390a0,Mount Saint Francis Hermitage,861 Munson St,Endicott,NY,sanctuary,42.115,-76.055
+b4f199ee-324b-4039-a28a-f7f9ef8686d4,Landis Arboretum,174 Lape Rd,Esperance,NY,sanctuary,42.7654,-74.2893
+ba2ca7f5-3698-4b42-bd66-44e264347dad,Montgomery County Old Courthouse,9 Park St,Fonda,NY,theophany,42.9529439,-74.3755317
+f09e537c-5e3d-4a8a-9466-55886a5836c9,Jane McCrea House,5 Catherine St,Fort Edward,NY,theophany,43.2671,-73.5842
+7ebc6dba-70de-4436-b33e-4f73f13112f5,Old Fort House Museum,29 Broadway,Fort Edward,NY,theophany,43.2617,-73.5807
+27af597b-c4be-4814-886b-d12ce040c5eb,Schoharie Crossing State Historic Site,129 Schoharie St,Fort Hunter,NY,sanctuary,42.9396084,-74.2825355
+f70e440e-b61e-4ca0-97bb-3f198c2b65d0,Stone Arabia Church,5371 Ephratah Rd,Fort Plain,NY,both,42.9427,-74.5562
+54b53654-0691-41f5-8d5f-86db72880e37,Gurnsey Hollow Cemetery,Gurnsey Hollow Rd,Frewsburg,NY,theophany,42.0567,-79.1543
+33623e0a-c3e5-4ec4-86a7-944631040763,Cathedral of the Incarnation,36 Cathedral Ave,Garden City,NY,sanctuary,40.719765,-73.6416814
+232c3bdd-9f93-48a0-bb50-5e95048394a7,Graymoor Spiritual Life Center / Holy Mountain Franciscan Retreat Center,40 Franciscan Way,Garrison,NY,sanctuary,41.3745,-73.9421
+60bef80b-6d39-4a8c-bd05-53e77aa12dae,Burn Brae Mansion,Glen Spey Rd,Glen Spey,NY,theophany,41.4333,-74.8667
+2a300003-2d7d-400e-b3a5-6e7a05949c74,Machpelah Cemetery,8230 Cypress Hills St,Glendale,NY,theophany,40.693455,-73.88473
+e41a2215-2a8d-4c37-b683-0578bc3f1435,Pine Tree Woods Edge,1482 Riceville Rd,Gloversville,NY,sanctuary,43.0712,-74.327
+23d9767e-3fd6-4b8e-83cb-4ca8fca00675,Hollenbeck Cemetery,Hollow Rd,Grafton,NY,theophany,42.8218826,-73.3816239
+e2a65d2a-f780-4e70-8b32-f23ce64f0e13,Kaaterskill Falls,Laurel House Rd,Haines Falls,NY,both,42.1921858,-74.1004066
+5dec8f9f-0647-4d6a-9c9b-322f5ee40c63,Hollenbeck Cemetery,Hollenbeck Ave,Haverstraw,NY,theophany,41.201,-73.989
+87287d43-5256-44a6-9c05-9add474bfe0b,Shoemaker House,108 N Washington St,Herkimer,NY,theophany,43.0263616,-74.9846078
+6f80ad37-5c9b-440b-bbae-c2fc2a06742d,Hinsdale House (Dandy House),McMahon Rd,Hinsdale,NY,theophany,42.1650149,-78.3427676
+2c21e2e2-ed8c-4092-9d13-7a9277a52623,Howe Caverns,255 Discovery Dr,Howes Cave,NY,both,42.6957642,-74.3987702
+27d110cf-bd63-40a5-8976-40527b82c41a,Olana State Historic Site,5720 Route 9G,Hudson,NY,sanctuary,42.217105,-73.829259
+3de81cc2-e5dd-409b-8b70-6b65b1d48429,Peace Village Learning and Retreat Center,Hullsville Rd,Hullsville,NY,sanctuary,42.1425799,-76.1734337
+b962f727-2eec-42d5-894c-9cd34bf61ff7,Foundation of Light,5 Penny Lane,Ithaca,NY,sanctuary,42.4167,-76.501
+e69eeca2-b72c-4139-91e8-ab8d2677b767,Thomas Berry Place (Passionist Retreat),86-45 192nd St,Jamaica,NY,sanctuary,40.7101,-73.7888
+38beeb57-404d-4e80-8e99-2345f343c234,Fulton County Courthouse Square,223 W Main St,Johnstown,NY,theophany,43.0066542,-74.374689
+ba1dd986-7848-42fd-a756-821a0dd1e19b,Johnson Hall State Historic Site,139 Hall Ave,Johnstown,NY,both,43.0162634,-74.3833309
+f80c0202-c196-43b6-b9bb-2a19bbcbe811,Garrett Memorial Chapel,Garrett Memorial Chapel,Keuka Park,NY,sanctuary,42.5076,-77.1312
+8173aabf-0f05-464b-83be-8cf1b78505fd,Senate House State Historic Site,296 Fair St,Kingston,NY,both,41.9281,-74.0059
+30bb9745-4de6-45fc-9310-7d16460e5870,Fort William Henry,46 Canada St,Lake George,NY,theophany,43.4190362,-73.7135323
+da4fb13b-8c8e-40bd-bc38-234de6cb76da,Old Warren County Courthouse,1 Lower Amherst St,Lake George,NY,theophany,43.4238,-73.7129
+5a034639-90b2-4825-9b23-63160ebed48e,Prospect Mountain,Prospect Mountain Veterans Memorial Hwy,Lake George,NY,both,43.4248,-73.7457
+6c3b8974-9fab-4f6d-9fb4-2b335ea89822,John Brown Farm State Historic Site,115 John Brown Road,Lake Placid,NY,both,44.250014,-73.971776
+48c4d8b4-0f84-4677-96d4-4bb7147ac696,Lake Pleasant Cemetery,Route 8,Lake Pleasant,NY,both,43.5107441,-74.314143
+edfcb88d-1292-45a0-81f3-5a52e597f101,Lily Dale Assembly,5 Melrose Park,Lily Dale,NY,both,42.3534,-79.327
+92912fd9-6b5f-43e9-aabc-88dcc02da1e9,Calvary Cemetery,Upper Mary St,Little Falls,NY,sanctuary,43.0488,-74.857
+ec33555e-f346-4991-8b64-cb99fad47410,Herkimer Home State Historic Site,200 NY-169,Little Falls,NY,both,43.0483794,-74.869643
+037b3973-e451-49c6-a534-83e4af0e00ee,Moss Island,Moss Island Rd,Little Falls,NY,both,43.0394988,-74.8478259
+94714331-7071-4d0b-a1a9-aa444e6f4e8f,Lockport Cave and Underground Boat Tour,5 Locks St,Lockport,NY,theophany,43.1701,-78.6917
+80e48e46-ccdb-4bfc-9932-a4e6eb90e185,New York Pizzeria Third Floor — Tug Hill Annie Site,7552 S State St,Lowville,NY,theophany,43.7860039,-75.4913138
+3198522f-a9d7-4e0f-962b-8bdc1a91ace8,Tug Hill Plateau Overlook,NY-177,Lowville,NY,both,43.792253,-75.5681739
+07ba22b1-665d-422c-bb47-78c9e7322802,Whetstone Gulf State Park Gorge Trail,6065 West Road,Lowville,NY,both,43.7027207,-75.4597484
+60aaaf4d-cba8-4958-b3b3-9e480b4816a0,Black River Canal Historic Corridor,Canal St,Lyons Falls,NY,both,43.6187,-75.3731
+c56f099c-5ad8-41be-842f-84ca1a6164c8,Ganargua Creek Preserve,1260 Eddy Rd,Macedon,NY,sanctuary,43.066,-77.292
+13ed3b18-5a59-4ba3-a4c0-17d38d1443f1,Spanky's Diner (near Pine Grove Cemetery),13 Morris St,Massena,NY,theophany,44.9278,-74.8919
+f83e7ab6-443c-4191-8783-8f119eab1c1f,Jaquin's Pond Road,Jaquin's Pond Rd,Mayville,NY,theophany,42.2623,-79.4852
+bf26d80d-92b3-4e83-bf39-b8096deed574,Albany Rural Cemetery,Cemetery Ave,Menands,NY,both,42.6974,-73.7302
+678daf06-4c86-4ae4-823b-c4f1e72e4c47,St. John Cemetery,80-01 Metropolitan Ave,Middle Village,NY,theophany,40.7159,-73.8685
+91275e3c-b609-48a6-931b-a0c56bd1746d,Vroman's Nose,Lower Blenheim Rd,Middleburgh,NY,both,42.5994,-74.3399
+0b7925e8-b421-4cfd-960e-b87547079f62,Innisfree Garden,362 Tyrrel Road,Millbrook,NY,sanctuary,41.760463,-73.750144
+976190a1-53c0-4a04-8589-4d9f2fd5968c,Fort Herkimer Church,575 NY-5S,Mohawk,NY,both,43.0133471,-75.0133659
+bd11b2d0-4047-4586-878a-2d5e07e339ca,Camp Hero State Park (Montauk Project Site),50 South Fairview Ave,Montauk,NY,theophany,41.0483434,-71.93194
+a003a913-1b7e-4f76-aa60-4365a1a617eb,Montauk Point Lighthouse,2000 Montauk Hwy,Montauk,NY,both,41.0331598,-71.9466724
+30c2f03d-9926-4c9c-858f-f6bef9f2cba1,Mount Morris Dam Overlook,6103 Visitor Center Rd,Mount Morris,NY,both,42.7295,-77.8823
+0c9f763c-897c-4536-b353-e4ad45681e4b,Genesee Country Village & Museum — Historic Village,1410 Flint Hill Rd,Mumford,NY,both,42.9937034,-77.8799406
+47f882c5-2945-4412-abb4-b1def4aed255,Shanley Hotel,56 Main St,Napanoch,NY,theophany,41.7406084,-74.3737039
+494ef039-66b3-4d7b-ac77-403e04d0af63,Palatine Church (Old Stone Fort area),145 Fort Keyser Rd,Nelliston,NY,sanctuary,42.9361,-74.6147
+42f59bfd-eeef-49c9-a4a2-ea674f18229a,Neversink (Flooded Town Under Reservoir),Route 55,Neversink,NY,theophany,41.8237,-74.6421
+d44ca17a-ebad-41af-8250-4b588ca6ecdc,Shaker Museum | Mount Lebanon,202 Shaker Road,New Lebanon,NY,sanctuary,42.456412,-73.381405
+bef63c43-3a3a-421f-a78c-36c6153d3860,Historic Huguenot Street,81 Huguenot St,New Paltz,NY,both,41.751,-74.0903
+ed8394f3-c456-4235-aeb6-e95885e8fc92,House of Death — 14 W 10th St,14 W 10th St,New York,NY,theophany,40.7336491,-73.9964675
+e693bca6-e0b9-425f-a0a0-bf1ad3fec0a3,Merchant's House Museum,29 E 4th St,New York,NY,both,40.7276594,-73.9923423
+ee34e032-4ee0-4ed5-842b-234b4d193d71,Morris-Jumel Mansion,65 Jumel Terrace,New York,NY,theophany,40.8349747,-73.938772
+6837438d-5747-4f6b-9b40-85b9e1292b6f,St. Mark's Church in-the-Bowery,131 E 10th St,New York,NY,both,40.7303406,-73.9871159
+150e1b06-f54a-4174-b2dc-7bbb3891d786,The Dakota Apartment Building,1 W 72nd St,New York,NY,theophany,40.776775,-73.9759107
+329da7e3-6c34-4ca8-95ed-47208eea209b,Trinity Church Churchyard,75 Broadway,New York,NY,both,40.7078642,-74.0118559
+8281e4e1-645c-4d5f-abf6-486bc7a01fc4,Washington Square Park,Washington Square N,New York,NY,theophany,40.7318185,-73.9977991
+76e981bc-b938-4eec-a5f0-78b772889300,Connecticut Hill Cemetery,Connecticut Hill Rd,Newfield,NY,theophany,42.3798315,-76.6434401
+69ca5a11-abc2-496e-b2d2-efb22516e1bf,Devil's Hole State Park,Niagara Scenic Pkwy,Niagara Falls,NY,both,43.0785985,-79.0204232
+66a60577-e72e-4308-938d-6dc4aeff40da,Rapids Theatre,1711 Main St,Niagara Falls,NY,theophany,43.105154,-79.0525284
+ff14fbbc-caf6-47bc-b214-1ac9e4da10c6,Red Coach Inn,2 Buffalo Ave,Niagara Falls,NY,theophany,43.0842486,-79.0630629
+251ad67c-d89c-409e-bf47-1f47bff4f822,Northville Cemetery,Main St,Northville,NY,both,43.2275127,-74.172707
+4f3e9531-5757-47a8-9e31-38188282429e,Mount Hope Cemetery,5697 State Highway 12,Norwich,NY,both,42.5178,-75.5253
+998906f5-b54a-440b-8482-edd19ccbffd4,Marydell Faith & Life Center,640 N Midland Ave,Nyack,NY,sanctuary,41.1173688,-73.9194426
+30fa486d-8da3-4a83-9c17-539968bf3960,Frederic Remington Art Museum,303 Washington St,Ogdensburg,NY,theophany,44.6985459,-75.4931823
+c5479b67-cc49-4e76-8477-b607436389c1,Ogdensburg Public Library,312 Washington St,Ogdensburg,NY,theophany,44.6936,-75.4969
+4b24cbe2-fdc1-4756-9876-bba4fc1900b3,Old Westbury Gardens,71 Old Westbury Rd,Old Westbury,NY,sanctuary,40.7737549,-73.5947381
+b1cc48fe-b127-4b2e-a42d-ffc194fd48f9,Old Westbury NYIT — Paranormal Grounds,Northern Blvd,Old Westbury,NY,theophany,40.7849,-73.5876
+c4c35881-5e4b-4882-b2a2-c8ee4bd3b00f,Wildwood Sanitarium,Sanitarium Rd,Olean,NY,theophany,42.081,-78.4296
+63e2eb0c-d987-4854-bbd2-37e646ee9ff9,Oneida Community Mansion House,170 Kenwood Ave,Oneida,NY,both,43.0602775,-75.604633
+8a9b7d57-239d-498c-aa07-7c5687e9f1ca,Owego Historic District,Front St,Owego,NY,both,42.1028,-76.2644
+5def304a-dee2-4223-b437-3b0e98146e5a,Tioga County Historical Society Museum,110 Front St,Owego,NY,theophany,42.1044,-76.2614
+979d55d2-9a47-40d8-9d6e-6d8e61f9839b,Palmyra Historical Museum,132 Market St,Palmyra,NY,theophany,43.063,-77.2336
+98147bd3-b495-4c3d-8a62-c06df93ae449,Keuka Lake Outlet Trail,Seneca St,Penn Yan,NY,sanctuary,42.6608,-77.0539
+e7120212-da10-40d4-9f08-9182db740929,Silver Lake Institute,848 Lake Shore Dr E,Perry,NY,sanctuary,42.715,-78.0402
+b9505819-c433-4d1b-a610-a7b98285de1f,Abbey of the Genesee,3258 River Rd,Piffard,NY,sanctuary,42.8397,-77.8745
+1ccb3599-6c1a-499d-90b4-1db0a329f054,Blue Cliff Monastery,3 Mindfulness Rd,Pine Bush,NY,sanctuary,41.617,-74.344
+33f465c8-a861-43f3-9f45-7215d74b127d,Mount Saviour Benedictine Monastery,231 Monastery Rd,Pine City,NY,sanctuary,42.039,-76.9
+6629dd79-7394-4863-990f-4d1e582356e7,Point Au Roche State Park,19 Camp Red Cloud Road,Plattsburgh,NY,sanctuary,44.77374,-73.37906
+e89551ff-bf69-4610-ad64-ef8e66b9d60f,Rockefeller State Park Preserve,125 Phelps Way,Pleasantville,NY,sanctuary,41.1197,-73.8295
+3d9d64b4-e539-4fd2-b1a4-3c01f46bccb1,Holcroft House (Clarkson University),8 Clarkson Ave,Potsdam,NY,theophany,44.6636318,-74.9941057
+37dc90ac-629a-44b3-9973-7c6f832f1f68,Saratoga County Homestead (Old Sanatorium),Bills Rd,Providence,NY,theophany,43.112,-73.918
+e84851bc-a0a1-4f30-a65e-e807b1cd9cae,The Great Camp Sagamore,Sagamore Rd,Raquette Lake,NY,both,43.7902445,-74.64446
+b6bf522d-4d23-4fb6-94d3-30cccc3a37d5,Machpelah Cemetery,8230 Cypress Hills St,Ridgewood,NY,theophany,40.7023552,-73.8937548
+f50374d7-604d-4f5c-a467-f52df29a0433,Auditorium Theatre,885 E Main St,Rochester,NY,theophany,43.1606096,-77.5885739
+8063809c-077b-4727-be18-53e921522e66,Durand Eastman Park — White Lady's Road,Lakeshore Blvd,Rochester,NY,theophany,43.2284,-77.5541
+da5b7366-dad5-469b-ac7e-19dfef4806be,George Eastman Museum,900 East Ave,Rochester,NY,theophany,43.1531296,-77.5798264
+f12f665b-1be4-46df-8cad-b929a9dc92d9,Holy Sepulchre Cemetery,2461 Lake Ave,Rochester,NY,both,43.2131306,-77.6308188
+14ff20db-8080-464b-86d3-0edefcc1330b,Mount Hope Cemetery,1133 Mt Hope Ave,Rochester,NY,both,43.1279834,-77.6162624
+4438b0e0-e9fd-4120-bafc-42acb267b1de,Widow Susan Road,Widow Susan Rd,Root,NY,theophany,42.9023,-74.521
+af290909-64c8-4b1b-bfff-01ee1d22236f,Widow Jane Mine (Snyder Estate),668 Route 213,Rosendale,NY,theophany,41.845,-74.076
+260683fd-047b-4af2-bd58-1a16f7ea5979,Cedarmere — William Cullen Bryant Estate,Bryant Ave,Roslyn Harbor,NY,both,40.8163702,-73.6439637
+733aa334-a36d-4a78-9b3c-1c8bcd29beeb,Nassau County Museum of Art (Frick Estate Grounds),1 Museum Dr,Roslyn Harbor,NY,sanctuary,40.8096303,-73.6427417
+1c168c9a-5ed0-4d46-9913-5f1b492a937e,Sackets Harbor Battlefield,504 W Main St,Sackets Harbor,NY,both,43.9497038,-76.1243569
+9c5d67dc-ba2e-4061-9e24-c91a7d883030,Fort Klock Historic Restoration,7214 NY-5,Saint Johnsville,NY,both,42.9868455,-74.6491889
+6a4a194c-0bac-4a64-a2a5-7741a047605a,Allegany State Park — Ga'hai Hill (Witches Walk),2373 ASP Route 1 Suite 3,Salamanca,NY,theophany,42.0607,-78.7619
+fd377e83-b9ca-444a-ac44-55b6361a892d,Allegany State Park — Red House Area,2373 ASP Route 1,Salamanca,NY,both,42.0747,-78.7571
+6358c9ba-e43f-41db-9b97-94cfc756b437,Seneca-Iroquois National Museum,814 Broad St,Salamanca,NY,sanctuary,42.1573,-78.7221
+814c173d-3313-4644-9e93-38d579904ce7,Harrietstown Cemetery,Old Military Rd,Saranac Lake,NY,both,44.3326613,-74.126319
+7219e1b8-4826-4f34-a72e-95188b8922e8,Lake Flower Overlook,Lake Flower Ave,Saranac Lake,NY,sanctuary,44.3147517,-74.1194826
+2e5fea12-56ca-40e8-af3c-b49821966d76,Saranac Laboratory Museum,89 Church St,Saranac Lake,NY,both,44.3268362,-74.1294487
+aec9ecab-a2c1-42d1-a130-4be8887aa202,St. Bernard's Church,27 St Bernard St,Saranac Lake,NY,sanctuary,44.325884,-74.129425
+55fe66b5-4046-439a-b454-a52cb158d0b3,Batcheller Mansion Inn,20 Circular St,Saratoga Springs,NY,theophany,43.0751628,-73.7854303
+5189e653-9de2-40f0-bdae-e8812fd681e9,Canfield Casino / Saratoga Springs History Museum,1 E Congress St,Saratoga Springs,NY,theophany,43.0784489,-73.784076
+8e3420e0-a718-4aa0-80ab-7b4241b5a908,Greenridge Cemetery,Greenridge Ave,Saratoga Springs,NY,both,43.0667,-73.7803
+444bcd50-efc5-4527-8be9-3a01b719a529,The Adelphi Hotel,365 Broadway,Saratoga Springs,NY,theophany,43.0843,-73.7859
+6029d216-e9ac-4bae-becd-56f937c31f8c,Jackson's Garden at Union College,807 Union St,Schenectady,NY,both,42.8176,-73.9288
+9493519b-0592-4892-9a1b-c749eef5fff1,Stockade Historic District,Front St,Schenectady,NY,theophany,42.8172,-73.9408
+d3e5abfa-96eb-44b6-9b98-e25d63c70168,Vale Cemetery,907 State St,Schenectady,NY,theophany,42.811,-73.9357
+af74c011-5cbd-4040-8831-925489c13c56,Van Dyck Lounge,237 Union St,Schenectady,NY,theophany,42.8162,-73.9393
+ccb4b34e-7d1d-4e71-b0f4-bb92415cc780,Old Stone Fort Museum,145 Fort Rd,Schoharie,NY,both,42.6659,-74.3076
+028b9893-1b0f-4917-b984-01c28608406c,Gould Hotel,108 Fall St,Seneca Falls,NY,theophany,42.9108024,-76.7989681
+a3c5d01c-f8e8-4e42-8b76-64aaa734cc56,Seneca Falls Historical Society (Becker Mansion),55 Cayuga St,Seneca Falls,NY,both,42.9151805,-76.7948986
+e61d3d5b-75d0-471f-bff8-bccfe61968f0,Rogers Environmental Education Center,2721 State Highway 80,Sherburne,NY,sanctuary,42.682731,-75.513782
+3ea761c8-10d3-44f7-8739-3155830e24d7,Sleepy Hollow Cemetery,540 N Broadway,Sleepy Hollow,NY,both,41.097,-73.8616
+32a8db17-0768-4ddb-aae5-e2e882b63091,Sodus Point Lighthouse,7606 N Ontario St,Sodus Point,NY,both,43.2738,-76.986
+54b22fb6-fa14-439b-bad4-9f8bedc2e4ae,Southampton History Museum — Rogers Mansion & Halsey House,17 Meeting House Ln,Southampton,NY,theophany,40.8842,-72.3902
+bb9c40ac-3e28-4491-a764-ffb891cd1cc0,Grace Methodist Church Complex,2895 NY-8,Speculator,NY,sanctuary,43.5007611,-74.3655206
+4e458fce-5def-4eb2-8d45-4dc6bc18459e,Speculator Shoreline Pavilion,2834 NY-30,Speculator,NY,sanctuary,43.495398,-74.358586
+d72bfac5-fb80-43da-84f3-bda790730793,Ithaca Zen Center,56 Lieb Rd,Spencer,NY,sanctuary,42.218,-76.501
+cd41209d-8fec-442e-8826-c7ecad3504ee,Springwater Center for Meditative Inquiry,7179 Mill St,Springwater,NY,sanctuary,42.6399338,-77.6144782
+01065d04-14f1-4d3d-a8aa-43708292c4ce,St. Bonaventure University Chapel,3261 W State Rd,St. Bonaventure,NY,sanctuary,42.0832,-78.4745
+a1120377-7552-445f-9240-ff6663d6117c,Stafford Pond Edge,8873 Morganville Rd,Stafford,NY,sanctuary,42.9858975,-78.0709782
+9c0f759f-7301-4e09-bb61-d44857d6fb08,Church of St. Andrew,40 Old Mill Rd,Staten Island,NY,both,40.5728766,-74.1479392
+02becb09-fd4e-4a55-a46e-1b2bdcb55fb1,Historic Richmond Town,441 Clarke Ave,Staten Island,NY,theophany,40.5711826,-74.145879
+12b804b0-2b03-4178-9ef8-36457e3d9fbd,Moravian Cemetery,2205 Richmond Rd,Staten Island,NY,sanctuary,40.5799827,-74.1141348
+4872912d-4a2c-4be6-b90b-4cbf7571f89a,Seaview Hospital and Health Center,460 Brielle Ave,Staten Island,NY,theophany,40.5927021,-74.1317592
+35c1e200-dafa-46c1-997d-c5685b58de73,Snug Harbor Cultural Center & Botanical Garden,1000 Richmond Terrace,Staten Island,NY,both,40.6418756,-74.1019417
+dfc9bad1-6eb9-47a3-ac81-72f8a17b0776,Saratoga National Historical Park (Battlefield),648 Route 32,Stillwater,NY,both,43.0036,-73.6392
+2859608b-3aa6-4d9e-a867-0caf666540e2,Country House Restaurant (Stony Brook),1175 Route 25A,Stony Brook,NY,theophany,40.9373123,-73.1101385
+e9e4112a-8d99-4a56-9b45-f85ac9472082,Stony Point Battlefield State Historic Site,44 Battlefield Rd,Stony Point,NY,both,41.2418228,-73.9748438
+71f92932-a86b-4128-8c09-0ddbbbb323dd,Mountain Top Arboretum,4 Maude Adams Rd,Tannersville,NY,sanctuary,42.2221497,-74.1346889
+e5f928e3-8406-4472-85ba-06133804c9e7,Old Dutch Church of Sleepy Hollow,42 N Broadway,Tarrytown,NY,both,41.0905,-73.8617
+65f34d3a-1935-4b45-840c-7bb20306ca0f,RPI West Hall (Old Troy Hospital),110 8th St,Troy,NY,theophany,42.7295,-73.6784
+6c804fc4-19fd-448a-b9b5-ffa5c131be90,Taughannock Falls State Park,2221 Taughannock Park Rd,Trumansburg,NY,both,42.5452,-76.6092
+0ea0ddff-946e-451b-9eda-b7c1228c2240,Cayuga Lake Shores / Union Springs Waterfront,NY-90,Union Springs,NY,sanctuary,42.8413,-76.6933
+69c6e525-3890-4751-82aa-6a4c174e8852,Light on the Hill Retreat Center,Van Etten Rd,Van Etten,NY,sanctuary,42.193,-76.531
+df7ca3a9-f17b-40e2-915c-557a491ef4ed,The Uplands Center,2641 Dunk Hill Road,Walton,NY,sanctuary,42.224705,-75.105827
+58acda0d-c611-44c4-9a77-632038830b46,Waterloo Library and Terwilliger Hall,31 E Williams St,Waterloo,NY,theophany,42.9037,-76.8648
+3d4e1af9-b0f9-4fff-a2bd-be158a0e99a9,Holy Family Church,129 Winthrop St,Watertown,NY,sanctuary,43.9719085,-75.9032521
+e25bf679-1e1f-48b8-b118-af614536427a,Sci-Tech District Stone Block,154 Stone St,Watertown,NY,both,43.974371,-75.9131857
+bbf137b2-2580-44d1-8f1e-e9c5eacac021,Thompson Park,1 Thompson Park,Watertown,NY,sanctuary,43.9588396,-75.8869452
+a36cdf2e-8772-4f6d-a404-e1c4c4eb590e,Watkins Glen State Park Gorge Trail,N Franklin St,Watkins Glen,NY,both,42.3767733,-76.8714222
+5967a8c5-8d85-476d-84dc-7c510503b888,Skene Manor,8 Potter Terrace,Whitehall,NY,both,43.5558,-73.3992
+a142ac35-38d9-4460-a4a6-4c3d8d5ddf4f,Willard Asylum for the Chronic Insane,7116 County Road 128,Willard,NY,theophany,42.6801758,-76.8664624
+468c5baa-0049-42fb-aaa4-828e53040cd3,High Falls Gorge,4761 NY-86,Wilmington,NY,both,44.3475438,-73.8768586
+d984929e-5dc7-45d7-9cb5-0d0651862da7,Karma Triyana Dharmachakra Tibetan Buddhist Monastery,335 Mead Mountain Rd,Woodstock,NY,sanctuary,42.056,-74.122
+4360b4c3-449a-4a4d-aa94-68412b21b157,Overlook Mountain House Ruins,Mead Mountain Rd,Woodstock,NY,both,42.063,-74.117
+f28380f2-e59d-482c-8b3b-a096121cf34a,Old Fort Niagara,102 Morrow Plaza,Youngstown,NY,theophany,43.2632,-79.0619
+d9fdd033-ec14-4406-9c77-fb1ade96f208,Resurrection Cemetery,547 N Krocks Rd,Allentown,PA,both,40.5682273,-75.5655016
+d3b16d0b-caa1-4d18-bb20-064aabba4f8e,Alvira Ghost Town,"Off PA-44, Allenwood area",Allenwood,PA,theophany,41.0994,-76.9482
+8f0ccf0f-643a-4bcc-86fb-985b365567e7,Mary Capp Green Hall (LVC),101 N College Ave,Annville,PA,both,40.3309132,-76.5139282
+f8ba2b7d-cf09-4717-be41-c830c1417add,Colton Point State Park Overlook,Colton Point Road,Ansonia,PA,both,41.7454823,-77.4337624
+609caf8f-42d9-4e28-a715-60f2e3a01517,"King Wi-daagh Memorial Site — Lochabar, Nippenose Valley",Antes Creek Rd vicinity,Antes Fort,PA,theophany,41.1806,-77.1453
+c5d5028f-6aa4-4da6-8215-1cdb3437d304,Ashland Mothers' Memorial,Chestnut St,Ashland,PA,sanctuary,40.7827534,-76.3431632
+86dd7bf4-965f-4283-828e-2a755bd13aa5,Austin Dam Memorial Park,PA-872,Austin,PA,theophany,41.6216914,-78.0813817
+3ff6395d-17bc-4abb-9866-3b95fd510721,Sinnemahoning Overlook,4843 Park Road,Austin,PA,both,41.4734,-78.0565
+f8e84ab1-e8dd-405e-b0e9-33b23f70ee81,Bethel Church and Cemetery – Shades of Death Road,Bethel Ridge Road at Shades of Death Road,Avella,PA,theophany,40.2891,-80.4355
+da1a3466-d250-4cba-9c9e-54b3f7f18fc0,Meadowcroft Rockshelter and Historic Village,401 Meadowcroft Road,Avella,PA,both,40.28119,-80.4686683
+7d2ed11c-61c0-44c6-8e82-05c52a9adbd1,Shades of Death Road,Shades of Death Road (between Bethel Ridge Rd and Cole School Rd),Avella,PA,theophany,40.2847,-80.4322
+4db41aa0-fbf2-47fb-ab2d-880b8950cb88,Haldeman Mansion,230 Locust Grove Rd,Bainbridge,PA,theophany,40.0911,-76.6669
+38a10669-a6c7-409b-8247-a38ad99826bc,Big Valley (Kishacoquillas Valley) — Old Order Amish Settlement,"Belleville area, PA-655",Belleville,PA,sanctuary,40.591,-77.722
+ad844114-20f4-466b-9671-4031aa2bc2bd,Shades of Death Road — Near Monroe County Border,Shades of Death Rd (Warren County NJ border area),Belvidere area,PA,theophany,40.9285,-75.079
+e5ba8813-58c1-4418-9b56-42344ef5dc12,Elk Country Visitor Center,134 Homestead Dr,Benezette,PA,sanctuary,41.3232525,-78.3678854
+f76efc70-d178-4bce-947d-445212eefb22,Ricketts Glen (Lower Falls),695 State Route 487,Benton,PA,both,41.3001,-76.2711
+2935c367-aab7-4384-8dad-06ed5c4f083d,Ricketts Glen State Park – Falls Trail,"Ricketts Glen State Park, PA Route 487",Benton,PA,both,41.3201,-76.2785
+2308b79a-84ce-4b44-b788-438f17912d3b,1758 Moravian Sun Inn,564 Main St,Bethlehem,PA,theophany,40.6219223,-75.3817335
+3fe101b2-0f55-4fc6-81b2-807157ab0ca0,Burnside Plantation,1461 Schoenersville Rd,Bethlehem,PA,both,40.6311495,-75.3892559
+8df2eca0-2194-40aa-a4ad-59fd6c7f7cf8,Central Moravian Church,73 W Church St,Bethlehem,PA,both,40.6190393,-75.3816363
+5a48d3f1-72ba-4363-a252-90f6caf28284,Central Moravian Church — Old Chapel & God's Acre,73 W Church St,Bethlehem,PA,both,40.6203,-75.3773
+44ae6a28-9f19-4c00-a673-c884e9081daf,God’s Acre (Moravian Cemetery),W Church St,Bethlehem,PA,both,40.6201601,-75.3795638
+82e92162-6084-40b8-b6f7-ff750bcaceb9,Historic Hotel Bethlehem,437 Main St,Bethlehem,PA,theophany,40.6201695,-75.3824373
+49217fc3-0487-4525-8380-2f4f981afa3f,Moravian Museum of Bethlehem — Gemeinhaus,66 W Church St,Bethlehem,PA,sanctuary,40.6199,-75.3771
+be05c988-0a6f-4353-a868-e96f0bd5cd99,The Sayre Mansion,250 Wyandotte St,Bethlehem,PA,theophany,40.6121251,-75.3844551
+cc8cd22f-aa5e-47fc-9ba5-d2cb4a0f64c3,Monterey Pass Battlefield,14325 Buchanan Trail E,Blue Ridge Summit,PA,both,39.7301775,-77.4624889
+a22c6ad3-c7ae-4e22-97b6-a482eda5e231,Allegheny National Forest — Bradford Ranger District,"Bradford Ranger Station, 29 Forest Service Dr",Bradford,PA,sanctuary,41.9437,-78.743
+3c91f04a-39e5-48e7-b581-1d075bfb81f1,Marilla Reservoir & Bridges Trail,"Marilla Rd, near Foster Brook",Bradford,PA,sanctuary,41.968,-78.7192
+d688f5bd-e504-41a7-b6ec-de5c29fd138c,Brookville Historic District,Main St,Brookville,PA,both,41.1602221,-79.0770747
+66472c05-23a4-41c7-9f1c-eb14c0b64371,Jefferson County History Center,172 Main St,Brookville,PA,both,41.1605291,-79.0788925
+50081e21-eac9-4547-aac4-121fcd6bef9a,Scripture Rocks Heritage Park,560 PA-28,Brookville,PA,both,41.1586795,-79.0986121
+bd9d7a44-97ed-4330-8e99-3f078bc18665,Nemacolin Castle,136 Front St,Brownsville,PA,both,40.0225727,-79.8837352
+56140a40-d441-4ec0-9142-bab9bb4a4749,Bryn Mawr College — Merion Hall,101 N Merion Ave,Bryn Mawr,PA,theophany,40.0231539,-75.3203267
+518988be-5822-4ff5-b644-bc952b04f1fe,Hansell Road,Hansell Rd,Buckingham,PA,theophany,40.3484827,-75.0859879
+85d19921-3764-4767-b4be-0b49d9a78e68,Burnham Industrial Heritage Site — Standard Steel,Standard Ave,Burnham,PA,theophany,40.6359,-77.5709
+a3005f1b-1510-4567-930f-0c22f125a296,Burnt Cabins Grist Mill,5825 Grist Mill Rd,Burnt Cabins,PA,both,40.0777149,-77.8935851
+7d0e8a58-ec1c-46f7-8b9c-518259ab3306,Old Cumberland County Prison,1101 Claremont Rd,Carlisle,PA,theophany,40.2062954,-77.1724907
+eb31eb75-16bb-4da3-b1ae-7d31c829fa3b,Centralia Fire Zone,PA-61 (Graffiti Hwy area),Centralia,PA,theophany,40.8037,-76.3421
+8025216b-c8c3-4e3b-8a81-79dc4e596c0d,"The DANGEROUS Abandoned Borough of Centralia ",n/a,"Centralia ",PA,sanctuary,40.8043,76.3405
+9b2c0d11-3eb9-4a31-aeb5-232383e7afcc,Penn’s Cave,222 Penns Cave Rd,Centre Hall,PA,both,40.8833,-77.6111
+baf5af33-faba-40f3-9322-6cc709c3b38c,Brandywine Battlefield,1491 Baltimore Pike,Chadds Ford,PA,both,39.8736075,-75.5768514
+a1c23257-6a8e-4a59-93cd-700fa0b3ea06,The Crying Rock,State Rt 322,Clarion,PA,theophany,41.2347322,-79.5305949
+4653c544-5077-44bd-abd7-089fa4775245,Clearfield County Courthouse,2nd and Market Sts,Clearfield,PA,theophany,41.0223495,-78.4375607
+2ce6b13e-a144-4cbf-b2c7-5c6701b645d8,Chickies Rock Overlook,880 Chickies Hill Rd,Columbia,PA,both,40.0394374,-76.5058621
+ff9a173d-9a73-4273-9334-43df4ac2d74c,Seneca Point,113 River Rd,Cooksburg,PA,both,41.3323,-79.2096
+7d9fb6f2-34a8-496f-ba87-bfa06df84667,Cornwall Iron Furnace,94 Rexmont Rd,Cornwall,PA,both,40.2709785,-76.4071892
+1468fde4-7a94-45e6-80be-dd5adf1c8876,Cherry Springs State Park,4639 Cherry Springs Rd,Coudersport,PA,sanctuary,41.6631,-77.8233
+7e0da5c1-808f-4363-a67d-58f79af971cc,Fern Knoll Burial Park,639 Main St,Dallas,PA,both,41.3267563,-75.9433016
+31f646a3-fe71-4fa2-b7c1-6ea78658aa29,Bloom Cemetery — Danville,Bloom St,Danville,PA,theophany,40.9641237,-76.6113077
+716399a4-2ea1-4848-b531-29d978c36e2b,Geisinger Medical Center — Historic Campus,100 N Academy Ave,Danville,PA,theophany,40.9682437,-76.604154
+d03f9836-f608-4d39-817b-68e3a0efb958,Mahoning Presbyterian Church,Church St area,Danville,PA,sanctuary,41.0387,-76.6193
+ecf41c2b-4a3e-4e74-8fd2-94864d09f81d,Montour County — Susquehanna River Overlook (Riverside Park),Riverside Dr,Danville,PA,sanctuary,41.0286,-76.619
+38a495a2-6efd-45cf-ad92-e38a107fda18,Pine Street Cemetery (Danville),Pine St,Danville,PA,theophany,41.0349,-76.6135
+92b06f3a-975a-4e75-91af-d4a0cb6afc2a,St. Anthony’s Wilderness,Stony Creek Rd,Dauphin/Wyoming Border,PA,sanctuary,41.25,-76.5
+2c0769d3-4a9f-426c-b477-818de2b02469,Linden Hall Mansion,432 Linden Hall Rd,Dawson,PA,both,40.0685824,-79.6983354
+5f4af1b2-e0e1-4de0-9383-2c26d028a4fd,Delaware Water Gap National Recreation Area,River Rd off I-80,Delaware Water Gap,PA,both,40.9709,-75.1357
+295775ef-134f-4908-90b1-974ea69d3e83,Pocono Environmental Education Center,538 Emery Rd,Dingmans Ferry,PA,sanctuary,41.1333,-74.9028
+80836cf6-5ca1-4fb0-a60e-9f776047584b,St. Severin’s Log Church,Drifting Hwy,Drifting,PA,sanctuary,41.029652,-78.1088107
+eab56f8d-1088-47c0-bdcb-cfecc3bc2473,Bucktail Fire Tower,Ridge Rd,Driftwood,PA,sanctuary,41.3852,-78.1321
+b87802d3-d681-4a9e-bdda-aa530db0e0cd,Quehanna Wild Area,Quehanna Hwy,Driftwood,PA,theophany,41.2705,-78.2471
+5f837178-1f40-4308-a215-272dfbc17b06,Eagles Mere Lake,Eagles Mere Ave & Lake Shore Drive,Eagles Mere,PA,both,41.4073,-76.594
+a6e25dea-5499-4114-a0c1-ea56e095c723,St. John's in the Wilderness Episcopal Church,Eagles Mere Ave,Eagles Mere,PA,sanctuary,41.4111469,-76.583501
+f7531156-bc9b-4636-806c-b275b9f75ee0,Brady's Bend Overlook,State Rt 68,East Brady,PA,sanctuary,40.9881,-79.6052
+53d01b9f-a440-4247-b711-4e638941393c,George Taylor House,54 N 3rd St,Easton,PA,theophany,40.6926,-75.2093419
+51fa5ee7-dbe1-4d4a-9b05-7309a61262d9,"Getter's Island — Delaware River, Easton","Delaware River, north of Easton",Easton,PA,theophany,40.6952,-75.2015
+b12e9b70-18ac-4150-9ae1-82864d6fb8b5,State Theatre Centre for the Arts — Easton,453 Northampton St,Easton,PA,theophany,40.6915938,-75.2124225
+0dfa5b67-7638-4cd9-908e-8b01f53e5cf9,Old Cambria County Jail,110 Sample St,Ebensburg,PA,theophany,40.4861401,-78.7247149
+0da70cc7-2705-4add-a765-e4beb632f8c4,The Ghost Town of Beula,Beula Rd,Ebensburg,PA,theophany,40.4735,-78.7562
+3316ba2b-6e1c-45ea-9a59-d616017b41d3,The Wittel Farm (House of Prayer),1753 Mill Rd,Elizabethtown,PA,both,40.1597748,-76.612897
+a762ec6d-ed57-4c26-8443-9be9935e6c63,Ephrata Cloister,632 W Main St,Ephrata,PA,both,40.1834058,-76.1886636
+97780f13-ea4a-4313-b7b1-64c803ccf63e,Cathedral of St. Paul,134 W 7th St,Erie,PA,both,42.1277715,-80.0866056
+2ac66430-d7ac-48a9-ad87-2fc9de11c8a8,Erie Cemetery (Witches Circle),2116 Chestnut St,Erie,PA,both,42.1122706,-80.0846428
+0819c23f-37b0-444a-90cc-18fbb850e56c,Mercyhurst (Old Main Tower),501 E 38th St,Erie,PA,both,42.1064169,-80.0518954
+5834ed06-73ad-4a9f-b331-6cc2cb408230,Misery Bay (War of 1812 Site),Presque Isle State Park,Erie,PA,both,42.1544654,-80.1197308
+e49ef390-d988-4d31-b106-fd395957ef66,Mount St. Benedict Monastery,6101 E Lake Rd,Erie,PA,both,42.1783036,-79.9742442
+095cfecd-3691-4442-983b-ed3d1a727eae,Presque Isle (Gull Point),301 Peninsula Dr,Erie,PA,both,42.1100765,-80.1543454
+f9b9aa7b-3b80-484d-87ce-8561831af0a3,The Brewerie at Union Station,123 W 14th St,Erie,PA,both,42.1208163,-80.0822027
+8f040d66-88b1-40c0-8f35-832b47054c38,Watson-Curtze Mansion,356 W 6th St,Erie,PA,both,42.1267874,-80.0935798
+c44676ec-a5d6-439d-b117-98852f3fcdda,Wintergreen Gorge,3399 Cooper Rd,Erie,PA,both,42.124767,-79.996392
+f75278bc-f208-456c-9096-f3585e0303ff,Forksville Covered Bridge,Bridge Street over Loyalsock Creek,Forksville,PA,both,41.4884019,-76.5999517
+efc15874-8282-44c4-923c-dd62c294166d,World's End State Park – Loyalsock Canyon Vista,"Cabin Bridge Road, PA Route 154",Forksville,PA,both,41.4596,-76.5758
+6c09c20f-d2bf-462a-8a6c-b1bfa25df050,Cowans Gap Overlook,6235 Aughwick Rd,Fort Loudon,PA,both,39.9949706,-77.9246827
+6dafa24b-e37d-4ee7-bef6-f7118c905557,Venango County Courthouse,1168 Liberty Street,Franklin,PA,sanctuary,41.3970242,-79.8275296
+d2b9167f-625c-4b9e-8eb2-4a3b6cb2699a,Garards Fort (Massacre Site),Garards Fort Rd,Garards Fort,PA,both,39.8138749,-80.064715
+779ea20d-e909-4127-b3cb-9378d08190fa,Bake Oven Knob,Bake Oven Rd,Germansville,PA,both,40.713409,-75.7136515
+7f802fdc-57bd-41bb-a532-5b8f0b227db9,Bilger’s Rocks,1921 Bilgers Rocks Rd,Grampian,PA,both,40.9940886,-78.5919811
+304d4c15-bf16-4d83-ba46-4a851a51e4d6,Historic Hanna's Town,809 Forbes Trail Rd,Greensburg,PA,theophany,40.3456,-79.5085
+7489edaf-eb15-4a24-98c4-8b6df9c38116,Grove City College — Ketler Chapel,100 Campus Dr,Grove City,PA,sanctuary,41.1559,-80.0839
+aa73e396-542d-4142-8861-3945c1b2cc93,Harmonist Labyrinth,224 Mercer Rd,Harmony,PA,sanctuary,40.8037795,-80.1248593
+7dae7ef3-d8ea-4938-adc5-bc8ff11830f0,Harmony Society Cemetery,224 Mercer Rd,Harmony,PA,theophany,40.8037795,-80.1248593
+45a7a298-7dbb-438e-a9a1-b8efcad2eb30,The Seven Gates of Hell,Hallam Rd (Trout Run Area),Hellam,PA,theophany,40.0056,-76.6022
+048098ba-5a09-4c21-b4dc-db15b2b332b9,Shenango River Lake & Dam Recreation Area,"Shenango River Lake, Corps of Engineers Rd",Hermitage,PA,sanctuary,41.2589,-80.432
+8c3cdf77-ea4a-46cf-9ac0-b52d5a0b3d77,Honesdale Ghost Tour – Downtown Historic District,"Central Park, Main Street",Honesdale,PA,theophany,41.5762,-75.2616
+5acc13e1-0415-4802-ab80-5ef9a61940b7,Wayne County Old Stone Jail – Jail Tales Tours,Main Street,Honesdale,PA,theophany,41.5796072,-75.259279
+01b2a957-7e9a-4bd7-b18e-c9c9dd7cb0d4,Hop Bottom Cemetery,Turnpike Road,Hop Bottom,PA,theophany,41.7032,-75.7623
+8aa92b56-33f5-435f-9548-fcf703179920,Graeme Park — Keith House,859 County Line Rd,Horsham,PA,theophany,40.1976848,-75.1157637
+a3f87439-d210-4098-8575-cef788234647,Community Chapel of Hesston,5789 Orchard Rd,Huntingdon,PA,both,40.445208,-78.077981
+f949121c-4c02-4411-9f54-448aca8f9ef1,Greenwood Furnace (Old Ruins),15795 Greenwood Rd,Huntingdon,PA,both,40.6517609,-77.7545391
+997d7115-80c5-4c8d-9885-f446ad802b54,Miracle Church (Manifestation site),1292 Old Route 119 Hwy N,Indiana,PA,both,40.6438039,-79.1337928
+07a409bf-2328-4c74-867a-f5e479fb3ff3,Bushy Run Battlefield,1253 Bushy Run Rd,Jeannette,PA,both,40.3551,-79.6253
+ed8fc963-107d-4e83-afd6-741b0f458550,Mount Carbon Overlook,100 Main St,Jim Thorpe,PA,sanctuary,40.871894,-75.736949
+3835a1fe-3635-4d2f-a498-761c0f177589,The Old Jail Museum,128 W Broadway,Jim Thorpe,PA,theophany,40.8634207,-75.7490086
+003cb460-ad01-4c8e-aecd-3c2a62b414b6,Kecksburg UFO Site,Water St & Meteor Rd,Kecksburg,PA,theophany,40.1848,-79.4611
+a9878c43-522a-4e5a-bf93-8f8fda9f663a,Old Kennett Friends Meetinghouse,1180 Meetinghouse Rd,Kennett Square,PA,sanctuary,39.8543,-75.6791
+d5bf8890-608a-47f9-a3b2-7967d2b39de5,Valley Forge National Historical Park — Washington Memorial Chapel,1005 W Valley Forge Rd,King of Prussia,PA,both,40.1027,-75.4504
+098b0618-cae8-4c9c-91c7-c54173039066,Central Market (Early Morning),23 N Market St,Lancaster,PA,both,40.0382651,-76.3064831
+b90778e5-6d80-4949-aaad-26875d094fa2,Landis Valley Village,2451 Kissel Hill Rd,Lancaster,PA,both,40.0925455,-76.28034
+cbc459b5-3ce8-48ae-a452-4b92e794c7eb,Saint James Episcopal Church,119 N Duke St,Lancaster,PA,both,40.0403045,-76.3039429
+8072c4b6-0970-4d2b-8d82-61aa790f000c,The Ticking Tomb,1570 Sharpless Rd,Landenberg,PA,theophany,39.7365,-75.7765
+e711970d-7386-44f2-b0da-06aaa3595768,Saint Vincent Archabbey,300 Fraser Purchase Rd,Latrobe,PA,sanctuary,40.2929,-79.4018
+7d0846cf-c7f2-41ea-abe6-1e16afdf4f90,Governor Dick Park (Tower),3283 Pinch Rd,Lebanon,PA,both,40.2373466,-76.4586258
+fcb8e13d-476a-4f1c-8fac-2ab363d584c4,Negley Park Overlook,418 Cumberland Rd,Lemoyne,PA,sanctuary,40.2500725,-76.8977145
+7cefad61-87ac-4ca2-9a5f-6cc2f16b9682,Bucknell University – Rooke Chapel,"Moore Avenue, Bucknell University",Lewisburg,PA,sanctuary,40.9569,-76.8849
+7f55407b-8b5d-452b-bc23-5843f469da9f,Lewisburg Federal Penitentiary (USP Lewisburg) – Historic Exterior,Route 15,Lewisburg,PA,theophany,40.9687468,-76.8761434
+16412793-1e50-4ea1-a716-209f7487eb2b,Slifer House Museum,1 River Road,Lewisburg,PA,theophany,40.9643,-76.8823
+04d8fd32-806a-4184-b5da-dc1408db7bac,Lewistown Historic District — Old Courthouse,Main St & Market St,Lewistown,PA,sanctuary,40.5987,-77.5714
+f4bd13d5-9d61-4cae-a4eb-ece02c559c4e,Lewistown Narrows & Juniata River,PA-322 along Juniata River,Lewistown,PA,sanctuary,40.5993,-77.5716
+51787cf1-c5d7-440f-b6bc-9ca02bb7cfab,Gurnsey Hollow Cemetery,Gurnsey Hollow Rd area,Limestone,PA,theophany,41.905,-79.152
+f7b47e4c-cf09-4f14-9615-eb2db9f9a9ab,Pymatuning Spillway,12318 Hartstown Rd,Linesville,PA,both,41.631,-80.4403
+f75e116a-b235-44ac-828b-3b1a198c2d07,Farrandsville Iron Furnace,3223 Farrandsville Rd,Lock Haven,PA,theophany,41.1917,-77.525
+2c313e21-d768-41cd-972a-a1a2a2077cfd,Prince Gallitzin's Crypt,321 St Marys St,Loretto,PA,sanctuary,40.5034,-78.63
+d0f56267-3508-4302-ab89-1886c1d226e6,St. Peter’s Church in the Great Valley,2475 St Peters Rd,Malvern (near line),PA,sanctuary,40.0811,-75.5204
+38d3d97f-6416-4d23-b27f-364d363aba5c,Loyalsock State Forest — Haunted Forests of Masten,"Masten vicinity, off SR 4001",Masten,PA,theophany,41.4378,-76.7957
+838fa4f6-fec6-41a5-943b-0dc16a4b961c,Mercer County Courthouse & Historic Square,112 Mercer County Courthouse,Mercer,PA,sanctuary,41.2278,-80.2434
+d61e113e-d177-4c17-80b5-292ca9a34525,General Wayne Inn,625 Montgomery Ave,Merion,PA,theophany,40.0091837,-75.2535745
+f59fdc99-9b8f-4ae0-af6c-0548e26dcdbc,Grey Towers National Historic Site,151 Grey Towers Dr,Milford,PA,sanctuary,41.3270911,-74.8176595
+f4ba62e3-9d48-43f6-bcbc-72f337180b24,Fallingwater,1491 Mill Run Rd,Mill Run,PA,both,39.9382383,-79.4473901
+77325356-297c-4a56-92b7-dbb809cf2cb6,Standing Stone Trail — Mifflin County Ridges,Trailheads off US-322,Milroy,PA,sanctuary,40.7117,-77.5946
+0fa29599-11b1-4bfd-a2bf-704539654a99,Montrose First Baptist Church,12 Church Street,Montrose,PA,sanctuary,41.8338115,-75.8805824
+e72d25e6-2d99-4610-9250-4253dec342a5,Salt Springs State Park – Cathedral Hemlock Grove,Salt Springs Road,Montrose,PA,both,41.8348,-75.5617
+d8f3a033-bfbf-46dd-b7f5-9a3ca0fd74f2,Susquehanna County Historical Society and Free Library,2 Monument Square,Montrose,PA,sanctuary,41.833704,-75.876461
+265a543a-8d1e-4f10-ba6d-1d8c552baa57,"Haunted Vista – Rattler Mountain, Tioga State Forest","Route 287 (trailhead), near Antrim",Morris,PA,theophany,41.5622,-77.2947
+095d8a0c-0e9f-4565-a695-39ca2216d6d4,Kinzua Bridge State Park — Viaduct Ruins & Gorge,296 Viaduct Rd,Mount Jewett,PA,both,41.7595,-78.587
+69f62c7f-593b-482b-bcd0-3e315935272f,Thousand Steps Trail (Contemplative),US-22,Mount Union,PA,both,40.3845217,-77.8822199
+610f584c-2ebf-4e27-b42b-95ecc2ed5d8e,Codorus Furnace,Codorus Furnace Rd,Mount Wolf,PA,both,40.0531,-76.6586
+11bd089e-c929-4c21-bb60-dceaa5bba558,The Hooded Graves,Mt. Pleasant Cemetery,Mt. Pleasant,PA,theophany,40.1575414,-79.548251
+32358821-d05f-470b-a247-8c702369592b,Concrete City (Ruins),Front St,Nanticoke,PA,both,41.1853894,-75.9821913
+ce7ec566-04d5-4064-b6b3-4d3b4b9e5bae,Haunted Hill View Manor,2801 Ellwood Rd,New Castle,PA,both,40.972245,-80.3142384
+3defbd59-c778-4782-bfb9-87ff3e2de3ca,Scottish Rite Cathedral,110 E Lincoln Ave,New Castle,PA,both,41.0049719,-80.344625
+844cfd0e-ba3a-4ef7-9713-a8ab07777a38,Westminster College (Old Main),319 S Market St,New Wilmington,PA,both,41.1182434,-80.3286896
+c5a4f0f2-1e1e-4b11-a2dc-e1660ec6a001,Little Buffalo State Park (Shoaff’s Mill),1579 State Park Rd,Newport,PA,sanctuary,40.4587326,-77.16826
+a606ea9c-50d3-4395-97c0-4687ca8366ce,Tunkhannock Viaduct (Nicholson Bridge),400 State Rt 11,Nicholson,PA,sanctuary,41.6221761,-75.7882677
+2cc32afa-5a94-4afc-b733-ae0bb5775f45,Norristown State Hospital — Grounds,1001 Sterigere St,Norristown,PA,theophany,40.1195,-75.356
+8329bc82-a570-4584-9ede-d3da1b74c7cd,Selma Mansion,1301 W Airy St,Norristown,PA,theophany,40.1215,-75.3456
+e9ee028c-a552-415c-944c-930b76cca046,Hyner View State Park,86 Hyner View Rd,North Bend,PA,sanctuary,41.3265,-77.6235
+db472d08-64ed-4133-b113-9475448b2ad5,Ohiopyle Falls (Ferncliff Park),124 Main St,Ohiopyle,PA,both,39.87009,-79.4930803
+841ae3be-bced-4457-9bcf-eade89941e4d,Cornplanter's Grant Site and Grave – Oil City Area,"Cornplanter Bridge Road, near Warren/Venango County line",Oil City,PA,both,41.7205,-79.4412
+c2118d10-23a6-4694-a422-1d8647dee3ae,Lake Wallenpaupack – Paupack Historical Area,Route 6 near Paupack,Paupack,PA,both,41.4368,-75.2218
+6c688857-2348-467d-8d75-ed034e72d230,Christ Church Burial Ground,5th and Arch Streets,Philadelphia,PA,both,39.9517757,-75.1481345
+d79e0a6d-9110-4402-a3cd-ea32778f5beb,Eastern State Penitentiary,2027 Fairmount Ave,Philadelphia,PA,theophany,39.9683406,-75.1726626
+b5cd0c0a-5ad0-4e3e-855b-66eb21ab9a95,Black Moshannon Bog,4216 Beaver Rd,Philipsburg,PA,both,40.9121532,-78.056684
+1a4cd062-7d7d-4e7e-ac48-b3fb521b1af9,Schuylkill Meetinghouse,37 N Whitehorse Rd,Phoenixville,PA,sanctuary,40.12103,-75.5019102
+8d9d9f5d-4197-4dd1-bd9d-c82ff3050955,Pithole City Ghost Town,14118 Pithole Road,Pleasantville,PA,theophany,41.5238,-79.5814
+c5e4bd82-b490-4d6f-903b-efb394487b71,Friendship Hill (Gallatin Estate),223 New Geneva Rd,Point Marion,PA,both,39.7807755,-79.9200728
+229c0864-0fff-4b21-8e31-1c6f063ca6e5,Gobbler’s Knob,1548 Woodland Ave,Punxsutawney,PA,both,40.9318475,-78.9570232
+7227b6e8-67bd-4d3d-8a73-377d42dd6c6e,Reynolds Tavern / Historic Reynolds Area,"Reynolds area, PA-258",Reynolds,PA,theophany,41.328,-80.171
+82a58ddd-6911-4bd4-b540-966d72b5c82b,Captain Phillips’ Rangers Memorial,PA-26,Saxton,PA,both,40.21617,-78.2412968
+c7190748-34fe-4289-afda-515be8e3c5e3,Hotel of Horror / Lake House Hotel,"Route 115, Saylorsburg",Saylorsburg,PA,theophany,40.9117894,-75.3474266
+a136e16d-8b24-4fa8-9e93-a452f50427df,Trexler Nature Preserve,4935 Orchard Rd,Schnecksville,PA,both,40.6563302,-75.6175218
+5e81c17d-9583-4ada-b2c5-1a742422ab2e,Basilica of St. Ann,1233 St Ann St,Scranton,PA,both,41.4022205,-75.6901443
+1b0f4cc9-e1a7-437d-be93-05d74ac779ee,Catlin House (LHS),232 Monroe Ave,Scranton,PA,both,41.4058227,-75.6575799
+00d6f794-ba8b-46a8-9e78-0390a2c29241,McDade Park (Coal Mine Tour),1 Bald Mountain Rd,Scranton,PA,both,41.413617,-75.708249
+7912a4fd-8b7d-4831-8d90-ad923fc74be2,Nay Aug Park (The Gorge),1901 Mulberry St,Scranton,PA,both,41.4006277,-75.6442084
+80ac8831-0f57-4826-a001-436bec357fbd,Scranton Cultural Center,420 N Washington Ave,Scranton,PA,both,41.4107403,-75.6600197
+eef03b1f-00e4-4af3-80cf-4b12f201b81b,The Colonnade,401 Jefferson Ave,Scranton,PA,both,41.4140782,-75.6527275
+28e44fcd-48f7-4a68-b529-252eb891c2a8,Spirit of the River / Isle of Que,Isle of Que,Selinsgrove,PA,sanctuary,40.7954692,-76.8571104
+50d6fa4e-adc4-4a41-a8e3-3e11a70820b6,Mercer County Historical Society — Buhl Mansion Area,209 E State St,Sharon,PA,theophany,41.2326,-80.501
+35cc75fd-55ea-4790-beca-edd0fbc7ec2e,Rehmeyer’s Hollow (Hex House),Rehmeyer's Hollow Rd,Shrewsbury,PA,theophany,39.7831,-76.6661
+9d4d2fd3-8ba3-47d7-aab3-4d003dbf5ea9,Lehigh Gap Nature Center,8844 Paint Mill Rd,Slatington,PA,both,40.7841565,-75.6090353
+d7846c00-7144-4931-8bf7-8240cdb8a99d,McConnells Mill,1761 McConnells Mill Rd,Slippery Rock,PA,both,40.9529199,-80.1703082
+253ba8d8-cbd2-46ce-badf-e9c105b8e26b,Old Jail Museum — McKean County,502 W King St,Smethport,PA,theophany,41.8065,-78.444
+3ecd0bcf-b169-40df-8885-027cd6aac7f1,Smicksburg Amish Country (Quietude),PA-954,Smicksburg,PA,both,40.86931,-79.1384899
+d6f2785a-c184-4fbc-944a-493ef8426c8c,Pennhurst State School & Hospital,1205 Commonwealth Dr,Spring City,PA,theophany,40.1728,-75.5465
+23b33ee6-bfe9-4806-b5b6-0031980e353a,Middle Creek Wildlife Mgmt Area,100 Museum Rd,Stevens,PA,both,40.2711885,-76.250097
+7b1a0c3f-2c34-4a8f-a77f-3a25e45fcafe,Flight 93 National Memorial,6424 Lincoln Hwy,Stoystown,PA,sanctuary,40.0985388,-78.9520453
+7ef5182b-c046-466f-bf0b-c88acb9fed2c,Susquehanna River Confluence (Fort Augusta),1150 N Front St,Sunbury,PA,both,40.8758069,-76.7920937
+7ae536c5-2b47-4377-9cc2-6672c6d486ba,Pocono Summit Lake / Camelback Mountain Area,PA-940 / Camelback Mountain,Tannersville,PA,theophany,41.0488,-75.3175
+0666e6bd-17ff-47d3-aee0-8178c1a1cbd3,Tidioute Overlook – Allegheny National Forest,"Allegheny National Forest, off SR 3005",Tidioute,PA,both,41.7007,-79.3856
+62b1639e-31be-4baf-8610-830b2cb514ae,Drake Well Museum and Park,202 Museum Lane,Titusville,PA,sanctuary,41.6112843,-79.6582735
+6dba2f68-f9d3-4cfa-b760-3e4d2c1d0e55,Mount St. Macrina,500 W Main St,Uniontown,PA,both,39.905073,-79.73746
+88fa60bb-7bcf-42ad-aedc-7e5dd072eebf,Ringing Rocks Park,Ringing Rocks Rd,Upper Black Eddy,PA,both,40.5594,-75.0744
+02ea2c0b-b5d8-4b26-b7b7-195bb0019eff,Kinzua Dam and Reservoir Overlook,"Kinzua Dam, Route 59",Warren,PA,both,41.8083,-79.0053
+0b596484-5ea6-4b7c-a69c-327e8149c34e,LeMoyne House Museum,49 East Maiden Street,Washington,PA,theophany,40.16812,-80.2431516
+b750540c-44f2-4ba0-a25a-e096d19f5c3b,Grave of the Unknown Soldier,1112 River Rd,Washington Crossing,PA,both,40.3039555,-74.8811402
+309defcd-6b79-4832-8853-5410a8e8fe22,"Katy's Church (Former), Washingtonville",Washingtonville Rd area,Washingtonville,PA,theophany,41.0769,-76.6803
+e34f1555-541a-4371-9c22-df59ded79638,Corpse House (Salem Church),Salem Church Rd,Waynesboro,PA,both,39.7513464,-77.6318441
+fc5c02da-6d5b-4ba4-b158-03fce1a74916,Memorial Park,220 Memorial Park Dr,Waynesboro,PA,both,39.7495008,-77.5784521
+ac77e0b7-b59c-435b-ae95-4184d51b4e0b,Renfrew Park (Contemplative Trails),1010 E Main St,Waynesboro,PA,both,39.7503013,-77.5664635
+afa59040-ce93-460a-aaa2-54582e5bd035,Greene County Historical Society,918 Rolling Meadows Rd,Waynesburg,PA,both,39.8890465,-80.1243197
+098f1824-8786-489c-adbc-ba01fd84d106,Saint Ann Cemetery,N Morris St,Waynesburg,PA,both,39.8985945,-80.1884725
+bb705a99-f645-43cf-b372-460cc58c3c8a,Dagus Mines,Near Caledonia Pike,Weedville,PA,theophany,41.258,-78.435
+1189c0f2-02bf-42f7-87fc-876069525ced,Pine Creek Gorge (Pennsylvania Grand Canyon) – Leonard Harrison State Park Overlook,4797 PA-660,Wellsboro,PA,both,41.7491619,-77.2989815
+d35ce2b2-574b-4ab6-9b44-3fda4dcf1f1e,Wellsboro Tioga County Friends of the Library / Wellsboro Area Library,Nichols Street,Wellsboro,PA,sanctuary,41.7582153,-77.3018194
+4821bfe7-8342-493a-a660-1dd20adb06e1,Birmingham Friends Meetinghouse,1245 Birmingham Rd,West Chester,PA,both,39.9058641,-75.5938896
+a02099dd-4066-4866-977e-6fb38434c0e3,The Smurl House (Site),24 Chase St,West Pittston,PA,both,41.323272,-75.802808
+a3efae93-694c-4923-a2bd-5341afcfa7e9,Dorflinger Glass Museum and Wildflower Sanctuary,Long Ridge Road,White Mills,PA,sanctuary,41.5688,-75.1706
+f46a904d-b4e8-4139-89de-8d2ec400b365,River Common (Wilkes-Barre),River St,Wilkes-Barre,PA,both,41.2467429,-75.8866967
+b0d49838-dfc8-4287-8581-65bc13c81140,Seven Tubs Nature Area,900 Bear Creek Blvd,Wilkes-Barre,PA,both,41.2469351,-75.8377357
+033490c2-4293-4bb2-85e4-7c84a34923dd,Hexenkopf Rock,Hexenkopf Rd,Williams Township,PA,theophany,40.6141476,-75.2475839
+10cc6bad-ad57-41c9-9b67-6843bad1eae9,Thomas Taber Museum — Lycoming County Historical Society,858 W Fourth St,Williamsport,PA,theophany,41.2401,-77.0282
+8f66e8fe-ad08-44fe-b7d7-e1263a0b0003,Wildwood Cemetery,Wildwood Cemetery Rd,Williamsport,PA,theophany,41.2418,-77.0011
+64a4fae9-3906-4cea-b509-bca91e426391,Hans Herr House (Cemetery),1847 Hans Herr Dr,Willow Street,PA,both,39.9795344,-76.2621277
+6ced4ce8-f908-420a-b821-5230062a8fbf,Hans Herr House (Longhouse),1847 Hans Herr Dr,Willow Street,PA,both,39.9795344,-76.2621277
+b16d5b84-3cf2-4e39-80e0-3ae5ef388404,York Friends Meeting House,135 W Philadelphia St,York,PA,sanctuary,39.963037,-76.7316867

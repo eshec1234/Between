@@ -1,7 +1,9 @@
 /**
  * One-off: merge Place Research/*.xlsx → SQL for places table.
  * Run: node scripts/build-places-from-research.mjs
- * Requires network for Nominatim (PA4/PA5 rows only).
+ * Optional: node scripts/build-places-from-research.mjs --write-update-migration
+ *   → also writes 015_regeocode_places_coordinates.sql (UPDATEs for existing DBs)
+ * Requires network for Nominatim (all standard rows + PA4/PA5). ~1.1s between requests.
  */
 import XLSX from 'xlsx'
 import fs from 'fs'
@@ -11,7 +13,15 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const RESEARCH_DIR = path.join(__dirname, 'place-research-import', 'Place Research')
 const OUT_SQL = path.join(__dirname, '..', 'supabase', 'migrations', '011_replace_places_from_research.sql')
+const UPDATE_MIGRATION_SQL = path.join(
+  __dirname,
+  '..',
+  'supabase',
+  'migrations',
+  '015_regeocode_places_coordinates.sql'
+)
 const GEO_CACHE_PATH = path.join(__dirname, 'pa-geocode-cache.json')
+const WRITE_UPDATE_MIGRATION = process.argv.includes('--write-update-migration')
 
 function loadGeoCache() {
   try {
@@ -194,6 +204,11 @@ async function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
+function nominatimFirstHit(json) {
+  if (!json?.[0]) return null
+  return { lat: parseFloat(json[0].lat), lon: parseFloat(json[0].lon) }
+}
+
 async function geocodeNominatim(query) {
   const q = encodeURIComponent(query)
   const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`
@@ -204,8 +219,92 @@ async function geocodeNominatim(query) {
   })
   if (!res.ok) return null
   const j = await res.json()
-  if (!j?.[0]) return null
-  return { lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon) }
+  return nominatimFirstHit(j)
+}
+
+/**
+ * Nominatim structured search (no q=) — often matches street addresses the free-form query misses.
+ */
+async function geocodeNominatimStructuredAddress(row) {
+  if (isWeakAddress(row.address)) return null
+  const params = new URLSearchParams({
+    street: String(row.address).trim(),
+    city: row.city,
+    state: row.state,
+    country: 'United States',
+    countrycodes: 'us',
+    format: 'json',
+    limit: '1'
+  })
+  const url = `https://nominatim.openstreetmap.org/search?${params.toString()}`
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'BetweenApp-places-import/1.0'
+    }
+  })
+  if (!res.ok) return null
+  const j = await res.json()
+  return nominatimFirstHit(j)
+}
+
+const WEAK_ADDRESS = /^(see local|unlisted|n\/a|unknown|tbd|various|none|\s*)$/i
+
+function isWeakAddress(addr) {
+  const s = String(addr || '').trim()
+  if (!s || s.length < 4) return true
+  if (WEAK_ADDRESS.test(s)) return true
+  if (/^see local listings?/i.test(s)) return true
+  return false
+}
+
+function addressFirstQuery(row) {
+  if (isWeakAddress(row.address)) return null
+  return `${row.address}, ${row.city}, ${row.state}, USA`
+}
+
+function nameFallbackQuery(row) {
+  return `${row.name}, ${row.city}, ${row.state}, USA`
+}
+
+/**
+ * Nominatim (address, then name+place, then spreadsheet) — sheet lat/lon is untrusted.
+ */
+async function geocodeStandardRow(row, geoCache) {
+  let g = null
+  if (!isWeakAddress(row.address)) {
+    const sk = `struct|${String(row.address).trim()}|${row.city}|${row.state}`
+    g = geoCache[sk]
+    if (!g) {
+      g = await geocodeNominatimStructuredAddress(row)
+      await sleep(1100)
+      if (g) geoCache[sk] = g
+    }
+  }
+  if (g) return g
+
+  const q1 = addressFirstQuery(row)
+  if (q1) {
+    g = geoCache[q1]
+    if (!g) {
+      g = await geocodeNominatim(q1)
+      await sleep(1100)
+      if (g) geoCache[q1] = g
+    }
+  }
+  if (!g) {
+    const q2 = nameFallbackQuery(row)
+    g = geoCache[q2]
+    if (!g) {
+      g = await geocodeNominatim(q2)
+      await sleep(1100)
+      if (g) geoCache[q2] = g
+    }
+  }
+  if (!g && row._sheetLat != null && row._sheetLon != null) {
+    console.warn('Using spreadsheet coords (Nominatim miss):', row.name, row.city)
+    g = { lat: row._sheetLat, lon: row._sheetLon }
+  }
+  return g
 }
 
 function collectStandardSheet(wb, sheetName, sourceFile) {
@@ -223,13 +322,12 @@ function collectStandardSheet(wb, sheetName, sourceFile) {
     const name = String(getField(m, 'name') || '').trim()
     if (!name) continue
 
-    let lat = parseNum(getField(m, 'latitude', 'lat'))
-    let lon = parseNum(getField(m, 'longitude', 'lng', 'lon'))
+    const sheetLat = parseNum(getField(m, 'latitude', 'lat'))
+    const sheetLon = parseNum(getField(m, 'longitude', 'lng', 'lon'))
     const state = String(getField(m, 'state') || '')
       .trim()
       .toUpperCase()
     if (!['PA', 'NJ', 'NY'].includes(state)) continue
-    if (lat == null || lon == null) continue
 
     const city = String(getField(m, 'city') || '').trim() || 'Unknown'
     const address = String(getField(m, 'address', 'location') || '').trim() || 'See local listings'
@@ -264,8 +362,11 @@ function collectStandardSheet(wb, sheetName, sourceFile) {
       address,
       city,
       state,
-      lat,
-      lon,
+      lat: null,
+      lon: null,
+      _sheetLat: sheetLat,
+      _sheetLon: sheetLon,
+      _fromStandard: true,
       mode,
       category_tags: tags,
       traditions: traditions || 'Various / see description',
@@ -349,8 +450,12 @@ function rowToSqlValues(row) {
   )`
 }
 
+function rowToUpdateSql(row) {
+  return `UPDATE places SET coordinates = ST_SetSRID(ST_MakePoint(${row.lon}, ${row.lat}), 4326)::geography WHERE name = '${sqlStr(row.name)}' AND city = '${sqlStr(row.city)}' AND state = '${row.state}' AND address = '${sqlStr(row.address)}';`
+}
+
 async function main() {
-  const all = []
+  let all = []
   const files = fs.readdirSync(RESEARCH_DIR).filter((f) => f.endsWith('.xlsx') && !f.startsWith('~$'))
 
   for (const fn of files) {
@@ -368,15 +473,32 @@ async function main() {
     }
   }
 
+  console.log('Standard rows (pre-geocode):', all.length)
+
+  const geoCache = loadGeoCache()
+  const afterStandard = []
+  for (const row of all) {
+    const g = await geocodeStandardRow(row, geoCache)
+    if (!g) {
+      console.warn('Geocode failed (skipping place):', row.name, row.city, row.state)
+      continue
+    }
+    row.lat = g.lat
+    row.lon = g.lon
+    delete row._fromStandard
+    delete row._sheetLat
+    delete row._sheetLon
+    afterStandard.push(row)
+  }
+  all = afterStandard
+
   // PA4 + PA5 (no lat/lon in sheet)
   const paPath = path.join(RESEARCH_DIR, 'PA4 and PA5.xlsx')
   const paWb = XLSX.readFile(paPath)
   const paPending = [...collectPa4Pa5(paWb, 'PA-4', 'PA4'), ...collectPa4Pa5(paWb, 'PA-5', 'PA5')]
 
-  console.log('Standard rows (pre-dedupe):', all.length)
+  console.log('Standard rows (after geocode, pre-PA4):', all.length)
   console.log('PA4/PA5 pending geocode:', paPending.length)
-
-  const geoCache = loadGeoCache()
   for (const p of paPending) {
     const query = p.addressLine.includes('PA') ? p.addressLine : `${p.addressLine}, PA`
     let g = geoCache[query]
@@ -449,6 +571,19 @@ ${values};
 
   fs.writeFileSync(OUT_SQL, header, 'utf8')
   console.log('Wrote', OUT_SQL)
+
+  if (WRITE_UPDATE_MIGRATION) {
+    const upHeader = `-- Generated by: node scripts/build-places-from-research.mjs --write-update-migration
+-- Nominatim-reconciled coordinates; matches rows by name, city, state, address.
+BEGIN;
+
+${unique.map(rowToUpdateSql).join('\n')}
+
+COMMIT;
+`
+    fs.writeFileSync(UPDATE_MIGRATION_SQL, upHeader, 'utf8')
+    console.log('Wrote', UPDATE_MIGRATION_SQL)
+  }
 }
 
 main().catch((e) => {

@@ -258,5 +258,689 @@
   "172 Main St, Brookville, PA 15825": {
     "lat": 41.1605291,
     "lon": -79.0788925
+  },
+  "struct|6 Prospect Street|Newton|NJ": {
+    "lat": 41.0456414,
+    "lon": -74.7403418
+  },
+  "struct|44 Battlefield Rd|Stony Point|NY": {
+    "lat": 41.2418228,
+    "lon": -73.9748438
+  },
+  "struct|460 Brielle Ave|Staten Island|NY": {
+    "lat": 40.5927021,
+    "lon": -74.1317592
+  },
+  "struct|441 Clarke Ave|Staten Island|NY": {
+    "lat": 40.5711826,
+    "lon": -74.145879
+  },
+  "struct|40 Old Mill Rd|Staten Island|NY": {
+    "lat": 40.5728766,
+    "lon": -74.1479392
+  },
+  "struct|1000 Richmond Terrace|Staten Island|NY": {
+    "lat": 40.6418756,
+    "lon": -74.1019417
+  },
+  "struct|2205 Richmond Rd|Staten Island|NY": {
+    "lat": 40.5799827,
+    "lon": -74.1141348
+  },
+  "struct|640 N Midland Ave|Nyack|NY": {
+    "lat": 41.1173688,
+    "lon": -73.9194426
+  },
+  "255 Discovery Dr, Howes Cave, NY, USA": {
+    "lat": 42.6957642,
+    "lon": -74.3987702
+  },
+  "struct|Connecticut Hill Rd|Newfield|NY": {
+    "lat": 42.3798315,
+    "lon": -76.6434401
+  },
+  "struct|N Franklin St|Watkins Glen|NY": {
+    "lat": 42.3767733,
+    "lon": -76.8714222
+  },
+  "struct|55 Cayuga St|Seneca Falls|NY": {
+    "lat": 42.9151805,
+    "lon": -76.7948986
+  },
+  "7116 County Road 128, Willard, NY, USA": {
+    "lat": 42.6801758,
+    "lon": -76.8664624
+  },
+  "struct|108 Fall St|Seneca Falls|NY": {
+    "lat": 42.9108024,
+    "lon": -76.7989681
+  },
+  "struct|1175 Route 25A|Stony Brook|NY": {
+    "lat": 40.9373123,
+    "lon": -73.1101385
+  },
+  "struct|2000 Montauk Hwy|Montauk|NY": {
+    "lat": 41.0331598,
+    "lon": -71.9466724
+  },
+  "struct|56 Main St|Napanoch|NY": {
+    "lat": 41.7406084,
+    "lon": -74.3737039
+  },
+  "struct|Hullsville Rd|Hullsville|NY": {
+    "lat": 42.1425799,
+    "lon": -76.1734337
+  },
+  "struct|NY-177|Lowville|NY": {
+    "lat": 43.792253,
+    "lon": -75.5681739
+  },
+  "struct|7552 S State St|Lowville|NY": {
+    "lat": 43.7860039,
+    "lon": -75.4913138
+  },
+  "struct|6065 West Road|Lowville|NY": {
+    "lat": 43.7027207,
+    "lon": -75.4597484
+  },
+  "struct|1410 Flint Hill Rd|Mumford|NY": {
+    "lat": 42.9937034,
+    "lon": -77.8799406
+  },
+  "struct|7179 Mill St|Springwater|NY": {
+    "lat": 42.6399338,
+    "lon": -77.6144782
+  },
+  "struct|E Lake Rd|Conesus|NY": {
+    "lat": 42.7435031,
+    "lon": -77.7113747
+  },
+  "struct|17 Rippleton Rd|Cazenovia|NY": {
+    "lat": 42.9222779,
+    "lon": -75.8616308
+  },
+  "struct|2300 Rathbun Rd|Cazenovia|NY": {
+    "lat": 42.9769269,
+    "lon": -75.8425772
+  },
+  "struct|2 Park Place|Cobleskill|NY": {
+    "lat": 42.677106,
+    "lon": -74.487085
+  },
+  "struct|170 Kenwood Ave|Oneida|NY": {
+    "lat": 43.0602775,
+    "lon": -75.604633
+  },
+  "struct|1133 Mt Hope Ave|Rochester|NY": {
+    "lat": 43.1279834,
+    "lon": -77.6162624
+  },
+  "struct|900 East Ave|Rochester|NY": {
+    "lat": 43.1531296,
+    "lon": -77.5798264
+  },
+  "struct|2461 Lake Ave|Rochester|NY": {
+    "lat": 43.2131306,
+    "lon": -77.6308188
+  },
+  "struct|885 E Main St|Rochester|NY": {
+    "lat": 43.1606096,
+    "lon": -77.5885739
+  },
+  "struct|9 Park St|Fonda|NY": {
+    "lat": 42.9529439,
+    "lon": -74.3755317
+  },
+  "struct|7214 NY-5|Saint Johnsville|NY": {
+    "lat": 42.9868455,
+    "lon": -74.6491889
+  },
+  "struct|129 Schoharie St|Fort Hunter|NY": {
+    "lat": 42.9396084,
+    "lon": -74.2825355
+  },
+  "struct|71 Old Westbury Rd|Old Westbury|NY": {
+    "lat": 40.7737549,
+    "lon": -73.5947381
+  },
+  "struct|Bryant Ave|Roslyn Harbor|NY": {
+    "lat": 40.8163702,
+    "lon": -73.6439637
+  },
+  "struct|36 Cathedral Ave|Garden City|NY": {
+    "lat": 40.719765,
+    "lon": -73.6416814
+  },
+  "struct|1 Museum Dr|Roslyn Harbor|NY": {
+    "lat": 40.8096303,
+    "lon": -73.6427417
+  },
+  "struct|65 Jumel Terrace|New York|NY": {
+    "lat": 40.8349747,
+    "lon": -73.938772
+  },
+  "struct|Washington Square N|New York|NY": {
+    "lat": 40.7318185,
+    "lon": -73.9977991
+  },
+  "struct|29 E 4th St|New York|NY": {
+    "lat": 40.7276594,
+    "lon": -73.9923423
+  },
+  "struct|131 E 10th St|New York|NY": {
+    "lat": 40.7303406,
+    "lon": -73.9871159
+  },
+  "struct|1 W 72nd St|New York|NY": {
+    "lat": 40.776775,
+    "lon": -73.9759107
+  },
+  "struct|14 W 10th St|New York|NY": {
+    "lat": 40.7336491,
+    "lon": -73.9964675
+  },
+  "struct|75 Broadway|New York|NY": {
+    "lat": 40.7078642,
+    "lon": -74.0118559
+  },
+  "struct|Niagara Scenic Pkwy|Niagara Falls|NY": {
+    "lat": 43.0785985,
+    "lon": -79.0204232
+  },
+  "struct|2165 Lockport-Olcott Rd|Burt|NY": {
+    "lat": 43.3119365,
+    "lon": -78.7142853
+  },
+  "Winery at Marjim Manor, Appleton, NY, USA": {
+    "lat": 43.3483165,
+    "lon": -78.6390915
+  },
+  "struct|1711 Main St|Niagara Falls|NY": {
+    "lat": 43.105154,
+    "lon": -79.0525284
+  },
+  "struct|2 Buffalo Ave|Niagara Falls|NY": {
+    "lat": 43.0842486,
+    "lon": -79.0630629
+  },
+  "struct|Eagles Mere Ave|Eagles Mere|PA": {
+    "lat": 41.4111469,
+    "lon": -76.583501
+  },
+  "Forksville Covered Bridge, Forksville, PA, USA": {
+    "lat": 41.4884019,
+    "lon": -76.5999517
+  },
+  "struct|2 Monument Square|Montrose|PA": {
+    "lat": 41.833704,
+    "lon": -75.876461
+  },
+  "struct|12 Church Street|Montrose|PA": {
+    "lat": 41.8338115,
+    "lon": -75.8805824
+  },
+  "struct|4797 PA-660|Wellsboro|PA": {
+    "lat": 41.7491619,
+    "lon": -77.2989815
+  },
+  "struct|Nichols Street|Wellsboro|PA": {
+    "lat": 41.7582153,
+    "lon": -77.3018194
+  },
+  "struct|Colton Point Road|Ansonia|PA": {
+    "lat": 41.7454823,
+    "lon": -77.4337624
+  },
+  "struct|Route 15|Lewisburg|PA": {
+    "lat": 40.9687468,
+    "lon": -76.8761434
+  },
+  "struct|202 Museum Lane|Titusville|PA": {
+    "lat": 41.6112843,
+    "lon": -79.6582735
+  },
+  "struct|1168 Liberty Street|Franklin|PA": {
+    "lat": 41.3970242,
+    "lon": -79.8275296
+  },
+  "struct|49 East Maiden Street|Washington|PA": {
+    "lat": 40.16812,
+    "lon": -80.2431516
+  },
+  "struct|401 Meadowcroft Road|Avella|PA": {
+    "lat": 40.28119,
+    "lon": -80.4686683
+  },
+  "struct|Main Street|Honesdale|PA": {
+    "lat": 41.5796072,
+    "lon": -75.259279
+  },
+  "struct|31 S Rhode Island Ave|Atlantic City|NJ": {
+    "lat": 39.3662273,
+    "lon": -74.4143604
+  },
+  "struct|31 Batsto Rd|Hammonton|NJ": {
+    "lat": 39.643388,
+    "lon": -74.6481908
+  },
+  "struct|Piney Hollow Rd|Winslow|NJ": {
+    "lat": 39.6320819,
+    "lon": -74.8820475
+  },
+  "struct|803 Smithville Rd|Eastampton|NJ": {
+    "lat": 39.9867017,
+    "lon": -74.749199
+  },
+  "struct|340 High St|Burlington|NJ": {
+    "lat": 40.0782367,
+    "lon": -74.858864
+  },
+  "struct|128 High St|Mount Holly|NJ": {
+    "lat": 39.9965894,
+    "lon": -74.7892595
+  },
+  "struct|417 Yale Ave|Cape May Point|NJ": {
+    "lat": 38.935634,
+    "lon": -74.9666388
+  },
+  "struct|Burnt Mill Rd|Atco|NJ": {
+    "lat": 39.7553514,
+    "lon": -74.8720972
+  },
+  "struct|915 White Horse Pike|Haddon Twp|NJ": {
+    "lat": 39.9005401,
+    "lon": -75.0754563
+  },
+  "struct|335 Franklin Tpk|Ho-Ho-Kus|NJ": {
+    "lat": 41.0071393,
+    "lon": -74.1177338
+  },
+  "struct|Esplanade|Alpine|NJ": {
+    "lat": 40.932429,
+    "lon": -73.9308478
+  },
+  "struct|89 Ridge St|Newark|NJ": {
+    "lat": 40.7561157,
+    "lon": -74.1781429
+  },
+  "struct|22 Crestmont Rd|Montclair|NJ": {
+    "lat": 40.8290266,
+    "lon": -74.2257431
+  },
+  "struct|Market St|Greenwich|NJ": {
+    "lat": 39.8278129,
+    "lon": -75.2777864
+  },
+  "Branch Brook Park, Newark, NJ, USA": {
+    "lat": 40.7713635,
+    "lon": -74.1756347
+  },
+  "struct|Clinton Pl|Newark|NJ": {
+    "lat": 40.715524,
+    "lon": -74.2128637
+  },
+  "struct|1 N Broad St|Woodbury|NJ": {
+    "lat": 39.838298,
+    "lon": -75.15319
+  },
+  "struct|100 Hessian Ave|National Park|NJ": {
+    "lat": 39.868976,
+    "lon": -75.189551
+  },
+  "struct|201 Mullica Hill Rd|Glassboro|NJ": {
+    "lat": 39.7103526,
+    "lon": -75.1193267
+  },
+  "struct|120 N Broad St|Woodbury|NJ": {
+    "lat": 39.8399584,
+    "lon": -75.1517196
+  },
+  "struct|1208 Kings Hwy|Swedesboro|NJ": {
+    "lat": 39.749926,
+    "lon": -75.3072415
+  },
+  "struct|1 Highland Ave|Jersey City|NJ": {
+    "lat": 40.7276932,
+    "lon": -74.068029
+  },
+  "struct|511 Pavonia Ave|Jersey City|NJ": {
+    "lat": 40.7305272,
+    "lon": -74.0574078
+  },
+  "struct|321 Garfield Ave|Jersey City|NJ": {
+    "lat": 40.6941534,
+    "lon": -74.0879919
+  },
+  "struct|56 Main St|Clinton|NJ": {
+    "lat": 40.6361703,
+    "lon": -74.9127536
+  },
+  "Union Hotel, Flemington, NJ, USA": {
+    "lat": 40.5106625,
+    "lon": -74.8587384
+  },
+  "Spruce Run Recreation Area, Clinton, NJ, USA": {
+    "lat": 40.6561293,
+    "lon": -74.9303284
+  },
+  "struct|470 Quaker Rd|Princeton|NJ": {
+    "lat": 40.3269746,
+    "lon": -74.6780237
+  },
+  "struct|170 Witherspoon St|Princeton|NJ": {
+    "lat": 40.3542738,
+    "lon": -74.6618529
+  },
+  "struct|149 Kearny Ave|Perth Amboy|NJ": {
+    "lat": 40.5034163,
+    "lon": -74.2692933
+  },
+  "struct|2136 Woodbridge Ave|Edison|NJ": {
+    "lat": 40.5004912,
+    "lon": -74.3960959
+  },
+  "struct|5 Paterson St|New Brunswick|NJ": {
+    "lat": 40.495768,
+    "lon": -74.442621
+  },
+  "119 Port Monmouth Rd, Port Monmouth, NJ, USA": {
+    "lat": 40.4383932,
+    "lon": -74.0914695
+  },
+  "struct|400 Sycamore Ave|Shrewsbury|NJ": {
+    "lat": 40.32397,
+    "lon": -74.061674
+  },
+  "Monmouth Battlefield State Park, Manalapan, NJ, USA": {
+    "lat": 40.2701821,
+    "lon": -74.3175408
+  },
+  "struct|202 Navesink Ave|Navesink|NJ": {
+    "lat": 40.3983747,
+    "lon": -74.0205699
+  },
+  "struct|65 Martin Luther King Ave|Morristown|NJ": {
+    "lat": 40.804524,
+    "lon": -74.4744328
+  },
+  "struct|59 Koch Ave|Morris Plains|NJ": {
+    "lat": 40.8388893,
+    "lon": -74.5102538
+  },
+  "struct|45 Macculloch Ave|Morristown|NJ": {
+    "lat": 40.792573,
+    "lon": -74.481932
+  },
+  "struct|121 South St|Morristown|NJ": {
+    "lat": 40.7931282,
+    "lon": -74.4774378
+  },
+  "struct|89 Church St|Saranac Lake|NY": {
+    "lat": 44.3268362,
+    "lon": -74.1294487
+  },
+  "struct|27 St Bernard St|Saranac Lake|NY": {
+    "lat": 44.325884,
+    "lon": -74.129425
+  },
+  "struct|Lake Flower Ave|Saranac Lake|NY": {
+    "lat": 44.3147517,
+    "lon": -74.1194826
+  },
+  "struct|4761 NY-86|Wilmington|NY": {
+    "lat": 44.3475438,
+    "lon": -73.8768586
+  },
+  "struct|Old Military Rd|Saranac Lake|NY": {
+    "lat": 44.3326613,
+    "lon": -74.126319
+  },
+  "struct|139 Hall Ave|Johnstown|NY": {
+    "lat": 43.0162634,
+    "lon": -74.3833309
+  },
+  "struct|223 W Main St|Johnstown|NY": {
+    "lat": 43.0066542,
+    "lon": -74.374689
+  },
+  "struct|Main St|Northville|NY": {
+    "lat": 43.2275127,
+    "lon": -74.172707
+  },
+  "struct|11001 Bethany Center Rd|East Bethany|NY": {
+    "lat": 42.8811842,
+    "lon": -78.1328049
+  },
+  "struct|Washington Ave|Batavia|NY": {
+    "lat": 42.9998064,
+    "lon": -78.180003
+  },
+  "struct|131 W Main St|Batavia|NY": {
+    "lat": 42.9991863,
+    "lon": -78.1908551
+  },
+  "DeWitt Recreation Area, Batavia, NY, USA": {
+    "lat": 42.9891947,
+    "lon": -78.1607497
+  },
+  "struct|8873 Morganville Rd|Stafford|NY": {
+    "lat": 42.9858975,
+    "lon": -78.0709782
+  },
+  "Kaaterskill Falls, Haines Falls, NY, USA": {
+    "lat": 42.1921858,
+    "lon": -74.1004066
+  },
+  "struct|218 Spring St|Catskill|NY": {
+    "lat": 42.225766,
+    "lon": -73.8615472
+  },
+  "struct|5720 NY-9G|Hudson|NY": {
+    "lat": 42.2467309,
+    "lon": -73.7995878
+  },
+  "struct|4 Maude Adams Rd|Tannersville|NY": {
+    "lat": 42.2221497,
+    "lon": -74.1346889
+  },
+  "struct|1 Main St|Catskill|NY": {
+    "lat": 42.2102422,
+    "lon": -73.8536856
+  },
+  "struct|2895 NY-8|Speculator|NY": {
+    "lat": 43.5007611,
+    "lon": -74.3655206
+  },
+  "struct|Route 8|Lake Pleasant|NY": {
+    "lat": 43.5107441,
+    "lon": -74.314143
+  },
+  "struct|2834 NY-30|Speculator|NY": {
+    "lat": 43.495398,
+    "lon": -74.358586
+  },
+  "struct|Sagamore Rd|Raquette Lake|NY": {
+    "lat": 43.7902445,
+    "lon": -74.64446
+  },
+  "struct|Route 28|Blue Mountain Lake|NY": {
+    "lat": 43.854415,
+    "lon": -74.4366001
+  },
+  "struct|575 NY-5S|Mohawk|NY": {
+    "lat": 43.0133471,
+    "lon": -75.0133659
+  },
+  "struct|200 NY-169|Little Falls|NY": {
+    "lat": 43.0483794,
+    "lon": -74.869643
+  },
+  "Moss Island, Little Falls, NY, USA": {
+    "lat": 43.0394988,
+    "lon": -74.8478259
+  },
+  "struct|108 N Washington St|Herkimer|NY": {
+    "lat": 43.0263616,
+    "lon": -74.9846078
+  },
+  "struct|1 Thompson Park|Watertown|NY": {
+    "lat": 43.9588396,
+    "lon": -75.8869452
+  },
+  "struct|504 W Main St|Sackets Harbor|NY": {
+    "lat": 43.9497038,
+    "lon": -76.1243569
+  },
+  "struct|129 Winthrop St|Watertown|NY": {
+    "lat": 43.9719085,
+    "lon": -75.9032521
+  },
+  "struct|154 Stone St|Watertown|NY": {
+    "lat": 43.974371,
+    "lon": -75.9131857
+  },
+  "struct|500 25th St|Brooklyn|NY": {
+    "lat": 40.6580892,
+    "lon": -73.994841
+  },
+  "struct|990 Washington Ave|Brooklyn|NY": {
+    "lat": 40.6694128,
+    "lon": -73.9628997
+  },
+  "struct|75 Hicks St|Brooklyn|NY": {
+    "lat": 40.6993187,
+    "lon": -73.9937276
+  },
+  "struct|Washington Park|Brooklyn|NY": {
+    "lat": 40.6914522,
+    "lon": -73.97349
+  },
+  "struct|131 E 10th St|Brooklyn|NY": {
+    "lat": 40.6668951,
+    "lon": -73.9833181
+  },
+  "struct|128 W Broadway|Jim Thorpe|PA": {
+    "lat": 40.8634207,
+    "lon": -75.7490086
+  },
+  "struct|1245 Birmingham Rd|West Chester|PA": {
+    "lat": 39.9058641,
+    "lon": -75.5938896
+  },
+  "struct|110 Sample St|Ebensburg|PA": {
+    "lat": 40.4861401,
+    "lon": -78.7247149
+  },
+  "struct|224 Mercer Rd|Harmony|PA": {
+    "lat": 40.8037795,
+    "lon": -80.1248593
+  },
+  "struct|8844 Paint Mill Rd|Slatington|PA": {
+    "lat": 40.7841565,
+    "lon": -75.6090353
+  },
+  "struct|Hansell Rd|Buckingham|PA": {
+    "lat": 40.3484827,
+    "lon": -75.0859879
+  },
+  "struct|1112 River Rd|Washington Crossing|PA": {
+    "lat": 40.3039555,
+    "lon": -74.8811402
+  },
+  "struct|4216 Beaver Rd|Philipsburg|PA": {
+    "lat": 40.9121532,
+    "lon": -78.056684
+  },
+  "struct|State Rt 322|Clarion|PA": {
+    "lat": 41.2347322,
+    "lon": -79.5305949
+  },
+  "struct|37 N Whitehorse Rd|Phoenixville|PA": {
+    "lat": 40.12103,
+    "lon": -75.5019102
+  },
+  "struct|1761 McConnells Mill Rd|Slippery Rock|PA": {
+    "lat": 40.9529199,
+    "lon": -80.1703082
+  },
+  "Drifting Hwy, Drifting, PA, USA": {
+    "lat": 41.029652,
+    "lon": -78.1088107
+  },
+  "struct|100 Main St|Jim Thorpe|PA": {
+    "lat": 40.871894,
+    "lon": -75.736949
+  },
+  "struct|1921 Bilgers Rocks Rd|Grampian|PA": {
+    "lat": 40.9940886,
+    "lon": -78.5919811
+  },
+  "Clearfield County Courthouse, Clearfield, PA, USA": {
+    "lat": 41.0223495,
+    "lon": -78.4375607
+  },
+  "Mt. Pleasant Cemetery, Mt. Pleasant, PA, USA": {
+    "lat": 40.1575414,
+    "lon": -79.548251
+  },
+  "struct|1101 Claremont Rd|Carlisle|PA": {
+    "lat": 40.2062954,
+    "lon": -77.1724907
+  },
+  "struct|418 Cumberland Rd|Lemoyne|PA": {
+    "lat": 40.2500725,
+    "lon": -76.8977145
+  },
+  "struct|1491 Baltimore Pike|Chadds Ford|PA": {
+    "lat": 39.8736075,
+    "lon": -75.5768514
+  },
+  "struct|134 Homestead Dr|Benezette|PA": {
+    "lat": 41.3232525,
+    "lon": -78.3678854
+  },
+  "Christ Church Burial Ground, Philadelphia, PA, USA": {
+    "lat": 39.9517757,
+    "lon": -75.1481345
+  },
+  "struct|2027 Fairmount Ave|Philadelphia|PA": {
+    "lat": 39.9683406,
+    "lon": -75.1726626
+  },
+  "struct|6424 Lincoln Hwy|Stoystown|PA": {
+    "lat": 40.0985388,
+    "lon": -78.9520453
+  },
+  "struct|151 Grey Towers Dr|Milford|PA": {
+    "lat": 41.3270911,
+    "lon": -74.8176595
+  },
+  "struct|PA-872|Austin|PA": {
+    "lat": 41.6216914,
+    "lon": -78.0813817
+  },
+  "struct|1150 N Front St|Sunbury|PA": {
+    "lat": 40.8758069,
+    "lon": -76.7920937
+  },
+  "struct|1579 State Park Rd|Newport|PA": {
+    "lat": 40.4587326,
+    "lon": -77.16826
+  },
+  "struct|Chestnut St|Ashland|PA": {
+    "lat": 40.7827534,
+    "lon": -76.3431632
+  },
+  "Isle of Que, Selinsgrove, PA, USA": {
+    "lat": 40.7954692,
+    "lon": -76.8571104
+  },
+  "struct|135 W Philadelphia St|York|PA": {
+    "lat": 39.963037,
+    "lon": -76.7316867
+  },
+  "400 State Rt 11, Nicholson, PA, USA": {
+    "lat": 41.6221761,
+    "lon": -75.7882677
   }
 }

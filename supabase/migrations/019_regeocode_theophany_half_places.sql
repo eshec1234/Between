@@ -1,0 +1,61 @@
+-- Auto-generated: node scripts/generate-theophany-half-migration.mjs
+-- First half of theophany (by name) + required overrides (Sayre, Historic Hotel) if not in that half.
+-- 015 re-geocoding clobbered 014 (Sayre); this restores vetted + fresh Nominatim.
+BEGIN;
+
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.3817335, 40.6219223), 4326)::geography WHERE name = '1758 Moravian Sun Inn' AND city = 'Bethlehem' AND state = 'PA' AND address = '564 Main St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.4143604, 39.3662273), 4326)::geography WHERE name = 'Absecon Lighthouse' AND city = 'Atlantic City' AND state = 'NJ' AND address = '31 S Rhode Island Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.061674, 40.32397), 4326)::geography WHERE name = 'Allen House' AND city = 'Shrewsbury' AND state = 'NJ' AND address = '400 Sycamore Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.2308565, 40.8853052), 4326)::geography WHERE name = 'Annie''s Road (Riverview Drive)' AND city = 'Totowa' AND state = 'NJ' AND address = 'Riverview Drive';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.8025713, 42.0908375), 4326)::geography WHERE name = 'Arnot Art Museum' AND city = 'Elmira' AND state = 'NY' AND address = '235 Lake St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.5750409, 42.9341905), 4326)::geography WHERE name = 'Auburn Correctional Facility (Historic)' AND city = 'Auburn' AND state = 'NY' AND address = '135 State St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-77.5885739, 43.1606096), 4326)::geography WHERE name = 'Auditorium Theatre' AND city = 'Rochester' AND state = 'NY' AND address = '885 E Main St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-78.0813817, 41.6216914), 4326)::geography WHERE name = 'Austin Dam Memorial Park' AND city = 'Austin' AND state = 'PA' AND address = 'PA-872';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.7854303, 43.0751628), 4326)::geography WHERE name = 'Batcheller Mansion Inn' AND city = 'Saratoga Springs' AND state = 'NY' AND address = '20 Circular St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.569329, 40.718197), 4326)::geography WHERE name = 'Bernardsville Public Library (Parker Tavern / Phyllis Parker Ghost)' AND city = 'Bernardsville' AND state = 'NJ' AND address = '2 Mine Brook Road';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.6113077, 40.9641237), 4326)::geography WHERE name = 'Bloom Cemetery — Danville' AND city = 'Danville' AND state = 'PA' AND address = 'Bloom St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.3203267, 40.0231539), 4326)::geography WHERE name = 'Bryn Mawr College — Merion Hall' AND city = 'Bryn Mawr' AND state = 'PA' AND address = '101 N Merion Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-78.830536, 42.8891443), 4326)::geography WHERE name = 'Buffalo Central Terminal' AND city = 'Buffalo' AND state = 'NY' AND address = '495 Paderewski Drive';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.487085, 42.677106), 4326)::geography WHERE name = 'Bull''s Head Inn' AND city = 'Cobleskill' AND state = 'NY' AND address = '2 Park Place';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.9282391, 42.1018928), 4326)::geography WHERE name = 'Bundy Museum of History and Art' AND city = 'Binghamton' AND state = 'NY' AND address = '129 Main St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.7892595, 39.9965894), 4326)::geography WHERE name = 'Burl. County Prison Museum' AND city = 'Mount Holly' AND state = 'NJ' AND address = '128 High St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-71.93194, 41.0483434), 4326)::geography WHERE name = 'Camp Hero State Park (Montauk Project Site)' AND city = 'Montauk' AND state = 'NY' AND address = '50 South Fairview Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.784076, 43.0784489), 4326)::geography WHERE name = 'Canfield Casino / Saratoga Springs History Museum' AND city = 'Saratoga Springs' AND state = 'NY' AND address = '1 E Congress St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.832671, 40.850018), 4326)::geography WHERE name = 'Centenary University (Tillie Smith Ghost)' AND city = 'Hackettstown' AND state = 'NJ' AND address = '400 Jefferson Street';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-78.4375607, 41.0223495), 4326)::geography WHERE name = 'Clearfield County Courthouse' AND city = 'Clearfield' AND state = 'PA' AND address = '2nd and Market Sts';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.2128637, 40.715524), 4326)::geography WHERE name = 'Clinton Place House' AND city = 'Newark' AND state = 'NJ' AND address = 'Clinton Pl';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.395547, 41.1565407), 4326)::geography WHERE name = 'Clinton Road' AND city = 'West Milford' AND state = 'NJ' AND address = 'Clinton Road (begins at Route 23, Newfoundland)';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.6434401, 42.3798315), 4326)::geography WHERE name = 'Connecticut Hill Cemetery' AND city = 'Newfield' AND state = 'NY' AND address = 'Connecticut Hill Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.1101385, 40.9373123), 4326)::geography WHERE name = 'Country House Restaurant (Stony Brook)' AND city = 'Stony Brook' AND state = 'NY' AND address = '1175 Route 25A';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.9308478, 40.932429), 4326)::geography WHERE name = 'Devil''s Tower' AND city = 'Alpine' AND state = 'NJ' AND address = 'Esplanade';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.1726626, 39.9683406), 4326)::geography WHERE name = 'Eastern State Penitentiary' AND city = 'Philadelphia' AND state = 'PA' AND address = '2027 Fairmount Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.8840495, 40.8595611), 4326)::geography WHERE name = 'Fordham University Campus' AND city = 'Bronx' AND state = 'NY' AND address = '441 E Fordham Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.7135323, 43.4190362), 4326)::geography WHERE name = 'Fort William Henry' AND city = 'Lake George' AND state = 'NY' AND address = '46 Canada St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.4931823, 44.6985459), 4326)::geography WHERE name = 'Frederic Remington Art Museum' AND city = 'Ogdensburg' AND state = 'NY' AND address = '303 Washington St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.374689, 43.0066542), 4326)::geography WHERE name = 'Fulton County Courthouse Square' AND city = 'Johnstown' AND state = 'NY' AND address = '223 W Main St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.604154, 40.9682437), 4326)::geography WHERE name = 'Geisinger Medical Center — Historic Campus' AND city = 'Danville' AND state = 'PA' AND address = '100 N Academy Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.2535745, 40.0091837), 4326)::geography WHERE name = 'General Wayne Inn' AND city = 'Merion' AND state = 'PA' AND address = '625 Montgomery Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-77.5798264, 43.1531296), 4326)::geography WHERE name = 'George Eastman Museum' AND city = 'Rochester' AND state = 'NY' AND address = '900 East Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.2093419, 40.6926), 4326)::geography WHERE name = 'George Taylor House' AND city = 'Easton' AND state = 'PA' AND address = '54 N 3rd St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.15319, 39.838298), 4326)::geography WHERE name = 'Gloucester County Courthouse' AND city = 'Woodbury' AND state = 'NJ' AND address = '1 N Broad St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.7989681, 42.9108024), 4326)::geography WHERE name = 'Gould Hotel' AND city = 'Seneca Falls' AND state = 'NY' AND address = '108 Fall St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.1157637, 40.1976848), 4326)::geography WHERE name = 'Graeme Park — Keith House' AND city = 'Horsham' AND state = 'PA' AND address = '859 County Line Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.431794, 42.6731099), 4326)::geography WHERE name = 'Grapevine Farms' AND city = 'Cobleskill' AND state = 'NY' AND address = '135 Mineral Springs Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.5102538, 40.8388893), 4326)::geography WHERE name = 'Greystone Park Psychiatric Hospital (Original Site)' AND city = 'Morris Plains' AND state = 'NJ' AND address = '59 Koch Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.0859879, 40.3484827), 4326)::geography WHERE name = 'Hansell Road' AND city = 'Buckingham' AND state = 'PA' AND address = 'Hansell Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-80.1248593, 40.8037795), 4326)::geography WHERE name = 'Harmony Society Cemetery' AND city = 'Harmony' AND state = 'PA' AND address = '224 Mercer Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.2475839, 40.6141476), 4326)::geography WHERE name = 'Hexenkopf Rock' AND city = 'Williams Township' AND state = 'PA' AND address = 'Hexenkopf Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-78.3427676, 42.1650149), 4326)::geography WHERE name = 'Hinsdale House (Dandy House)' AND city = 'Hinsdale' AND state = 'NY' AND address = 'McMahon Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.3824373, 40.6201695), 4326)::geography WHERE name = 'Historic Hotel Bethlehem' AND city = 'Bethlehem' AND state = 'PA' AND address = '437 Main St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.145879, 40.5711826), 4326)::geography WHERE name = 'Historic Richmond Town' AND city = 'Staten Island' AND state = 'NY' AND address = '441 Clarke Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.9941057, 44.6636318), 4326)::geography WHERE name = 'Holcroft House (Clarkson University)' AND city = 'Potsdam' AND state = 'NY' AND address = '8 Clarkson Ave';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.3816239, 42.8218826), 4326)::geography WHERE name = 'Hollenbeck Cemetery' AND city = 'Grafton' AND state = 'NY' AND address = 'Hollow Rd';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.3474266, 40.9117894), 4326)::geography WHERE name = 'Hotel of Horror / Lake House Hotel' AND city = 'Saylorsburg' AND state = 'PA' AND address = 'Route 115, Saylorsburg';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.9964675, 40.7336491), 4326)::geography WHERE name = 'House of Death — 14 W 10th St' AND city = 'New York' AND state = 'NY' AND address = '14 W 10th St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-74.2339287, 40.6780173), 4326)::geography WHERE name = 'Kean University – Wilkins Theater' AND city = 'Union' AND state = 'NJ' AND address = '1000 Morris Avenue';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-80.2431516, 40.16812), 4326)::geography WHERE name = 'LeMoyne House Museum' AND city = 'Washington' AND state = 'PA' AND address = '49 East Maiden Street';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-76.8761434, 40.9687468), 4326)::geography WHERE name = 'Lewisburg Federal Penitentiary (USP Lewisburg) – Historic Exterior' AND city = 'Lewisburg' AND state = 'PA' AND address = 'Route 15';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-73.8937548, 40.7023552), 4326)::geography WHERE name = 'Machpelah Cemetery' AND city = 'Ridgewood' AND state = 'NY' AND address = '8230 Cypress Hills St';
+UPDATE public.places SET coordinates = ST_SetSRID(ST_MakePoint(-75.3844551, 40.6121251), 4326)::geography WHERE name = 'The Sayre Mansion' AND city = 'Bethlehem' AND state = 'PA' AND address = '250 Wyandotte St';
+
+COMMIT;
