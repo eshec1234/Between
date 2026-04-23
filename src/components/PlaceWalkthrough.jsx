@@ -19,9 +19,13 @@ export default function PlaceWalkthrough({
   accentClass,
   subClass,
   bodyClass,
-  onReachedLastStep
+  onReachedLastStep,
+  hidePlaceIdentity = false
 }) {
-  const steps = useMemo(() => buildWalkthroughSteps(place), [place])
+  const steps = useMemo(
+    () => buildWalkthroughSteps(place, { hidePlaceIdentity }),
+    [place, hidePlaceIdentity]
+  )
   const [i, setI] = useState(0)
   const [speaking, setSpeaking] = useState(false)
   const [loadingCloud, setLoadingCloud] = useState(false)

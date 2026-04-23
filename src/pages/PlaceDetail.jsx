@@ -362,7 +362,8 @@ export default function PlaceDetail() {
       {surpriseMode && !revealed && (
         <div className="px-6 pb-2">
           <p className={`font-serif text-sm italic leading-relaxed ${subClass}`}>
-            A place opens for you — walkthrough first; the name stays hidden until you reveal it.
+            A place opens for you — follow the walkthrough first; its name and story stay veiled until you choose to
+            show them.
           </p>
         </div>
       )}
@@ -500,6 +501,7 @@ export default function PlaceDetail() {
             accentClass={accentClass}
             subClass={subClass}
             bodyClass={bodyClass}
+            hidePlaceIdentity={surpriseMode && !revealed}
             onReachedLastStep={() => markWalkthroughDone(place.id)}
           />
         </div>
@@ -515,7 +517,7 @@ export default function PlaceDetail() {
                   : 'border-sanctuary-accent text-sanctuary-accent hover:bg-sanctuary-accent/10'
               }`}
             >
-              Reveal this place
+              Show name and details
             </button>
           </div>
         )}

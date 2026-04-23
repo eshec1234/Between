@@ -9,12 +9,17 @@ function clip(s, max = 420) {
   return `${t.slice(0, max).trim()}…`
 }
 
-export function buildWalkthroughSteps(place) {
+/**
+ * @param {object} place
+ * @param {{ hidePlaceIdentity?: boolean }} [opts] When true (surprise flow before reveal), omit name, location, and description so the walkthrough cannot spoil the place.
+ */
+export function buildWalkthroughSteps(place, opts = {}) {
+  const hidePlaceIdentity = opts.hidePlaceIdentity === true
   const name = place.name || 'this place'
   const city = place.city || ''
   const state = place.state || ''
   const where = [city, state].filter(Boolean).join(', ')
-  const desc = clip(place.description || '', 520)
+  const desc = hidePlaceIdentity ? '' : clip(place.description || '', 520)
   const primaryTag = place.category_tags?.[0] || 'place'
   const mode = place.mode || 'sanctuary'
 
@@ -24,7 +29,9 @@ export function buildWalkthroughSteps(place) {
     steps.push({
       id: 'arrival',
       title: 'Arrival',
-      body: `You come toward ${name} in ${where || 'still air'}. Traffic and hurry thin with each step — as if the world agreed to lower its voice before you even reach the door.`
+      body: hidePlaceIdentity
+        ? `You come toward a place you have not yet named. Traffic and hurry thin with each step — as if the world agreed to lower its voice before you even reach the door.`
+        : `You come toward ${name} in ${where || 'still air'}. Traffic and hurry thin with each step — as if the world agreed to lower its voice before you even reach the door.`
     })
     steps.push({
       id: 'threshold',
@@ -55,7 +62,9 @@ export function buildWalkthroughSteps(place) {
     steps.push({
       id: 'approach',
       title: 'Approach',
-      body: `You move toward ${name} in ${where || 'gathering dusk'}. The air feels slightly wrong in the right way — tuned to a frequency you cannot name.`
+      body: hidePlaceIdentity
+        ? `You move toward ground your map chose before your mind caught up. The air feels slightly wrong in the right way — tuned to a frequency you cannot name.`
+        : `You move toward ${name} in ${where || 'gathering dusk'}. The air feels slightly wrong in the right way — tuned to a frequency you cannot name.`
     })
     steps.push({
       id: 'edge',
@@ -81,7 +90,9 @@ export function buildWalkthroughSteps(place) {
   steps.push({
     id: 'arrival',
     title: 'Arrival',
-    body: `You approach ${name} in ${where || 'open air'}. Something here holds both shelter and strangeness — a door that is also a question.`
+    body: hidePlaceIdentity
+      ? `You approach somewhere the story has not titled yet — only felt. Something here holds both shelter and strangeness — a door that is also a question.`
+      : `You approach ${name} in ${where || 'open air'}. Something here holds both shelter and strangeness — a door that is also a question.`
   })
   steps.push({
     id: 'sanctuary',
