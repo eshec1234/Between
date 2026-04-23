@@ -32,6 +32,10 @@ const Map = forwardRef(function Map({
   const geolocateRef = useRef(null)
   const geolocateTimerRef = useRef(null)
   const hasTriggeredGeolocateRef = useRef(false)
+  // After "Locate on map" / focusPlace, skip jumpTo(user) so flyTo isn't wiped (GPS + zoom 7.4 reset the view)
+  const suppressFollowRecenterUntilRef = useRef(0)
+  const pendingFocusRef = useRef(null)
+  const runFocusRef = useRef(null)
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
 
@@ -119,6 +123,7 @@ const Map = forwardRef(function Map({
     markersRef.current = []
     markersByIdRef.current.clear()
     geolocateRef.current = null
+    pendingFocusRef.current = null
     if (map.current) {
       map.current.remove()
       map.current = null
@@ -141,7 +146,8 @@ const Map = forwardRef(function Map({
 
     nextMap.addControl(new mapboxgl.NavigationControl(), 'top-right')
     geolocateRef.current = new mapboxgl.GeolocateControl({
-      positionOptions: { enableHighAccuracy: true },
+      // Cached / network fix first = blue dot shows sooner; avoid slow cold-GPS on every open
+      positionOptions: { enableHighAccuracy: false, maximumAge: 300000, timeout: 20000 },
       trackUserLocation: false,
       showUserHeading: false,
       fitBoundsOptions: { maxZoom: 12 },
@@ -151,9 +157,14 @@ const Map = forwardRef(function Map({
     nextMap.on('load', () => {
       nextMap.resize()
       placeMarkersRef.current()
+      const pending = pendingFocusRef.current
+      if (pending) {
+        pendingFocusRef.current = null
+        runFocusRef.current?.(pending.coords, pending.placeId)
+      }
       if (!hasTriggeredGeolocateRef.current) {
         hasTriggeredGeolocateRef.current = true
-        geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 600)
+        geolocateTimerRef.current = setTimeout(() => geolocateRef.current?.trigger(), 80)
       }
     })
     nextMap.on('error', (e) => {
@@ -194,48 +205,37 @@ const Map = forwardRef(function Map({
     ensureContainerIntegrityRef.current = ensureContainerIntegrity
   }, [ensureContainerIntegrity])
 
-  useImperativeHandle(ref, () => ({
-    /**
-     * @param {string} placeId
-     * @param {[number, number] | null} [lonLatFromCard] — from the clicked card; avoids lookup failures when Map just mounted or lists differ
-     */
-    focusPlace(placeId, lonLatFromCard) {
-      if (!map.current) return false
-      let coords = null
-      if (
-        Array.isArray(lonLatFromCard) &&
-        lonLatFromCard.length >= 2 &&
-        Number.isFinite(lonLatFromCard[0]) &&
-        Number.isFinite(lonLatFromCard[1])
-      ) {
-        coords = lonLatFromCard
-      } else {
-        const place = places.find((p) => String(p.id) === String(placeId))
-        coords = place ? lngLatFromPlace(place) : null
-      }
-      if (!coords) return false
-      try {
-        map.current.resize()
-      } catch {
-        /* ignore */
-      }
-      const targetZoom = 14
-      map.current.flyTo({
-        center: coords,
-        zoom: targetZoom,
-        duration: 900,
-        essential: true
-      })
-      map.current.once('moveend', () => {
-        try {
-          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
-        } catch {
-          /* ignore */
+  useImperativeHandle(
+    ref,
+    () => ({
+      /**
+       * @param {string} placeId
+       * @param {[number, number] | null} [lonLatFromCard] — from the clicked card; avoids lookup failures when Map just mounted or lists differ
+       */
+      focusPlace(placeId, lonLatFromCard) {
+        let coords = null
+        if (
+          Array.isArray(lonLatFromCard) &&
+          lonLatFromCard.length >= 2 &&
+          Number.isFinite(lonLatFromCard[0]) &&
+          Number.isFinite(lonLatFromCard[1])
+        ) {
+          coords = lonLatFromCard
+        } else {
+          const place = places.find((p) => String(p.id) === String(placeId))
+          coords = place ? lngLatFromPlace(place) : null
         }
-      })
-      return true
-    }
-  }), [places])
+        if (!coords) return false
+        if (!map.current) {
+          pendingFocusRef.current = { placeId, coords }
+          return true
+        }
+        runFocusRef.current?.(coords, placeId)
+        return true
+      }
+    }),
+    [places]
+  )
 
   // Initialize map once per mount.
   // rAF defers until after the browser has laid out the lazy-loaded container
@@ -263,9 +263,10 @@ const Map = forwardRef(function Map({
     return () => ro.disconnect()
   }, [])
 
-  // Re-center when user location updates
+  // Re-center when user location updates (skip right after "Locate on map" so flyTo isn't reset to zoom 7.4)
   useEffect(() => {
     if (!map.current || !hasMapboxEnv) return
+    if (Date.now() < suppressFollowRecenterUntilRef.current) return
     map.current.jumpTo({ center: mapCenter, zoom })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapCenter[0], mapCenter[1], zoom, hasMapboxEnv])
@@ -312,6 +313,39 @@ const Map = forwardRef(function Map({
       destroyMap()
     }
   }, [destroyMap])
+
+  /** Street-level focus for a place; assigned each render for load handler + focusPlace. */
+  runFocusRef.current = (coords, placeId) => {
+    if (!map.current || !coords) return
+    suppressFollowRecenterUntilRef.current = Date.now() + 35000
+    const targetZoom = 16
+    const doFly = () => {
+      if (!map.current) return
+      try {
+        map.current.resize()
+      } catch {
+        /* ignore */
+      }
+      map.current.flyTo({
+        center: coords,
+        zoom: targetZoom,
+        duration: 1100,
+        essential: true
+      })
+      map.current.once('moveend', () => {
+        try {
+          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
+        } catch {
+          /* ignore */
+        }
+      })
+    }
+    if (map.current.isStyleLoaded()) {
+      doFly()
+    } else {
+      map.current.once('style.load', doFly)
+    }
+  }
 
   return (
     hasMapboxEnv ? (
