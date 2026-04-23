@@ -12,6 +12,29 @@ function parseWktPoint(s) {
   return [lng, lat]
 }
 
+/** PostGIS EWKB as hex (some APIs return geography as a hex string, not GeoJSON). */
+function tryLngLatFromHexEwkb(s) {
+  if (typeof s !== 'string') return null
+  const clean = s.replace(/^\s*\\?x?/i, '').replace(/[\s\n]/g, '')
+  if (clean.length < 32 || !/^[0-9a-fA-F]+$/i.test(clean)) return null
+  const n = Math.floor(clean.length / 2)
+  const ab = new ArrayBuffer(n)
+  const u8 = new Uint8Array(ab)
+  for (let i = 0; i < n; i++) u8[i] = parseInt(clean.slice(i * 2, i * 2 + 2), 16)
+  if (n < 25) return null
+  const le = u8[0] === 1
+  const view = new DataView(ab)
+  for (const off of [5, 9, 13, 17, 21]) {
+    if (off + 16 > n) break
+    const x = view.getFloat64(off, le)
+    const y = view.getFloat64(off + 8, le)
+    if (Number.isFinite(x) && Number.isFinite(y) && x >= -180 && x <= 180 && y >= -90 && y <= 90) {
+      return [x, y]
+    }
+  }
+  return null
+}
+
 export function lngLatFromPlace(place) {
   if (!place || typeof place !== 'object') return null
 
@@ -28,6 +51,8 @@ export function lngLatFromPlace(place) {
   if (typeof c === 'string') {
     const wkt = parseWktPoint(c)
     if (wkt) return wkt
+    const fromHex = tryLngLatFromHexEwkb(c)
+    if (fromHex) return fromHex
     try {
       c = JSON.parse(c)
     } catch {

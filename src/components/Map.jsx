@@ -7,6 +7,9 @@ import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 mapboxgl.accessToken = mapboxToken
 const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
 const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
+/** GeoJSON source + WebGL circles — visible even when HTML Markers fail (Mapbox/scroll/overlay). */
+const BF_PLACES_SOURCE = 'bf-places'
+const BF_PLACES_LAYER = 'bf-places-circles'
 
 function styleForMode(mode) {
   return mode === 'theophany' ? THEOPHANY_STYLE : SANCTUARY_STYLE
@@ -17,9 +20,9 @@ const Map = forwardRef(function Map({
   places,
   mapCenter = [-75.1652, 39.9526],
   zoom = 11,
-  visitedIds = null,
-  savedIds = null,
-  walkthroughDoneIds = null,
+  visitedIds: _visitedIds = null,
+  savedIds: _savedIds = null,
+  walkthroughDoneIds: _walkthroughDoneIds = null,
   selectedPlaceId = null,
   onMarkerSelect = null,
   /** e.g. h-72 md:min-h-[360px] for "near me" discovery */
@@ -27,8 +30,8 @@ const Map = forwardRef(function Map({
 }, ref) {
   const mapContainer = useRef(null)
   const map = useRef(null)
-  const markersRef = useRef([])
-  const markersByIdRef = useRef(new globalThis.Map())
+  const focusPopupRef = useRef(null)
+  const onMarkerSelectRef = useRef(null)
   const geolocateRef = useRef(null)
   const geolocateTimerRef = useRef(null)
   const hasTriggeredGeolocateRef = useRef(false)
@@ -40,109 +43,115 @@ const Map = forwardRef(function Map({
   const pendingModeRef = useRef(mode)
 
   /** Fly to a place; stable so imperative handle + map load never see a null ref. */
-  const applyMapFocus = useCallback((coords, placeId) => {
-    if (!map.current || !coords) return
-    suppressFollowRecenterUntilRef.current = Date.now() + 35000
-    const targetZoom = 16
-    const doFly = () => {
-      if (!map.current) return
-      try {
-        map.current.resize()
-      } catch {
-        /* ignore */
-      }
-      map.current.flyTo({
-        center: coords,
-        zoom: targetZoom,
-        duration: 1100,
-        essential: true
-      })
-      map.current.once('moveend', () => {
+  const applyMapFocus = useCallback(
+    (coords, placeId) => {
+      if (!map.current || !coords) return
+      suppressFollowRecenterUntilRef.current = Date.now() + 35000
+      const targetZoom = 16
+      const place = places.find((p) => String(p.id) === String(placeId))
+      const doFly = () => {
+        if (!map.current) return
         try {
-          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
+          map.current.resize()
         } catch {
           /* ignore */
         }
-      })
-    }
-    if (map.current.isStyleLoaded()) {
-      doFly()
-    } else {
-      map.current.once('style.load', doFly)
-    }
-  }, [])
+        focusPopupRef.current?.remove()
+        focusPopupRef.current = null
+        map.current.flyTo({
+          center: coords,
+          zoom: targetZoom,
+          duration: 1100,
+          essential: true
+        })
+        map.current.once('moveend', () => {
+          if (!map.current) return
+          const html = place
+            ? `<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`
+            : 'Place'
+          try {
+            const popup = new mapboxgl.Popup({ offset: 16, closeOnClick: true })
+              .setLngLat(coords)
+              .setHTML(html)
+            popup.addTo(map.current)
+            focusPopupRef.current = popup
+          } catch {
+            /* ignore */
+          }
+        })
+      }
+      if (map.current.isStyleLoaded()) {
+        doFly()
+      } else {
+        map.current.once('style.load', doFly)
+      }
+    },
+    [places]
+  )
 
   applyMapFocusRef.current = applyMapFocus
+  onMarkerSelectRef.current = onMarkerSelect
 
   const placeMarkers = useCallback(() => {
-    if (!map.current) return
-    markersRef.current.forEach((m) => m.remove())
-    markersRef.current = []
-    markersByIdRef.current.clear()
-    if (!places.length) return
-
-    const currentMode = pendingModeRef.current
-
-    places.forEach((place) => {
-      const coords = lngLatFromPlace(place)
-      if (!coords) return
-
-      const visited = visitedIds?.has?.(place.id)
-      const saved = savedIds?.has?.(place.id)
-      const walked = walkthroughDoneIds?.has?.(place.id)
-      const selected =
-        selectedPlaceId != null && String(place.id) === String(selectedPlaceId)
-
-      const el = document.createElement('div')
-      el.className = 'between-marker'
-      // High-visibility yellow pins (requested); mode only tweaks ring accent
-      const base = '#EAB308'
-      const ring = selected
-        ? currentMode === 'theophany'
-          ? '0 0 0 4px rgba(192,167,255,0.55)'
-          : '0 0 0 4px rgba(180,130,20,0.65)'
-        : walked
-        ? currentMode === 'theophany'
-          ? '0 0 0 3px rgba(192,167,255,0.92)'
-          : '0 0 0 3px rgba(180,120,10,0.9)'
-        : visited
-          ? '0 0 0 2px rgba(255,255,255,0.9)'
-          : 'none'
-      const size = selected ? 20 : saved ? 15 : 13
-      el.style.cssText = `
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        background: ${base};
-        border: 2px solid ${currentMode === 'theophany' ? '#3a2f0a' : '#713f12'};
-        z-index: 2;
-        box-shadow: ${ring};
-        cursor: pointer;
-        transition: transform 150ms ease-out;
-      `
-      el.setAttribute('role', 'button')
-      el.setAttribute('aria-label', `${place.name} location marker`)
-      el.tabIndex = 0
-      const onSelect = () => onMarkerSelect?.(place.id)
-      el.addEventListener('click', onSelect)
-      el.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onSelect()
+    if (!map.current || !map.current.isStyleLoaded()) return
+    const m = map.current
+    if (!m.getSource(BF_PLACES_SOURCE)) {
+      m.addSource(BF_PLACES_SOURCE, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] }
+      })
+      m.addLayer({
+        id: BF_PLACES_LAYER,
+        type: 'circle',
+        source: BF_PLACES_SOURCE,
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 2.5, 6, 4, 10, 5.5, 14, 7, 18, 8],
+          'circle-color': ['case', ['==', ['get', 'sel'], 1], '#FDE047', '#EAB308'],
+          'circle-opacity': 0.95,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#854d0e'
         }
       })
+      try {
+        m.moveLayer(BF_PLACES_LAYER)
+      } catch {
+        /* ignore */
+      }
+      if (!m._bfInteractBound) {
+        m._bfInteractBound = true
+        m.on('click', (e) => {
+          const hit = m.queryRenderedFeatures(e.point, { layers: [BF_PLACES_LAYER] })
+          if (hit.length > 0 && hit[0].properties?.id != null) {
+            onMarkerSelectRef.current?.(String(hit[0].properties.id))
+          }
+        })
+        m.on('mousemove', (e) => {
+          const hit = m.queryRenderedFeatures(e.point, { layers: [BF_PLACES_LAYER] })
+          m.getCanvas().style.cursor = hit.length > 0 ? 'pointer' : ''
+        })
+      }
+    }
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coords)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 16 })
-            .setHTML(`<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`)
-        )
-        .addTo(map.current)
-      markersRef.current.push(marker)
-      markersByIdRef.current.set(String(place.id), marker)
-    })
-  }, [onMarkerSelect, places, savedIds, selectedPlaceId, visitedIds, walkthroughDoneIds])
+    const features = []
+    for (const p of places) {
+      const coords = lngLatFromPlace(p)
+      if (!coords) continue
+      const selected =
+        selectedPlaceId != null && String(p.id) === String(selectedPlaceId) ? 1 : 0
+      features.push({
+        type: 'Feature',
+        properties: {
+          id: String(p.id),
+          name: p.name ?? '',
+          city: p.city ?? '',
+          state: p.state ?? '',
+          sel: selected
+        },
+        geometry: { type: 'Point', coordinates: coords }
+      })
+    }
+    m.getSource(BF_PLACES_SOURCE).setData({ type: 'FeatureCollection', features })
+  }, [places, selectedPlaceId])
 
   const placeMarkersRef = useRef(placeMarkers)
   useEffect(() => {
@@ -154,9 +163,12 @@ const Map = forwardRef(function Map({
       clearTimeout(geolocateTimerRef.current)
       geolocateTimerRef.current = null
     }
-    markersRef.current.forEach((m) => m.remove())
-    markersRef.current = []
-    markersByIdRef.current.clear()
+    try {
+      focusPopupRef.current?.remove()
+    } catch {
+      /* ignore */
+    }
+    focusPopupRef.current = null
     geolocateRef.current = null
     pendingFocusRef.current = null
     if (map.current) {
