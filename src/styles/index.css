@@ -63,9 +63,39 @@ body {
   filter: sepia(20%) brightness(0.95);
 }
 
-/* Theophany mode map — legible; slight wash for mood without crushing detail */
+/* Theophany map: keep dark-v11 legible (heavy filters + dark style read as a black void on some screens) */
 .map-theophany .mapboxgl-canvas {
-  filter: brightness(0.99) saturate(0.8) contrast(1.04);
+  filter: brightness(1.05) saturate(0.9) contrast(1.02);
+}
+
+/* Locate-on-map / pin popups — theme-aware (avoid inheriting app text color → white on white) */
+.bf-map-popup--theophany .mapboxgl-popup-content {
+  background: var(--color-theophany-primary) !important;
+  color: var(--color-theophany-text) !important;
+  border: 1px solid rgba(184, 164, 252, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  padding: 0.75rem 0.9rem;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.bf-map-popup--theophany .mapboxgl-popup-content em {
+  color: var(--color-theophany-muted);
+  font-style: italic;
+}
+.bf-map-popup--theophany .mapboxgl-popup-tip {
+  border-top-color: var(--color-theophany-primary) !important;
+}
+.bf-map-popup--sanctuary .mapboxgl-popup-content {
+  color: var(--color-sanctuary-text) !important;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.bf-map-popup--sanctuary .mapboxgl-popup-content em {
+  color: var(--color-sanctuary-muted);
+  font-style: italic;
 }
 
 /* Line clamp utility */

@@ -48,6 +48,7 @@ const Map = forwardRef(function Map({
       if (!map.current || !coords) return
       suppressFollowRecenterUntilRef.current = Date.now() + 35000
       const targetZoom = 16
+      const isTheo = mode === 'theophany'
       const place = places.find((p) => String(p.id) === String(placeId))
       const doFly = () => {
         if (!map.current) return
@@ -61,16 +62,23 @@ const Map = forwardRef(function Map({
         map.current.flyTo({
           center: coords,
           zoom: targetZoom,
-          duration: 1100,
+          duration: 650,
           essential: true
         })
         map.current.once('moveend', () => {
           if (!map.current) return
           const html = place
-            ? `<strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em>`
-            : 'Place'
+            ? `<div class="bf-map-popup-inner"><strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em></div>`
+            : '<div class="bf-map-popup-inner">Place</div>'
           try {
-            const popup = new mapboxgl.Popup({ offset: 16, closeOnClick: true })
+            const popup = new mapboxgl.Popup({
+              offset: 16,
+              closeOnClick: true,
+              className: isTheo
+                ? 'bf-map-popup bf-map-popup--theophany'
+                : 'bf-map-popup bf-map-popup--sanctuary',
+              maxWidth: '280px'
+            })
               .setLngLat(coords)
               .setHTML(html)
             popup.addTo(map.current)
@@ -86,7 +94,7 @@ const Map = forwardRef(function Map({
         map.current.once('style.load', doFly)
       }
     },
-    [places]
+    [places, mode]
   )
 
   applyMapFocusRef.current = applyMapFocus
@@ -125,9 +133,18 @@ const Map = forwardRef(function Map({
             onMarkerSelectRef.current?.(String(hit[0].properties.id))
           }
         })
+        let hoverRaf = null
+        let lastMove = null
         m.on('mousemove', (e) => {
-          const hit = m.queryRenderedFeatures(e.point, { layers: [BF_PLACES_LAYER] })
-          m.getCanvas().style.cursor = hit.length > 0 ? 'pointer' : ''
+          lastMove = e
+          if (hoverRaf != null) return
+          hoverRaf = requestAnimationFrame(() => {
+            hoverRaf = null
+            const ev = lastMove
+            if (!ev) return
+            const hit = m.queryRenderedFeatures(ev.point, { layers: [BF_PLACES_LAYER] })
+            m.getCanvas().style.cursor = hit.length > 0 ? 'pointer' : ''
+          })
         })
       }
     }
