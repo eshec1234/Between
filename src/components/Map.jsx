@@ -5,8 +5,8 @@ import { mapboxToken, hasMapboxEnv } from '../lib/env'
 import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 
 mapboxgl.accessToken = mapboxToken
-/* Roads + labels read clearly; dark-v11 is very minimal and reads as a flat void at many zooms */
-const THEOPHANY_STYLE = 'mapbox://styles/mapbox/navigation-night-v1'
+/* Full road network + labels; navigation-night and dark-v11 still read as a gray void for many users/tokens */
+const THEOPHANY_STYLE = 'mapbox://styles/mapbox/streets-v12'
 const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
 /** GeoJSON source + WebGL circles — visible even when HTML Markers fail (Mapbox/scroll/overlay). */
 const BF_PLACES_SOURCE = 'bf-places'
@@ -42,15 +42,20 @@ const Map = forwardRef(function Map({
   const applyMapFocusRef = useRef(() => {})
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
+  /** Latest list + selection so moveend (async) does not use stale data or show wrong popup. */
+  const placesRef = useRef(places)
+  const selectedPlaceIdRef = useRef(selectedPlaceId)
+  const locateTargetIdRef = useRef(null)
 
   /** Fly to a place; stable so imperative handle + map load never see a null ref. */
   const applyMapFocus = useCallback(
     (coords, placeId) => {
       if (!map.current || !coords) return
+      const targetId = String(placeId)
+      locateTargetIdRef.current = targetId
       suppressFollowRecenterUntilRef.current = Date.now() + 35000
       const targetZoom = 16
       const isTheo = mode === 'theophany'
-      const place = places.find((p) => String(p.id) === String(placeId))
       const doFly = () => {
         if (!map.current) return
         try {
@@ -68,8 +73,12 @@ const Map = forwardRef(function Map({
         })
         map.current.once('moveend', () => {
           if (!map.current) return
-          const html = place
-            ? `<div class="bf-map-popup-inner"><strong>${place.name}</strong><br/><em>${place.city}, ${place.state}</em></div>`
+          // Cancelled by a newer locate, or list selection moved on — do not show stale Moravian/Winery popup
+          if (String(locateTargetIdRef.current) !== targetId) return
+          if (String(selectedPlaceIdRef.current) !== targetId) return
+          const p = placesRef.current.find((x) => String(x.id) === targetId)
+          const html = p
+            ? `<div class="bf-map-popup-inner"><strong>${p.name}</strong><br/><em>${p.city}, ${p.state}</em></div>`
             : '<div class="bf-map-popup-inner">Place</div>'
           try {
             const popup = new mapboxgl.Popup({
@@ -95,7 +104,7 @@ const Map = forwardRef(function Map({
         map.current.once('style.load', doFly)
       }
     },
-    [places, mode]
+    [mode]
   )
 
   applyMapFocusRef.current = applyMapFocus
@@ -287,7 +296,7 @@ const Map = forwardRef(function Map({
         ) {
           coords = lonLatFromCard
         } else {
-          const place = places.find((p) => String(p.id) === String(placeId))
+          const place = placesRef.current.find((p) => String(p.id) === String(placeId))
           coords = place ? lngLatFromPlace(place) : null
         }
         if (!coords) return false
@@ -299,7 +308,7 @@ const Map = forwardRef(function Map({
         return true
       }
     }),
-    [places, applyMapFocus]
+    [applyMapFocus]
   )
 
   // Initialize map once per mount.
@@ -378,6 +387,19 @@ const Map = forwardRef(function Map({
       destroyMap()
     }
   }, [destroyMap])
+
+  placesRef.current = places
+  selectedPlaceIdRef.current = selectedPlaceId
+
+  // Dismiss locate popup when the highlighted card/selection changes (another pin or list focus)
+  useEffect(() => {
+    try {
+      focusPopupRef.current?.remove()
+    } catch {
+      /* ignore */
+    }
+    focusPopupRef.current = null
+  }, [selectedPlaceId])
 
   return (
     hasMapboxEnv ? (

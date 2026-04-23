@@ -63,7 +63,7 @@ body {
   filter: sepia(20%) brightness(0.95);
 }
 
-/* Theophany: do not filter the canvas — CSS filters smear road/line detail; navigation-night-v1 is already legible */
+/* Theophany uses streets basemap; never filter the canvas (smears road detail) */
 .map-theophany .mapboxgl-canvas {
   filter: none;
 }
