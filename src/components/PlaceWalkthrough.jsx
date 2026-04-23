@@ -139,6 +139,7 @@ export default function PlaceWalkthrough({
       fetchAbortRef.current = ac
       setLoadingCloud(true)
       setCloudFallbackHint(null)
+      const PLAY_TIMEOUT_MS = 14_000
       try {
         const blob = await fetchNarrationTts(text, {
           signal: ac.signal,
@@ -152,16 +153,29 @@ export default function PlaceWalkthrough({
         audioRef.current = audio
         audio.onended = () => stopSpeak()
         audio.onerror = () => stopSpeak()
-        await audio.play()
-        setSpeaking(true)
+        try {
+          await Promise.race([
+            audio.play(),
+            new Promise((_, rej) => {
+              setTimeout(
+                () => rej(new Error('Playback did not start (timeout — try again or use device voice below).')),
+                PLAY_TIMEOUT_MS
+              )
+            })
+          ])
+          setSpeaking(true)
+        } catch (playErr) {
+          stopSpeak()
+          throw playErr
+        }
       } catch (e) {
         if (e?.name === 'AbortError') return
-        const detail = typeof e?.message === 'string' ? e.message.slice(0, 160) : ''
+        const detail = typeof e?.message === 'string' ? e.message.slice(0, 220) : ''
         console.warn('Cloud narration failed, using device TTS', e)
         setCloudFallbackHint(
           detail
-            ? `Cloud voice didn’t load (${detail}). Using your device speaker instead — check Network → tts-narration and Supabase function logs.`
-            : 'Cloud voice didn’t load. Using your device speaker instead — check Network → tts-narration and Supabase function logs.'
+            ? `Cloud voice didn’t load (${detail}). Using your device speaker instead — in Supabase: deploy the tts-narration function and set OPENAI_API_KEY; in the browser Network tab, confirm POST …/functions/v1/tts-narration returns audio/mpeg.`
+            : 'Cloud voice didn’t load. Using your device speaker instead — check tts-narration deployment and OPENAI_API_KEY.'
         )
         if (window.speechSynthesis) speakDevice(text)
       } finally {

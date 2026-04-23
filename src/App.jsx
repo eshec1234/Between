@@ -5,8 +5,6 @@ import { hasMapboxEnv } from './lib/env'
 import Onboarding from './components/Onboarding'
 import AppFrame from './components/AppFrame'
 import { AmbientModeProvider } from './context/AmbientModeContext'
-import ZenAmbient from './components/ZenAmbient'
-import RunawayOnboardingLoop from './components/RunawayOnboardingLoop'
 
 const Home = lazy(() => import('./pages/Home'))
 const PlaceDetail = lazy(() => import('./pages/PlaceDetail'))
@@ -91,8 +89,6 @@ function MainApp() {
             </Routes>
           </Suspense>
           {!hasSeenOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-          <RunawayOnboardingLoop active={!hasSeenOnboarding} />
-          <ZenAmbient showRunawayButton={hasSeenOnboarding} />
         </div>
       </AppFrame>
     </AmbientModeProvider>

@@ -58,9 +58,11 @@ function narrationFailureHint(status, bodyText) {
   return ''
 }
 
+const DEFAULT_TTS_FETCH_MS = 55_000
+
 /**
  * @param {string} text
- * @param {{ signal?: AbortSignal, mode?: 'sanctuary' | 'theophany' }} [options]
+ * @param {{ signal?: AbortSignal, mode?: 'sanctuary' | 'theophany', timeoutMs?: number }} [options]
  * @returns {Promise<Blob>}
  */
 export async function fetchNarrationTts(text, options = {}) {
@@ -71,16 +73,43 @@ export async function fetchNarrationTts(text, options = {}) {
   const voiceSanctuary = String(import.meta.env.VITE_TTS_VOICE_SANCTUARY || 'coral').trim()
   const voiceTheophany = String(import.meta.env.VITE_TTS_VOICE_THEOPHANY || 'marin').trim()
   const voice = mode === 'theophany' ? voiceTheophany : voiceSanctuary
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
-      apikey: key
-    },
-    body: JSON.stringify({ text, mode, voice }),
-    signal: options.signal
-  })
+
+  const timeoutMs = typeof options.timeoutMs === 'number' && options.timeoutMs > 0 ? options.timeoutMs : DEFAULT_TTS_FETCH_MS
+  const combined = new AbortController()
+  const userSignal = options.signal
+  const forwardAbort = () => {
+    if (userSignal?.reason) combined.abort(userSignal.reason)
+    else combined.abort()
+  }
+  if (userSignal) {
+    if (userSignal.aborted) forwardAbort()
+    else userSignal.addEventListener('abort', forwardAbort, { once: true })
+  }
+  const tid = setTimeout(() => {
+    try {
+      combined.abort(new DOMException(`Narration request timed out after ${timeoutMs}ms`, 'TimeoutError'))
+    } catch {
+      /* ignore */
+    }
+  }, timeoutMs)
+
+  let res
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+        apikey: key
+      },
+      body: JSON.stringify({ text, mode, voice }),
+      signal: combined.signal
+    })
+  } finally {
+    clearTimeout(tid)
+    if (userSignal) userSignal.removeEventListener('abort', forwardAbort)
+  }
+
   if (!res.ok) {
     const err = (await res.text()) || res.statusText
     if (res.status === 503 || res.status === 502) {
@@ -89,5 +118,12 @@ export async function fetchNarrationTts(text, options = {}) {
     }
     throw new Error(err || res.statusText)
   }
+
+  const ct = (res.headers.get('content-type') || '').toLowerCase()
+  if (ct.includes('application/json') || ct.includes('text/html')) {
+    const err = await res.text()
+    throw new Error(extractUpstreamMessage(err) || 'Narration returned an error page instead of audio')
+  }
+
   return res.blob()
 }

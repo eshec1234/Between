@@ -1,5 +1,5 @@
-/* Between PWA — v3: never serve stale bundles after deploy (fixes white screen). */
-const CACHE_NAME = 'between-v3';
+/* Between PWA — v4: bust caches after removing ambient/piano demo bundles. */
+const CACHE_NAME = 'between-v4';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
