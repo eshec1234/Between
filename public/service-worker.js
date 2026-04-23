@@ -1,5 +1,5 @@
-/* Between PWA — v4: bust caches after removing ambient/piano demo bundles. */
-const CACHE_NAME = 'between-v4';
+/* Between PWA — v5: restore soft ambient bed (no demo piano). */
+const CACHE_NAME = 'between-v5';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

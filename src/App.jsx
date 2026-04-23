@@ -4,6 +4,7 @@ import { getOrCreateSession, hasSupabaseEnv, syncAnonymousSession } from './lib/
 import { hasMapboxEnv } from './lib/env'
 import Onboarding from './components/Onboarding'
 import AppFrame from './components/AppFrame'
+import ZenAmbient from './components/ZenAmbient'
 import { AmbientModeProvider } from './context/AmbientModeContext'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -89,6 +90,7 @@ function MainApp() {
             </Routes>
           </Suspense>
           {!hasSeenOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+          {hasSeenOnboarding && <ZenAmbient />}
         </div>
       </AppFrame>
     </AmbientModeProvider>

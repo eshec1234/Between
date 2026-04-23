@@ -8,6 +8,7 @@ const DAILY_MARK = 'between_daily_mark'
 const INTENTION = 'between_intention'
 const NEARBY_TRACKING = 'between_nearby_tracking'
 const SANCTUARY_TRADITION = 'between_sanctuary_tradition'
+const AMBIENT_MUTED = 'between_ambient_muted'
 
 /** Persisted home mode (Sanctuary / Theophany). */
 export const HOME_MODE_STORAGE_KEY = 'between_home_mode'
@@ -20,6 +21,35 @@ export function getHomeMode() {
     /* ignore */
   }
   return 'sanctuary'
+}
+
+/** Explicit user choice; `null` means unset (see getAmbientMutedEffective). */
+export function getAmbientMuted() {
+  try {
+    const s = localStorage.getItem(AMBIENT_MUTED)
+    if (s === 'true') return true
+    if (s === 'false') return false
+  } catch {
+    /* ignore */
+  }
+  return null
+}
+
+export function setAmbientMuted(muted) {
+  try {
+    localStorage.setItem(AMBIENT_MUTED, muted ? 'true' : 'false')
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Default off when user prefers reduced motion and has not chosen otherwise. */
+export function getAmbientMutedEffective() {
+  const v = getAmbientMuted()
+  if (v !== null) return v
+  if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)
+    return true
+  return false
 }
 
 function readJson(key, fallback) {
