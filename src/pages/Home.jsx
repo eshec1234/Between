@@ -536,12 +536,13 @@ export default function Home() {
     }
   }, [])
 
+  // Keep selection when a marker is for a place outside the current feed filters (map shows all loaded places)
   useEffect(() => {
     if (selectedPlaceId == null) return
-    if (!filteredPlaces.some((p) => String(p.id) === String(selectedPlaceId))) {
+    if (!places.some((p) => String(p.id) === String(selectedPlaceId))) {
       setSelectedPlaceId(null)
     }
-  }, [filteredPlaces, selectedPlaceId])
+  }, [places, selectedPlaceId])
 
   return (
     <div
@@ -798,7 +799,7 @@ export default function Home() {
               <Map
                 ref={mapRef}
                 mode={mode}
-                places={filteredPlaces}
+                places={places}
                 mapCenter={mapCenter}
                 visitedIds={visitedIds}
                 savedIds={savedIds}

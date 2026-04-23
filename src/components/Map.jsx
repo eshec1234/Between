@@ -35,9 +35,44 @@ const Map = forwardRef(function Map({
   // After "Locate on map" / focusPlace, skip jumpTo(user) so flyTo isn't wiped (GPS + zoom 7.4 reset the view)
   const suppressFollowRecenterUntilRef = useRef(0)
   const pendingFocusRef = useRef(null)
-  const runFocusRef = useRef(null)
+  const applyMapFocusRef = useRef(() => {})
   // Mirrors the latest mode so the style.load callback sees the current value
   const pendingModeRef = useRef(mode)
+
+  /** Fly to a place; stable so imperative handle + map load never see a null ref. */
+  const applyMapFocus = useCallback((coords, placeId) => {
+    if (!map.current || !coords) return
+    suppressFollowRecenterUntilRef.current = Date.now() + 35000
+    const targetZoom = 16
+    const doFly = () => {
+      if (!map.current) return
+      try {
+        map.current.resize()
+      } catch {
+        /* ignore */
+      }
+      map.current.flyTo({
+        center: coords,
+        zoom: targetZoom,
+        duration: 1100,
+        essential: true
+      })
+      map.current.once('moveend', () => {
+        try {
+          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
+        } catch {
+          /* ignore */
+        }
+      })
+    }
+    if (map.current.isStyleLoaded()) {
+      doFly()
+    } else {
+      map.current.once('style.load', doFly)
+    }
+  }, [])
+
+  applyMapFocusRef.current = applyMapFocus
 
   const placeMarkers = useCallback(() => {
     if (!map.current) return
@@ -49,7 +84,8 @@ const Map = forwardRef(function Map({
     const currentMode = pendingModeRef.current
 
     places.forEach((place) => {
-      if (!place.coordinates) return
+      const coords = lngLatFromPlace(place)
+      if (!coords) return
 
       const visited = visitedIds?.has?.(place.id)
       const saved = savedIds?.has?.(place.id)
@@ -59,25 +95,27 @@ const Map = forwardRef(function Map({
 
       const el = document.createElement('div')
       el.className = 'between-marker'
-      const base = currentMode === 'theophany' ? '#b8a4fc' : '#c8a870'
+      // High-visibility yellow pins (requested); mode only tweaks ring accent
+      const base = '#EAB308'
       const ring = selected
         ? currentMode === 'theophany'
-          ? '0 0 0 4px rgba(192,167,255,0.42)'
-          : '0 0 0 4px rgba(235,195,120,0.5)'
+          ? '0 0 0 4px rgba(192,167,255,0.55)'
+          : '0 0 0 4px rgba(180,130,20,0.65)'
         : walked
         ? currentMode === 'theophany'
           ? '0 0 0 3px rgba(192,167,255,0.92)'
-          : '0 0 0 3px rgba(255,200,120,0.95)'
+          : '0 0 0 3px rgba(180,120,10,0.9)'
         : visited
-          ? '0 0 0 2px rgba(255,255,255,0.85)'
+          ? '0 0 0 2px rgba(255,255,255,0.9)'
           : 'none'
-      const size = selected ? 18 : saved ? 14 : 12
+      const size = selected ? 20 : saved ? 15 : 13
       el.style.cssText = `
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
         background: ${base};
-        border: 2px solid ${currentMode === 'theophany' ? '#2f2a4a' : '#fffef8'};
+        border: 2px solid ${currentMode === 'theophany' ? '#3a2f0a' : '#713f12'};
+        z-index: 2;
         box-shadow: ${ring};
         cursor: pointer;
         transition: transform 150ms ease-out;
@@ -93,9 +131,6 @@ const Map = forwardRef(function Map({
           onSelect()
         }
       })
-
-      const coords = lngLatFromPlace(place)
-      if (!coords) return
 
       const marker = new mapboxgl.Marker(el)
         .setLngLat(coords)
@@ -160,7 +195,7 @@ const Map = forwardRef(function Map({
       const pending = pendingFocusRef.current
       if (pending) {
         pendingFocusRef.current = null
-        runFocusRef.current?.(pending.coords, pending.placeId)
+        applyMapFocusRef.current(pending.coords, pending.placeId)
       }
       if (!hasTriggeredGeolocateRef.current) {
         hasTriggeredGeolocateRef.current = true
@@ -230,11 +265,11 @@ const Map = forwardRef(function Map({
           pendingFocusRef.current = { placeId, coords }
           return true
         }
-        runFocusRef.current?.(coords, placeId)
+        applyMapFocus(coords, placeId)
         return true
       }
     }),
-    [places]
+    [places, applyMapFocus]
   )
 
   // Initialize map once per mount.
@@ -313,39 +348,6 @@ const Map = forwardRef(function Map({
       destroyMap()
     }
   }, [destroyMap])
-
-  /** Street-level focus for a place; assigned each render for load handler + focusPlace. */
-  runFocusRef.current = (coords, placeId) => {
-    if (!map.current || !coords) return
-    suppressFollowRecenterUntilRef.current = Date.now() + 35000
-    const targetZoom = 16
-    const doFly = () => {
-      if (!map.current) return
-      try {
-        map.current.resize()
-      } catch {
-        /* ignore */
-      }
-      map.current.flyTo({
-        center: coords,
-        zoom: targetZoom,
-        duration: 1100,
-        essential: true
-      })
-      map.current.once('moveend', () => {
-        try {
-          markersByIdRef.current.get(String(placeId))?.togglePopup?.()
-        } catch {
-          /* ignore */
-        }
-      })
-    }
-    if (map.current.isStyleLoaded()) {
-      doFly()
-    } else {
-      map.current.once('style.load', doFly)
-    }
-  }
 
   return (
     hasMapboxEnv ? (
