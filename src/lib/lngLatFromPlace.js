@@ -4,7 +4,11 @@
  */
 function parseWktPoint(s) {
   if (typeof s !== 'string') return null
-  const m = s.match(/POINT\s*\(\s*([+-]?(?:\d+\.?\d*|\d*\.?\d+))\s+([+-]?(?:\d+\.?\d*|\d*\.?\d+))\s*\)/i)
+  // Handles "SRID=4326;POINT(-75.3 40.5)" and bare "POINT( ... )"
+  const u = s.toUpperCase()
+  const p = u.indexOf('POINT(')
+  if (p < 0) return null
+  const m = s.slice(p).match(/POINT\s*\(\s*([+-]?(?:\d+\.?\d*|\d*\.?\d+))\s+([+-]?(?:\d+\.?\d*|\d*\.?\d+))\s*\)/i)
   if (!m) return null
   const lng = Number(m[1])
   const lat = Number(m[2])
@@ -24,8 +28,10 @@ function tryLngLatFromHexEwkb(s) {
   if (n < 25) return null
   const le = u8[0] === 1
   const view = new DataView(ab)
-  for (const off of [5, 9, 13, 17, 21]) {
-    if (off + 16 > n) break
+  // PostGIS EWKB: Point+SRID → coords at byte 9; 2D Point without SRID at byte 5. Avoid scanning
+  // random offsets (wrong doubles can look “valid” and shift pins by km).
+  for (const off of [9, 5]) {
+    if (off + 16 > n) continue
     const x = view.getFloat64(off, le)
     const y = view.getFloat64(off + 8, le)
     if (Number.isFinite(x) && Number.isFinite(y) && x >= -180 && x <= 180 && y >= -90 && y <= 90) {
