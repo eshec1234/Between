@@ -63,9 +63,9 @@ body {
   filter: sepia(20%) brightness(0.95);
 }
 
-/* Theophany map: keep dark-v11 legible (heavy filters + dark style read as a black void on some screens) */
+/* Theophany: do not filter the canvas — CSS filters smear road/line detail; navigation-night-v1 is already legible */
 .map-theophany .mapboxgl-canvas {
-  filter: brightness(1.05) saturate(0.9) contrast(1.02);
+  filter: none;
 }
 
 /* Locate-on-map / pin popups — theme-aware (avoid inheriting app text color → white on white) */

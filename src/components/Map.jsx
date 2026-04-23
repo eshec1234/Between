@@ -5,7 +5,8 @@ import { mapboxToken, hasMapboxEnv } from '../lib/env'
 import { lngLatFromPlace } from '../lib/lngLatFromPlace'
 
 mapboxgl.accessToken = mapboxToken
-const THEOPHANY_STYLE = 'mapbox://styles/mapbox/dark-v11'
+/* Roads + labels read clearly; dark-v11 is very minimal and reads as a flat void at many zooms */
+const THEOPHANY_STYLE = 'mapbox://styles/mapbox/navigation-night-v1'
 const SANCTUARY_STYLE = 'mapbox://styles/mapbox/light-v11'
 /** GeoJSON source + WebGL circles — visible even when HTML Markers fail (Mapbox/scroll/overlay). */
 const BF_PLACES_SOURCE = 'bf-places'
